@@ -80,6 +80,8 @@ public:
   vtkMRMLScalarBarDisplayableManager*        External;
 
   vtkSmartPointer<vtkMRMLWindowLevelWidget> WindowLevelWidget;
+  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor;
+  vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget;
 };
 
 
@@ -91,6 +93,8 @@ vtkMRMLScalarBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLScalarBarDis
 {
   this->External = external;
   this->WindowLevelWidget = vtkSmartPointer<vtkMRMLWindowLevelWidget>::New();
+  this->ScalarBarActor = vtkSmartPointer<vtkScalarBarActor>::New();
+  this->ScalarBarWidget = vtkSmartPointer<vtkScalarBarWidget>::New();
   vtkWarningWithObjectMacro(this->External, "vtkInternal::Constructor");
 }
 
@@ -127,7 +131,7 @@ vtkMRMLSliceNode* vtkMRMLScalarBarDisplayableManager::vtkInternal::GetSliceNode(
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::vtkInternal::UpdateSliceNode()
 {
-  if (this->External->GetMRMLScene() == nullptr)
+  if (!this->External->GetMRMLScene())
   {
     this->WindowLevelWidget->SetSliceNode(nullptr);
     return;
@@ -142,6 +146,42 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::UpdateSliceNode()
   }
   this->WindowLevelWidget->SetSliceNode(this->GetSliceNode());
   vtkWarningWithObjectMacro(this->External, "vtkInternal::UpdateSliceNode");
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
+{
+  vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
+  if (!interactor)
+  {
+    this->ScalarBarWidget->SetInteractor(nullptr);
+    return;
+  }
+
+//  this->CrosshairMode = this->CrosshairNode->GetCrosshairMode();
+//  Get scalar bar display node
+// check scalar bar is visible
+//  if (this->CrosshairNode->GetCrosshairMode() == vtkMRMLCrosshairNode::NoCrosshair)
+  {
+    this->ScalarBarWidget->SetEnabled(false);
+    return;
+  }
+  this->ScalarBarWidget->SetScalarBarActor(this->ScalarBarActor);
+  this->ScalarBarWidget->SetInteractor(interactor);
+  this->ScalarBarWidget->SetEnabled(true);
+
+//  int *screenSize = interactor->GetRenderWindow()->GetScreenSize();
+
+  // Handle size is defined a percentage of screen size to accommodate high-DPI screens
+//  double handleSizeInScreenSizePercent = 5;
+//  if (this->CrosshairNode->GetCrosshairMode() == vtkMRMLCrosshairNode::ShowSmallBasic
+//    || this->CrosshairNode->GetCrosshairMode() == vtkMRMLCrosshairNode::ShowSmallIntersection)
+//    {
+//    handleSizeInScreenSizePercent = 2.5;
+//    }
+//  double handleSizeInPixels = double(screenSize[1])*(0.01*handleSizeInScreenSizePercent);
+//  this->CrosshairRepresentation->SetHandleSize(handleSizeInPixels);
+
 }
 
 //---------------------------------------------------------------------------
@@ -193,7 +233,7 @@ void vtkMRMLScalarBarDisplayableManager::Create()
 void vtkMRMLScalarBarDisplayableManager::AdditionalInitializeStep()
 {
   // Build the initial crosshair representation
-  //this->Internal->BuildScalarBar();
+  this->Internal->BuildScalarBar();
   vtkWarningMacro("AdditionalInitializeStep");
 }
 
@@ -234,6 +274,12 @@ bool vtkMRMLScalarBarDisplayableManager::CanProcessInteractionEvent(vtkMRMLInter
   if (this->GetInteractionNode()->GetCurrentInteractionMode() == vtkMRMLInteractionNode::AdjustWindowLevel)
   {
     return this->Internal->WindowLevelWidget->CanProcessInteractionEvent(eventData, closestDistance2);
+  }
+
+  vtkMRMLSliceNode* sNode = this->GetMRMLSliceNode();
+  if (sNode)
+  {
+    vtkWarningMacro("CanProcessInteractionEvent: Slice 2D Name " << sNode->GetName());
   }
 
   vtkWarningMacro("CanProcessInteractionEvent");
