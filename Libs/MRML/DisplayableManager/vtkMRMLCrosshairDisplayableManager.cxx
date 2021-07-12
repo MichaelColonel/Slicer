@@ -431,12 +431,14 @@ void vtkMRMLCrosshairDisplayableManager::vtkInternal::AddCrosshairLine(vtkPoints
 vtkMRMLCrosshairDisplayableManager::vtkMRMLCrosshairDisplayableManager()
 {
   this->Internal = new vtkInternal(this);
+  vtkWarningMacro("Constructor");
 }
 
 //---------------------------------------------------------------------------
 vtkMRMLCrosshairDisplayableManager::~vtkMRMLCrosshairDisplayableManager()
 {
   delete this->Internal;
+  vtkWarningMacro("Destructor");
 }
 
 //---------------------------------------------------------------------------
@@ -450,6 +452,7 @@ void vtkMRMLCrosshairDisplayableManager::ObserveMRMLScene()
 {
   this->Internal->BuildCrosshair();
   this->Superclass::ObserveMRMLScene();
+  vtkWarningMacro("ObserveMRMLScene");
 }
 
 //---------------------------------------------------------------------------
@@ -457,6 +460,7 @@ void vtkMRMLCrosshairDisplayableManager::UpdateFromMRMLScene()
 {
   this->Internal->UpdateSliceNode();
   this->Internal->UpdateIntersectingSliceNodes();
+  vtkWarningMacro("UpdateFromMRMLScene");
 }
 
 //---------------------------------------------------------------------------
@@ -464,6 +468,7 @@ void vtkMRMLCrosshairDisplayableManager::UnobserveMRMLScene()
 {
   this->Internal->SliceIntersectionWidget->SetSliceNode(nullptr);
   this->Internal->SetCrosshairNode(nullptr);
+  vtkWarningMacro("UnobserveMRMLScene");
 }
 
 //---------------------------------------------------------------------------
@@ -527,6 +532,7 @@ void vtkMRMLCrosshairDisplayableManager::OnMRMLNodeModified(
 
   // Request a render
   this->RequestRender();
+  vtkWarningMacro("UnobserveMRMLScene");
 }
 
 //---------------------------------------------------------------------------
@@ -534,6 +540,7 @@ void vtkMRMLCrosshairDisplayableManager::Create()
 {
   // Setup the SliceNode, CrosshairNode
   this->Internal->UpdateSliceNode();
+  vtkWarningMacro("Create");
 }
 
 //---------------------------------------------------------------------------
@@ -541,6 +548,7 @@ void vtkMRMLCrosshairDisplayableManager::AdditionalInitializeStep()
 {
   // Build the initial crosshair representation
   this->Internal->BuildCrosshair();
+  vtkWarningMacro("AdditionalInitializeStep");
 }
 
 //---------------------------------------------------------------------------
@@ -563,34 +571,40 @@ void vtkMRMLCrosshairDisplayableManager::OnMRMLSliceNodeModifiedEvent()
 
     this->OnMRMLNodeModified(this->Internal->CrosshairNode);
     }
+  vtkWarningMacro("OnMRMLSliceNodeModifiedEvent");
 }
 
 //---------------------------------------------------------------------------
 bool vtkMRMLCrosshairDisplayableManager::CanProcessInteractionEvent(vtkMRMLInteractionEventData* eventData, double &closestDistance2)
 {
   return this->Internal->SliceIntersectionWidget->CanProcessInteractionEvent(eventData, closestDistance2);
+  vtkWarningMacro("CanProcessInteractionEvent");
 }
 
 //---------------------------------------------------------------------------
 bool vtkMRMLCrosshairDisplayableManager::ProcessInteractionEvent(vtkMRMLInteractionEventData* eventData)
 {
   return this->Internal->SliceIntersectionWidget->ProcessInteractionEvent(eventData);
+  vtkWarningMacro("ProcessInteractionEvent");
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLCrosshairDisplayableManager::SetActionsEnabled(int actions)
 {
   this->Internal->SliceIntersectionWidget->SetActionsEnabled(actions);
+  vtkWarningMacro("SetActionsEnabled");
 }
 
 //---------------------------------------------------------------------------
 int vtkMRMLCrosshairDisplayableManager::GetActionsEnabled()
 {
   return this->Internal->SliceIntersectionWidget->GetActionsEnabled();
+  vtkWarningMacro("GetActionsEnabled");
 }
 
 //---------------------------------------------------------------------------
 vtkMRMLSliceIntersectionWidget* vtkMRMLCrosshairDisplayableManager::GetSliceIntersectionWidget()
 {
   return this->Internal->SliceIntersectionWidget;
+  vtkWarningMacro("GetSliceIntersectionWidget");
 }
