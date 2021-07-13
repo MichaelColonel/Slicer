@@ -309,10 +309,10 @@ bool vtkMRMLScalarBarDisplayableManager::CanProcessInteractionEvent(vtkMRMLInter
   vtkMRMLSliceNode* sNode = this->GetMRMLSliceNode();
   if (sNode)
   {
-    vtkWarningMacro("CanProcessInteractionEvent: Slice 2D Name " << sNode->GetName());
+//    vtkWarningMacro("CanProcessInteractionEvent: Slice 2D Name " << sNode->GetName());
   }
 
-  vtkWarningMacro("CanProcessInteractionEvent");
+//  vtkWarningMacro("CanProcessInteractionEvent");
   return false;
 }
 
