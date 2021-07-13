@@ -2,9 +2,6 @@
 
   Program: 3D Slicer
 
-  Copyright (c) Laboratory for Percutaneous Surgery (PerkLab)
-  Queen's University, Kingston, ON, Canada. All Rights Reserved.
-
   See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
@@ -20,7 +17,8 @@
 #define __vtkMRMLScalarBarDisplayNode_h
 
 // MRML includes
-#include "vtkMRMLDisplayNode.h"
+#include <vtkMRMLNode.h>
+#include <vtkMRMLDisplayNode.h>
 
 class vtkMRMLDisplayableNode;
 
@@ -48,11 +46,11 @@ class vtkMRMLDisplayableNode;
 /// Properties to replace: all other properties stored in folder display node
 /// (Color, EdgeColor, SelectedColor, Ambient, Specular, etc.).
 ///
-class VTK_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLDisplayNode
+class VTK_SLICER_COLORS_MODULE_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLNode
 {
 public:
   static vtkMRMLScalarBarDisplayNode *New();
-  vtkTypeMacro(vtkMRMLFolderDisplayNode,vtkMRMLDisplayNode);
+  vtkTypeMacro(vtkMRMLScalarBarDisplayNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkMRMLNode* CreateNodeInstance() override;
@@ -68,55 +66,21 @@ public:
 
   /// Copy node content (excludes basic data, such as name and node references).
   /// \sa vtkMRMLNode::CopyContent
-  vtkMRMLCopyContentMacro(vtkMRMLFolderDisplayNode);
+  vtkMRMLCopyContentMacro(vtkMRMLScalarBarDisplayNode);
 
-  /// Make sure display node and transform node are present and valid
-  void SetScene(vtkMRMLScene* scene) override;
-
-  /// Process events from the MRML scene
-  void ProcessMRMLEvents( vtkObject *caller, unsigned long event, void *callData) override;
-
-  /// Overridden to be able to call modified on branch if necessary
-  void Modified() override;
-
-  ///@{
-  /// Set/Get whether to apply display properties on the whole branch
-  /// \sa ApplyDisplayPropertiesOnBranch
-  void SetApplyDisplayPropertiesOnBranch(bool on);
-  vtkGetMacro(ApplyDisplayPropertiesOnBranch, bool);
-  ///@}
-
-  /// Call modified event on display nodes in branch that allow overriding
-  /// \sa FolderDisplayOverrideAllowed
-  void ChildDisplayNodesModified();
-
-  /// Get display node from hierarchy that overrides the display properties of a given
-  /// displayable node.
-  /// Note: Subject hierarchy folders have display nodes associated to be able to
-  ///   override display properties of a branch on the request of the user
-  static vtkMRMLDisplayNode* GetOverridingHierarchyDisplayNode(vtkMRMLDisplayableNode* node);
-
-  /// Get visibility determined by the hierarchy.
-  /// Visibility is influenced by the hierarchy regardless the fact whether there is override
-  /// or not. Visibility defined by hierarchy is off if any of the ancestors is explicitly hidden.
-  static bool GetHierarchyVisibility(vtkMRMLDisplayableNode* node);
-
-  /// Get opacity determined by the hierarchy.
-  /// Opacity is influenced by the hierarchy regardless the fact whether there is override
-  // or not. Opacity defined by hierarchy is the product of the ancestors' opacities.
-  static double GetHierarchyOpacity(vtkMRMLDisplayableNode* node);
+  /// Get scalar bar visibility
+  vtkGetMacro( VisibilityOnSliceViewsFlag, bool);
+  /// Set scalar bar visibility
+  vtkSetMacro( VisibilityOnSliceViewsFlag, bool);
 
 protected:
-  vtkMRMLFolderDisplayNode();
-  ~vtkMRMLFolderDisplayNode() override;
-  vtkMRMLFolderDisplayNode(const vtkMRMLFolderDisplayNode&);
-  void operator=(const vtkMRMLFolderDisplayNode&);
+  vtkMRMLScalarBarDisplayNode();
+  ~vtkMRMLScalarBarDisplayNode() override;
+  vtkMRMLScalarBarDisplayNode(const vtkMRMLScalarBarDisplayNode&);
+  void operator=(const vtkMRMLScalarBarDisplayNode&);
 
 private:
-  /// Flag determining whether the display node is to be applied on the
-  /// displayable nodes in the subject hierarchy branch under the item that
-  /// has the display node associated.
-  bool ApplyDisplayPropertiesOnBranch{false};
+  bool VisibilityOnSliceViewsFlag;
 };
 
 #endif
