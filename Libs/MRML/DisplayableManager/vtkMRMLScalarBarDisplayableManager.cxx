@@ -30,6 +30,7 @@
 #include <vtkMRMLSliceNode.h>
 #include <vtkMRMLWindowLevelWidget.h>
 #include <vtkMRMLViewNode.h>
+#include <vtkMRMLScalarBarDisplayNode.h>
 
 // VTK includes
 #include <vtkActor2D.h>
@@ -350,4 +351,27 @@ bool vtkMRMLScalarBarDisplayableManager::GetAdjustBackgroundWindowLevelEnabled()
 {
   return this->Internal->WindowLevelWidget->GetBackgroundVolumeEditable();
   vtkDebugMacro("GetAdjustBackgroundWindowLevelEnabled");
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLScalarBarDisplayNode* vtkMRMLScalarBarDisplayableManager::GetScalarBarNode(vtkMRMLScene* scene)
+{
+  if (!scene)
+  {
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkCollection> barsCollection = vtkSmartPointer<vtkCollection>::New();
+  barsCollection = vtkSmartPointer<vtkCollection>::Take(scene->GetNodesByClass("vtkMRMLScalarBarDisplayNode"));
+
+  barsCollection->InitTraversal();
+  for (int i = 0; i < barsCollection->GetNumberOfItems(); ++i)
+  {
+    vtkMRMLScalarBarDisplayNode* barNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(barsCollection->GetItemAsObject(i));
+    if (barNode && barNode->GetScalarBarTagName() == std::string("default"))
+    {
+      return barNode;
+    }
+  }
+  return nullptr;
 }

@@ -16,13 +16,10 @@
 #ifndef __vtkMRMLScalarBarDisplayNode_h
 #define __vtkMRMLScalarBarDisplayNode_h
 
-// Colors includes
-#include "vtkSlicerColorsModuleMRMLExport.h"
-
 // MRML includes
 #include <vtkMRMLDisplayNode.h>
 
-class VTK_SLICER_COLORS_MODULE_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLDisplayNode
+class VTK_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLDisplayNode
 {
 public:
   static vtkMRMLScalarBarDisplayNode *New();

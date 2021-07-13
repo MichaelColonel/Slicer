@@ -167,6 +167,7 @@ set(MRMLCore_SRCS
   vtkMRMLProceduralColorStorageNode.cxx
   vtkMRMLROIListNode.cxx
   vtkMRMLROINode.cxx
+  vtkMRMLScalarBarDisplayNode.cxx
   vtkMRMLScalarVolumeDisplayNode.cxx
   vtkMRMLScalarVolumeNode.cxx
   vtkMRMLScene.cxx
