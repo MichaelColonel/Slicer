@@ -108,7 +108,7 @@ vtkMRMLScalarBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLScalarBarDis
   this->ScalarBarWidget2D_Yellow = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->ScalarBarActor3D = vtkSmartPointer<vtkScalarBarActor>::New();
   this->ScalarBarWidget3D = vtkSmartPointer<vtkScalarBarWidget>::New();
-  vtkDebugWithObjectMacro(this->External, "vtkInternal::Constructor");
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::Constructor");
 }
 
 //---------------------------------------------------------------------------
@@ -117,28 +117,28 @@ vtkMRMLScalarBarDisplayableManager::vtkInternal::~vtkInternal()
   this->WindowLevelWidget->SetMRMLApplicationLogic(nullptr);
   this->WindowLevelWidget->SetRenderer(nullptr);
   this->WindowLevelWidget->SetSliceNode(nullptr);
-  vtkDebugWithObjectMacro(this->External, "vtkInternal::Destructor");
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::Destructor");
 }
 
 //---------------------------------------------------------------------------
 vtkObserverManager* vtkMRMLScalarBarDisplayableManager::vtkInternal::GetMRMLNodesObserverManager()
 {
   return this->External->GetMRMLNodesObserverManager();
-  vtkDebugWithObjectMacro(this->External, "vtkInternal::GetMRMLNodesObserverManager");
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::GetMRMLNodesObserverManager");
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::vtkInternal::Modified()
 {
   return this->External->Modified();
-  vtkDebugWithObjectMacro(this->External, "vtkInternal::Modified");
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::Modified");
 }
 
 //---------------------------------------------------------------------------
 vtkMRMLSliceNode* vtkMRMLScalarBarDisplayableManager::vtkInternal::GetSliceNode()
 {
   return this->External->GetMRMLSliceNode();
-  vtkDebugWithObjectMacro(this->External, "vtkInternal::GetSliceNode");
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::GetSliceNode");
 }
 
 //---------------------------------------------------------------------------
@@ -150,6 +150,16 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::UpdateSliceNode()
     return;
   }
 
+  vtkMRMLScalarBarDisplayNode* sbDisplayNode = this->External->GetScalarBarNode(this->External->GetMRMLScene());
+  if (sbDisplayNode)
+  {
+    vtkWarningWithObjectMacro(this->External, "Display node is valid");
+  }
+  else
+  {
+    vtkWarningWithObjectMacro(this->External, "Display node is invalid");
+  }
+
   if (!this->WindowLevelWidget->GetRenderer())
   {
     vtkMRMLApplicationLogic *mrmlAppLogic = this->External->GetMRMLApplicationLogic();
@@ -158,7 +168,7 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::UpdateSliceNode()
     this->WindowLevelWidget->SetRenderer(this->External->GetRenderer());
   }
   this->WindowLevelWidget->SetSliceNode(this->GetSliceNode());
-  vtkDebugWithObjectMacro(this->External, "vtkInternal::UpdateSliceNode");
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::UpdateSliceNode");
 }
 
 //---------------------------------------------------------------------------
@@ -222,14 +232,14 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
 vtkMRMLScalarBarDisplayableManager::vtkMRMLScalarBarDisplayableManager()
 {
   this->Internal = new vtkInternal(this);
-  vtkDebugMacro("Constructor");
+  vtkWarningMacro("Constructor");
 }
 
 //---------------------------------------------------------------------------
 vtkMRMLScalarBarDisplayableManager::~vtkMRMLScalarBarDisplayableManager()
 {
   delete this->Internal;
-  vtkDebugMacro("Destructor");
+  vtkWarningMacro("Destructor");
 }
 
 //---------------------------------------------------------------------------
@@ -242,14 +252,14 @@ void vtkMRMLScalarBarDisplayableManager::PrintSelf(ostream& os, vtkIndent indent
 void vtkMRMLScalarBarDisplayableManager::UpdateFromMRMLScene()
 {
   this->Internal->UpdateSliceNode();
-  vtkDebugMacro("UpdateFromMRMLScene");
+  vtkWarningMacro("UpdateFromMRMLScene");
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::UnobserveMRMLScene()
 {
   this->Internal->WindowLevelWidget->SetSliceNode(nullptr);
-  vtkDebugMacro("UnobserveMRMLScene");
+  vtkWarningMacro("UnobserveMRMLScene");
 }
 
 //---------------------------------------------------------------------------
@@ -257,7 +267,7 @@ void vtkMRMLScalarBarDisplayableManager::Create()
 {
   // Setup the SliceNode, ScalarBarNode
   this->Internal->UpdateSliceNode();
-  vtkDebugMacro("Create");
+  vtkWarningMacro("Create");
 }
 
 //---------------------------------------------------------------------------
@@ -265,25 +275,25 @@ void vtkMRMLScalarBarDisplayableManager::AdditionalInitializeStep()
 {
   // Build the initial crosshair representation
   this->Internal->BuildScalarBar();
-  vtkDebugMacro("AdditionalInitializeStep");
+  vtkWarningMacro("AdditionalInitializeStep");
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::OnMRMLSliceNodeModifiedEvent()
 {
-  vtkDebugMacro("OnMRMLSliceNodeModifiedEvent");
+  vtkWarningMacro("OnMRMLSliceNodeModifiedEvent");
 
   vtkMRMLAbstractViewNode* viewNode = vtkMRMLAbstractViewNode::SafeDownCast(this->GetMRMLDisplayableNode());
   if (!viewNode)
   {
-    vtkDebugMacro("OnMRMLSliceNodeModifiedEvent: view node is invalid");
+    vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: view node is invalid");
     return;
   }
 
   vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
   if (sliceNode)
   {
-    vtkDebugMacro("OnMRMLSliceNodeModifiedEvent: Slice 2D Name " << sliceNode->GetName());
+    vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Slice 2D Name " << sliceNode->GetName());
   }
 }
 
@@ -305,10 +315,10 @@ bool vtkMRMLScalarBarDisplayableManager::CanProcessInteractionEvent(vtkMRMLInter
   vtkMRMLSliceNode* sNode = this->GetMRMLSliceNode();
   if (sNode)
   {
-    vtkDebugMacro("CanProcessInteractionEvent: Slice 2D Name " << sNode->GetName());
+    vtkWarningMacro("CanProcessInteractionEvent: Slice 2D Name " << sNode->GetName());
   }
 
-  vtkDebugMacro("CanProcessInteractionEvent");
+  vtkWarningMacro("CanProcessInteractionEvent");
   return false;
 }
 
@@ -321,7 +331,7 @@ bool vtkMRMLScalarBarDisplayableManager::ProcessInteractionEvent(vtkMRMLInteract
     this->RequestRender();
     this->Internal->WindowLevelWidget->NeedToRenderOff();
   }
-  vtkDebugMacro("ProcessInteractionEvent");
+  vtkWarningMacro("ProcessInteractionEvent");
   return processed;
 }
 
@@ -329,28 +339,28 @@ bool vtkMRMLScalarBarDisplayableManager::ProcessInteractionEvent(vtkMRMLInteract
 void vtkMRMLScalarBarDisplayableManager::SetAdjustForegroundWindowLevelEnabled(bool enabled)
 {
   this->Internal->WindowLevelWidget->SetForegroundVolumeEditable(enabled);
-  vtkDebugMacro("SetAdjustForegroundWindowLevelEnabled: Enable state " << enabled);
+  vtkWarningMacro("SetAdjustForegroundWindowLevelEnabled: Enable state " << enabled);
 }
 
 //---------------------------------------------------------------------------
 bool vtkMRMLScalarBarDisplayableManager::GetAdjustForegroundWindowLevelEnabled()
 {
   return this->Internal->WindowLevelWidget->GetForegroundVolumeEditable();
-  vtkDebugMacro("GetAdjustForegroundWindowLevelEnabled");
+  vtkWarningMacro("GetAdjustForegroundWindowLevelEnabled");
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::SetAdjustBackgroundWindowLevelEnabled(bool enabled)
 {
   this->Internal->WindowLevelWidget->SetBackgroundVolumeEditable(enabled);
-  vtkDebugMacro("SetAdjustBackgroundWindowLevelEnabled: Enable state: " << enabled);
+  vtkWarningMacro("SetAdjustBackgroundWindowLevelEnabled: Enable state: " << enabled);
 }
 
 //---------------------------------------------------------------------------
 bool vtkMRMLScalarBarDisplayableManager::GetAdjustBackgroundWindowLevelEnabled()
 {
   return this->Internal->WindowLevelWidget->GetBackgroundVolumeEditable();
-  vtkDebugMacro("GetAdjustBackgroundWindowLevelEnabled");
+  vtkWarningMacro("GetAdjustBackgroundWindowLevelEnabled");
 }
 
 //---------------------------------------------------------------------------

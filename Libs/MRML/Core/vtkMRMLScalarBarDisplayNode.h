@@ -46,10 +46,7 @@ public:
   /// Set scalar bar visibility
   vtkSetMacro( VisibilityOnSliceViewsFlag, bool);
 
-  char *GetScalarBarTagName()
-  {
-    return this->GetSingletonTag();
-  }
+  char* GetScalarBarTagName() { return this->GetSingletonTag(); }
 
 protected:
   vtkMRMLScalarBarDisplayNode();
