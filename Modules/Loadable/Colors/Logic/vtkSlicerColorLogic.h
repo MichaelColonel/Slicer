@@ -19,6 +19,8 @@
 #include <vtkMRMLColorLogic.h>
 #include "vtkSlicerColorsModuleLogicExport.h"
 
+class vtkMRMLScalarBarDisplayNode;
+
 class VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT vtkSlicerColorLogic
   : public vtkMRMLColorLogic
 {
@@ -43,6 +45,8 @@ class VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT vtkSlicerColorLogic
   /// files paths and put them in the UserColorFiles list.
   std::vector<std::string> FindDefaultColorFiles() override;
   std::vector<std::string> FindUserColorFiles() override;
+
+  vtkMRMLScalarBarDisplayNode* GetScalarBarNode(vtkMRMLScene* scene = nullptr);
 
 protected:
   vtkSlicerColorLogic();

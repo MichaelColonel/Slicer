@@ -19,9 +19,13 @@
 // MRML includes
 #include <vtkMRMLDisplayNode.h>
 
+class vtkMRMLColorTableNode;
+
 class VTK_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLDisplayNode
 {
 public:
+  static const char* COLOR_TABLE_REFERENCE_ROLE;
+
   static vtkMRMLScalarBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLScalarBarDisplayNode,vtkMRMLDisplayNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -41,10 +45,15 @@ public:
   /// \sa vtkMRMLNode::CopyContent
   vtkMRMLCopyContentMacro(vtkMRMLScalarBarDisplayNode);
 
+  /// Get color table node
+  vtkMRMLColorTableNode* GetColorTableNode();
+  /// Set and observe color table node
+  void SetAndObserveColorTableNode(vtkMRMLColorTableNode* node);
+
   /// Get scalar bar visibility
-  vtkGetMacro( VisibilityOnSliceViewsFlag, bool);
+  vtkGetMacro(VisibilityOnSliceViewsFlag, bool);
   /// Set scalar bar visibility
-  vtkSetMacro( VisibilityOnSliceViewsFlag, bool);
+  vtkSetMacro(VisibilityOnSliceViewsFlag, bool);
 
   char* GetScalarBarTagName() { return this->GetSingletonTag(); }
 

@@ -43,6 +43,7 @@
 // MRML includes
 #include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLProceduralColorNode.h>
+#include <vtkMRMLScalarBarDisplayNode.h>
 #include <vtkMRMLScene.h>
 
 // VTK includes
@@ -69,11 +70,13 @@ public:
 
   vtkScalarBarWidget* ScalarBarWidget;
   vtkSlicerScalarBarActor* ScalarBarActor;
+  vtkSmartPointer<vtkMRMLScalarBarDisplayNode> ScalarBarNode;
 };
 
 //-----------------------------------------------------------------------------
 qSlicerColorsModuleWidgetPrivate::qSlicerColorsModuleWidgetPrivate(qSlicerColorsModuleWidget& object)
-  : q_ptr(&object)
+  : q_ptr(&object),
+  ScalarBarNode(vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::New())
 {
   this->ScalarBarWidget = vtkScalarBarWidget::New();
   this->ScalarBarActor = vtkSlicerScalarBarActor::New();
@@ -94,23 +97,22 @@ qSlicerColorsModuleWidgetPrivate::qSlicerColorsModuleWidgetPrivate(qSlicerColors
   // Allow resizing by clicking at the widget border
   vtkBorderRepresentation* border = this->ScalarBarWidget->GetBorderRepresentation();
   if (border)
-    {
+  {
     border->SetShowHorizontalBorder(true);
     border->SetShowVerticalBorder(true);
     // only show the border when hovering over with the mouse
     border->SetShowBorderToActive();
-    }
-
+  }
 }
 
 //-----------------------------------------------------------------------------
 qSlicerColorsModuleWidgetPrivate::~qSlicerColorsModuleWidgetPrivate()
 {
   if (this->ScalarBarWidget)
-    {
+  {
     this->ScalarBarWidget->Delete();
     this->ScalarBarWidget = nullptr;
-    }
+  }
   if (this->ScalarBarActor)
   {
     this->ScalarBarActor->Delete();
@@ -172,30 +174,30 @@ void qSlicerColorsModuleWidget::setup()
           this, SLOT(copyCurrentColorNode()));
 
   if (d->UseColorNameAsLabelCheckBox->isChecked())
-    {
+  {
     // string format
     d->ScalarBarActor->SetLabelFormat(" %.8s");
-    }
+  }
   else
-    {
+  {
     // number format
     d->ScalarBarActor->SetLabelFormat(" %#8.3f");
-    }
+  }
   connect(d->UseColorNameAsLabelCheckBox, SIGNAL(toggled(bool)),
           this, SLOT(setUseColorNameAsLabel(bool)));
   connect(d->CenterLabelCheckBox, SIGNAL(toggled(bool)),
     this, SLOT(setCenterLabel(bool)));
   qSlicerApplication * app = qSlicerApplication::application();
   if (app && app->layoutManager())
-    {
+  {
     qMRMLThreeDView* threeDView = app->layoutManager()->threeDWidget(0)->threeDView();
     vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
     if (activeRenderer)
-      {
+    {
       d->ScalarBarWidget->SetInteractor(activeRenderer->GetRenderWindow()->GetInteractor());
-      }
-    connect(d->VTKScalarBar, SIGNAL(modified()), threeDView, SLOT(scheduleRender()));
     }
+    connect(d->VTKScalarBar, SIGNAL(modified()), threeDView, SLOT(scheduleRender()));
+  }
 
   double validBounds[4] = {VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, 0., 1.};
   d->ContinuousScalarsToColorsWidget->view()->setValidBounds(validBounds);
@@ -211,6 +213,19 @@ void qSlicerColorsModuleWidget::setMRMLScene(vtkMRMLScene *scene)
   Q_D(qSlicerColorsModuleWidget);
   this->qSlicerAbstractModuleWidget::setMRMLScene(scene);
   d->setDefaultColorNode();
+  if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode"))
+  {
+    vtkMRMLScalarBarDisplayNode* sbNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+    if (sbNode)
+    {
+      d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::Take(sbNode);
+      scene->AddNode(sbNode);
+    }
+  }
+  else
+  {
+    scene->AddNode(d->ScalarBarNode);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -225,15 +240,15 @@ void qSlicerColorsModuleWidget::setUseColorNameAsLabel(bool useColorName)
 {
   Q_D(qSlicerColorsModuleWidget);
   if (useColorName)
-    {
+  {
     // text string format
     d->ScalarBarActor->SetLabelFormat(" %s");
-    }
+  }
   else
-    {
+  {
     // number format
-    d->ScalarBarActor->SetLabelFormat(" %#8.3f");
-    }
+   d->ScalarBarActor->SetLabelFormat(" %#8.3f");
+  }
   d->ScalarBarActor->SetUseAnnotationAsLabel(useColorName);
 }
 
@@ -251,7 +266,7 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
 
   vtkMRMLColorNode* colorNode = vtkMRMLColorNode::SafeDownCast(newColorNode);
   if (!colorNode)
-    {
+  {
     d->NumberOfColorsSpinBox->setEnabled(false);
     d->NumberOfColorsSpinBox->setValue(0);
     d->LUTRangeWidget->setEnabled(false);
@@ -259,15 +274,16 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     d->CopyColorNodeButton->setEnabled(false);
     d->ContinuousScalarsToColorsWidget->setEnabled(false);
     d->VTKScalarBar->setTitle("(mm)");
+    d->ScalarBarNode->SetAndObserveColorTableNode(nullptr);
     return;
-    }
+  }
 
   d->CopyColorNodeButton->setEnabled(true);
 
   vtkMRMLColorTableNode *colorTableNode = vtkMRMLColorTableNode::SafeDownCast(colorNode);
   vtkMRMLProceduralColorNode *procColorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode);
   if (colorTableNode != nullptr)
-    {
+  {
     // hide the procedural display, show the color table
     // freesurfer nodes are bit of a special case, they're defined
     // procedurally, but provide a look up table rather than a
@@ -326,6 +342,7 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
       stringArray->SetValue(colorIndex, colorNode->GetColorName(colorIndex));
       }
     d->ScalarBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
+    d->ScalarBarNode->SetAndObserveColorTableNode(colorTableNode);
     }
   else if (procColorNode != nullptr)
     {
@@ -356,6 +373,7 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     {
     // not a valid type of color node
     d->LUTRangeWidget->setValues(0.,0.);
+    d->ScalarBarNode->SetAndObserveColorTableNode(nullptr);
     }
 
   // add the color name to the scalar bar title
@@ -469,4 +487,5 @@ vtkScalarBarWidget* qSlicerColorsModuleWidget::scalarBar()
 {
   Q_D(qSlicerColorsModuleWidget);
   return d->ScalarBarWidget;
+  return nullptr;
 }

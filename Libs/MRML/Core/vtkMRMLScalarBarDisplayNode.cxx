@@ -16,11 +16,14 @@
 #include "vtkMRMLScalarBarDisplayNode.h"
 
 // MRML includes
-#include "vtkMRMLDisplayableNode.h"
-#include "vtkMRMLScene.h"
+#include <vtkMRMLDisplayableNode.h>
+#include <vtkMRMLColorTableNode.h>
+#include <vtkMRMLScene.h>
 
 // VTK includes
 #include <vtkCallbackCommand.h>
+
+const char* vtkMRMLScalarBarDisplayNode::COLOR_TABLE_REFERENCE_ROLE = "colorTableRef";
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLScalarBarDisplayNode);
@@ -85,4 +88,22 @@ void vtkMRMLScalarBarDisplayNode::CopyContent(vtkMRMLNode* anode, bool deepCopy/
   vtkMRMLCopyBeginMacro(anode);
   vtkMRMLCopyBooleanMacro(VisibilityOnSliceViewsFlag);
   vtkMRMLCopyEndMacro();
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLColorTableNode* vtkMRMLScalarBarDisplayNode::GetColorTableNode()
+{
+  return vtkMRMLColorTableNode::SafeDownCast( this->GetNodeReference(COLOR_TABLE_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayNode::SetAndObserveColorTableNode(vtkMRMLColorTableNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(COLOR_TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

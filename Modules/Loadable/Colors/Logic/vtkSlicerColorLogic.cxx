@@ -14,7 +14,9 @@
 #include "vtkSlicerConfigure.h" // for Slicer_SHARE_DIR
 
 // MRML
+#include "vtkMRMLScene.h"
 #include "vtkMRMLColorTableStorageNode.h"
+#include "vtkMRMLScalarBarDisplayNode.h"
 #include "vtkMRMLProceduralColorStorageNode.h"
 
 // VTK includes
@@ -209,3 +211,23 @@ std::vector<std::string> vtkSlicerColorLogic::FindColorFiles(const std::vector<s
     } // end of looping over dirs
   return filenames;
 }
+
+vtkMRMLScalarBarDisplayNode* vtkSlicerColorLogic::GetScalarBarNode(vtkMRMLScene* scene/* = nullptr */)
+{
+  vtkMRMLScene* aScene = (scene) ? scene : this->GetMRMLScene();
+  vtkNew<vtkMRMLScalarBarDisplayNode> sbNode;
+  
+  if (aScene)
+  {
+    if (vtkMRMLNode* node = aScene->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode"))
+    {
+      return vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+    }
+    else
+    {
+      aScene->AddNode(sbNode);
+    }
+  }
+  return sbNode;
+}
+
