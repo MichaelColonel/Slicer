@@ -300,7 +300,17 @@ void vtkMRMLScalarBarDisplayableManager::OnMRMLSliceNodeModifiedEvent()
   vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
   if (sliceNode)
   {
-//    vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Slice 2D Name " << sliceNode->GetName());
+    vtkMRMLScalarBarDisplayNode* sbNode = this->GetScalarBarNode(this->GetMRMLScene());
+    if (sbNode)
+    {
+      vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Valid sb node");
+    }
+    else
+    {
+      vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Invalid sb node");
+    }
+    
+    vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Slice 2D Name " << sliceNode->GetName());
   }
 }
 
@@ -325,7 +335,7 @@ bool vtkMRMLScalarBarDisplayableManager::CanProcessInteractionEvent(vtkMRMLInter
 //    vtkWarningMacro("CanProcessInteractionEvent: Slice 2D Name " << sNode->GetName());
   }
 
-//  vtkWarningMacro("CanProcessInteractionEvent");
+  vtkWarningMacro("CanProcessInteractionEvent");
   return false;
 }
 
@@ -338,7 +348,7 @@ bool vtkMRMLScalarBarDisplayableManager::ProcessInteractionEvent(vtkMRMLInteract
     this->RequestRender();
     this->Internal->WindowLevelWidget->NeedToRenderOff();
   }
-//  vtkWarningMacro("ProcessInteractionEvent");
+  vtkWarningMacro("ProcessInteractionEvent");
   return processed;
 }
 
