@@ -30,6 +30,7 @@
 #include <vtkMRMLSliceNode.h>
 #include <vtkMRMLWindowLevelWidget.h>
 #include <vtkMRMLViewNode.h>
+#include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLScalarBarDisplayNode.h>
 
 // VTK includes
@@ -280,7 +281,7 @@ void vtkMRMLScalarBarDisplayableManager::Create()
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::AdditionalInitializeStep()
 {
-  // Build the initial crosshair representation
+  // Build the initial scalar bar representation
   this->Internal->BuildScalarBar();
 // vtkWarningMacro("AdditionalInitializeStep");
 }
@@ -303,7 +304,13 @@ void vtkMRMLScalarBarDisplayableManager::OnMRMLSliceNodeModifiedEvent()
     vtkMRMLScalarBarDisplayNode* sbNode = this->GetScalarBarNode(this->GetMRMLScene());
     if (sbNode)
     {
-      vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Valid sb node");
+      if (vtkMRMLColorTableNode* colorTableNode = sbNode->GetColorTableNode())
+      {
+        vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Set lookup table");
+        this->Internal->ScalarBarActor2D_Green->SetLookupTable(colorTableNode->GetScalarsToColors());
+        this->Internal->ScalarBarActor2D_Red->SetLookupTable(colorTableNode->GetScalarsToColors());
+        this->Internal->ScalarBarActor2D_Yellow->SetLookupTable(colorTableNode->GetScalarsToColors());
+      }
     }
     else
     {

@@ -487,5 +487,4 @@ vtkScalarBarWidget* qSlicerColorsModuleWidget::scalarBar()
 {
   Q_D(qSlicerColorsModuleWidget);
   return d->ScalarBarWidget;
-  return nullptr;
 }
