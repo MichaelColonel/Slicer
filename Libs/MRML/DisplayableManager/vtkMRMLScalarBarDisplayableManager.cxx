@@ -409,3 +409,109 @@ vtkMRMLScalarBarDisplayNode* vtkMRMLScalarBarDisplayableManager::GetScalarBarNod
   }
   return nullptr;
 }
+
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLSceneEndClose()
+{
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLSceneStartImport()
+{
+
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLSceneEndImport()
+{
+  if (!this->GetMRMLScene())
+    {
+    return;
+    }
+  if (this->GetMRMLSliceNode())
+    {
+    }
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLSceneEndRestore()
+{
+  if (this->GetMRMLSliceNode())
+    {
+    }
+
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
+{
+  if (this->GetMRMLScene()->IsBatchProcessing() ||
+      !node->IsA("vtkMRMLCameraNode"))
+    {
+    return;
+    }
+  // maybe the camera node is a good match for the observed view node?
+//  this->UpdateCameraNode();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLSceneNodeRemoved(vtkMRMLNode* node)
+{
+  if (this->GetMRMLScene()->IsBatchProcessing() ||
+      !node->IsA("vtkMRMLCameraNode"))
+    {
+    return;
+    }
+//  if (node == this->Internal->CameraNode)
+//    {
+    // we need to find another camera node for the observed view node
+ //   this->UpdateCameraNode();
+//    }
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::ObserveMRMLScene()
+{
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::OnMRMLNodeModified(vtkMRMLNode* node)
+{
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLScalarBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller,
+                                                        unsigned long event,
+                                                        void *callData)
+{
+/*
+  switch(event)
+    {
+    // Maybe something external removed the view/camera link, make sure the
+    // view observes a camera node, create a new camera node if needed
+    case vtkMRMLCameraNode::LayoutNameModifiedEvent:
+      assert(vtkMRMLCameraNode::SafeDownCast(caller));
+      this->UpdateCameraNode();
+      vtkDebugMacro("ProcessingMRML: got a camera node modified event");
+      break;
+    case vtkMRMLCameraNode::ResetCameraClippingEvent:
+      assert(vtkMRMLCameraNode::SafeDownCast(caller));
+      vtkDebugMacro("ProcessingMRML: got a camera node modified event");
+      if (this->GetRenderer())
+        {
+        this->GetRenderer()->ResetCameraClippingRange();
+        this->GetRenderer()->UpdateLightsGeometryToFollowCamera();
+        }
+      else if (this->GetCameraNode() && this->GetCameraNode()->GetCamera())
+        {
+        vtkCamera* camera = this->GetCameraNode()->GetCamera();
+        camera->SetClippingRange(0.1, camera->GetDistance()*2);
+        }
+      break;
+    default:
+      this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+      break;
+    }
+*/
+}

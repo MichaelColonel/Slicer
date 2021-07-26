@@ -59,6 +59,17 @@ protected:
   /// Called when the SliceNode is modified. May cause ScalarBar to remap its position on screen.
   void OnMRMLSliceNodeModifiedEvent() override;
 
+  void OnMRMLSceneEndClose() override;
+  void OnMRMLSceneStartImport() override;
+  void OnMRMLSceneEndImport() override;
+  void OnMRMLSceneEndRestore() override;
+  void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
+  void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+
+  void ProcessMRMLNodesEvents(vtkObject *caller,
+                                      unsigned long event,
+                                      void *callData) override;
+
   /// Method to perform additional initialization
   void AdditionalInitializeStep() override;
 
@@ -68,6 +79,9 @@ private:
 
   void UnobserveMRMLScene() override;
   void UpdateFromMRMLScene() override;
+  void ObserveMRMLScene() override;
+  void OnMRMLNodeModified(vtkMRMLNode* node) override;
+
 
   class vtkInternal;
   vtkInternal * Internal;
