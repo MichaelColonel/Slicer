@@ -53,6 +53,7 @@ public slots:
   void copyCurrentColorNode();
   void setUseColorNameAsLabel(bool);
   void setCenterLabel(bool);
+  void onScalarBarModified();
 
 protected slots:
   void onMRMLColorNodeChanged(vtkMRMLNode* newColorNode);

@@ -491,6 +491,7 @@ void vtkMRMLScalarBarDisplayableManager::OnMRMLNodeModified(vtkMRMLNode* node)
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller, unsigned long event, void *callData)
 {
+  this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
   switch(event)
   {
   // Maybe something external removed the view/camera link, make sure the
@@ -500,12 +501,11 @@ void vtkMRMLScalarBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *calle
       vtkMRMLScalarBarDisplayNode* node = vtkMRMLScalarBarDisplayNode::SafeDownCast(caller);
       if (node)
       {
-        vtkWarningMacro("ProcessMRMLNodesEvents: got a scalar bar display node modified event");
+        vtkWarningMacro("ProcessMRMLNodesEvents: got a scalar bar display node modified event, visibility flag " << node->GetVisibilityOnSliceViewsFlag());
       }
     }
     break;
   default:
-    this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
     break;
   }
 /*

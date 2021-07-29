@@ -70,13 +70,13 @@ public:
 
   vtkScalarBarWidget* ScalarBarWidget;
   vtkSlicerScalarBarActor* ScalarBarActor;
-  vtkSmartPointer<vtkMRMLScalarBarDisplayNode> ScalarBarNode;
+  vtkMRMLScalarBarDisplayNode* ScalarBarNode;
 };
 
 //-----------------------------------------------------------------------------
 qSlicerColorsModuleWidgetPrivate::qSlicerColorsModuleWidgetPrivate(qSlicerColorsModuleWidget& object)
   : q_ptr(&object),
-  ScalarBarNode(vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::New())
+  ScalarBarNode(nullptr)
 {
   this->ScalarBarWidget = vtkScalarBarWidget::New();
   this->ScalarBarActor = vtkSlicerScalarBarActor::New();
@@ -197,6 +197,7 @@ void qSlicerColorsModuleWidget::setup()
       d->ScalarBarWidget->SetInteractor(activeRenderer->GetRenderWindow()->GetInteractor());
     }
     connect(d->VTKScalarBar, SIGNAL(modified()), threeDView, SLOT(scheduleRender()));
+    connect(d->VTKScalarBar, SIGNAL(modified()), this, SLOT(onScalarBarModified()));
   }
 
   double validBounds[4] = {VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, 0., 1.};
@@ -218,13 +219,16 @@ void qSlicerColorsModuleWidget::setMRMLScene(vtkMRMLScene *scene)
     vtkMRMLScalarBarDisplayNode* sbNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
     if (sbNode)
     {
-      d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::Take(sbNode);
-      scene->AddNode(sbNode);
+      d->ScalarBarNode = sbNode;
     }
   }
   else
   {
-    scene->AddNode(d->ScalarBarNode);
+    node = scene->AddNewNodeByClass("vtkMRMLScalarBarDisplayNode");
+    if (node)
+    {
+      d->ScalarBarNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+    }
   }
 }
 
@@ -274,7 +278,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     d->CopyColorNodeButton->setEnabled(false);
     d->ContinuousScalarsToColorsWidget->setEnabled(false);
     d->VTKScalarBar->setTitle("(mm)");
-    d->ScalarBarNode->SetAndObserveColorTableNode(nullptr);
+    if (d->ScalarBarNode)
+    {
+      d->ScalarBarNode->SetAndObserveColorTableNode(nullptr);
+    }
     return;
   }
 
@@ -342,7 +349,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
       stringArray->SetValue(colorIndex, colorNode->GetColorName(colorIndex));
       }
     d->ScalarBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
-    d->ScalarBarNode->SetAndObserveColorTableNode(colorTableNode);
+    if (d->ScalarBarNode)
+    {
+      d->ScalarBarNode->SetAndObserveColorTableNode(colorTableNode);
+    }
     }
   else if (procColorNode != nullptr)
     {
@@ -373,7 +383,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     {
     // not a valid type of color node
     d->LUTRangeWidget->setValues(0.,0.);
-    d->ScalarBarNode->SetAndObserveColorTableNode(nullptr);
+    if (d->ScalarBarNode)
+    {
+      d->ScalarBarNode->SetAndObserveColorTableNode(nullptr);
+    }
     }
 
   // add the color name to the scalar bar title
@@ -480,6 +493,17 @@ bool qSlicerColorsModuleWidget::setEditedNode(vtkMRMLNode* node,
     }
 
   return false;
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onScalarBarModified()
+{
+  Q_D(qSlicerColorsModuleWidget);
+  if (d->ScalarBarNode)
+  {
+    bool vis = d->ScalarBarNode->GetVisibilityOnSliceViewsFlag();
+    d->ScalarBarNode->SetVisibilityOnSliceViewsFlag(!vis);
+  }
 }
 
 //-----------------------------------------------------------
