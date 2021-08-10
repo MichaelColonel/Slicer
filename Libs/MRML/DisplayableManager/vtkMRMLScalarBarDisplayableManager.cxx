@@ -82,15 +82,8 @@ public:
   vtkMRMLScalarBarDisplayableManager*        External;
 
   vtkSmartPointer<vtkMRMLWindowLevelWidget> WindowLevelWidget;
-  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor2D_Red;
-  vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget2D_Red;
-  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor2D_Yellow;
-  vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget2D_Yellow;
-  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor2D_Green;
-  vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget2D_Green;
-  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor3D;
-  vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget3D;
-
+  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor;
+  vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget;
 };
 
 
@@ -102,14 +95,10 @@ vtkMRMLScalarBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLScalarBarDis
 {
   this->External = external;
   this->WindowLevelWidget = vtkSmartPointer<vtkMRMLWindowLevelWidget>::New();
-  this->ScalarBarActor2D_Red = vtkSmartPointer<vtkScalarBarActor>::New();
-  this->ScalarBarWidget2D_Red = vtkSmartPointer<vtkScalarBarWidget>::New();
-  this->ScalarBarActor2D_Green = vtkSmartPointer<vtkScalarBarActor>::New();
-  this->ScalarBarWidget2D_Green = vtkSmartPointer<vtkScalarBarWidget>::New();
-  this->ScalarBarActor2D_Yellow = vtkSmartPointer<vtkScalarBarActor>::New();
-  this->ScalarBarWidget2D_Yellow = vtkSmartPointer<vtkScalarBarWidget>::New();
-  this->ScalarBarActor3D = vtkSmartPointer<vtkScalarBarActor>::New();
-  this->ScalarBarWidget3D = vtkSmartPointer<vtkScalarBarWidget>::New();
+  this->ScalarBarActor = vtkSmartPointer<vtkScalarBarActor>::New();
+  this->ScalarBarWidget = vtkSmartPointer<vtkScalarBarWidget>::New();
+
+  this->ScalarBarWidget->SetScalarBarActor(this->ScalarBarActor);
 
 //  vtkWarningWithObjectMacro(this->External, "vtkInternal::Constructor");
 }
@@ -181,10 +170,7 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
   if (!interactor)
   {
     vtkWarningWithObjectMacro(this->External, "Interactor is invalid");
-    this->ScalarBarWidget2D_Green->SetInteractor(nullptr);
-    this->ScalarBarWidget2D_Yellow->SetInteractor(nullptr);
-   this->ScalarBarWidget2D_Red->SetInteractor(nullptr);
-    this->ScalarBarWidget3D->SetInteractor(nullptr);
+     this->ScalarBarWidget->SetInteractor(nullptr);
     return;
   }
 
@@ -192,33 +178,17 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
 //  Get scalar bar display node
 // check scalar bar is visible
 //  if (this->CrosshairNode->GetCrosshairMode() == vtkMRMLCrosshairNode::NoCrosshair)
-  vtkMRMLScalarBarDisplayNode* sbDisplayNode = this->External->GetScalarBarNode(this->External->GetMRMLScene());
+  vtkMRMLScalarBarDisplayNode* node = this->External->GetScalarBarNode(this->External->GetMRMLScene());
 
-  if (!sbDisplayNode)
+  if (!node || (node && !node->GetVisibilityOnSliceViewsFlag()))
   {
-//    this->ScalarBarWidget2D_Green->SetEnabled(false);
-//    this->ScalarBarWidget2D_Yellow->SetEnabled(false);
-//    this->ScalarBarWidget2D_Red->SetEnabled(false);
-//    this->ScalarBarWidget3D->SetEnabled(false);
+    this->ScalarBarWidget->SetEnabled(false);
     vtkWarningWithObjectMacro(this->External, "No scalar bar display node");
     return;
   }
 
-  this->ScalarBarWidget2D_Yellow->SetScalarBarActor(this->ScalarBarActor2D_Yellow);
-  this->ScalarBarWidget2D_Yellow->SetInteractor(interactor);
-  this->ScalarBarWidget2D_Yellow->SetEnabled(true);
-
-  this->ScalarBarWidget2D_Red->SetScalarBarActor(this->ScalarBarActor2D_Red);
-  this->ScalarBarWidget2D_Red->SetInteractor(interactor);
-  this->ScalarBarWidget2D_Red->SetEnabled(true);
-
-  this->ScalarBarWidget2D_Green->SetScalarBarActor(this->ScalarBarActor2D_Green);
-  this->ScalarBarWidget2D_Green->SetInteractor(interactor);
-  this->ScalarBarWidget2D_Green->SetEnabled(true);
-
-  this->ScalarBarWidget3D->SetScalarBarActor(this->ScalarBarActor3D);
-  this->ScalarBarWidget3D->SetInteractor(interactor);
-  this->ScalarBarWidget3D->SetEnabled(true);
+  this->ScalarBarWidget->SetInteractor(interactor);
+  this->ScalarBarWidget->SetEnabled(true);
 
 //  vtkWarningWithObjectMacro(this->External, "BuildScalarBar");
 
@@ -266,6 +236,11 @@ void vtkMRMLScalarBarDisplayableManager::UpdateFromMRMLScene()
 //  vtkWarningMacro("UpdateFromMRMLScene");
 }
 
+vtkScalarBarWidget* vtkMRMLScalarBarDisplayableManager::GetScalarBarWidget() const
+{
+  return this->Internal->ScalarBarWidget.GetPointer();
+}
+
 //---------------------------------------------------------------------------
 void vtkMRMLScalarBarDisplayableManager::UnobserveMRMLScene()
 {
@@ -311,9 +286,7 @@ void vtkMRMLScalarBarDisplayableManager::OnMRMLSliceNodeModifiedEvent()
       {
         vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Set lookup table");
         this->Internal->BuildScalarBar();
-        this->Internal->ScalarBarActor2D_Green->SetLookupTable(colorTableNode->GetScalarsToColors());
-        this->Internal->ScalarBarActor2D_Red->SetLookupTable(colorTableNode->GetScalarsToColors());
-        this->Internal->ScalarBarActor2D_Yellow->SetLookupTable(colorTableNode->GetScalarsToColors());
+        this->Internal->ScalarBarActor->SetLookupTable(colorTableNode->GetScalarsToColors());
       }
     }
     else

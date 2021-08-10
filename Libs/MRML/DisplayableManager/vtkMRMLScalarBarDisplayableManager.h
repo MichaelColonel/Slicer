@@ -22,6 +22,7 @@
 #include "vtkMRMLAbstractSliceViewDisplayableManager.h"
 #include "vtkMRMLDisplayableManagerExport.h"
 
+class vtkScalarBarWidget;
 class vtkMRMLScalarBarDisplayNode;
 class vtkMRMLScene;
 
@@ -45,7 +46,7 @@ public:
   bool GetAdjustForegroundWindowLevelEnabled();
   void SetAdjustBackgroundWindowLevelEnabled(bool enabled);
   bool GetAdjustBackgroundWindowLevelEnabled();
-
+  vtkScalarBarWidget* GetScalarBarWidget() const;
   static vtkMRMLScalarBarDisplayNode* GetScalarBarNode(vtkMRMLScene* scene);
   
 protected:
