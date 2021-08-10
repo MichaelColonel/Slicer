@@ -82,7 +82,7 @@ public:
   vtkMRMLScalarBarDisplayableManager*        External;
 
   vtkSmartPointer<vtkMRMLWindowLevelWidget> WindowLevelWidget;
-/*  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor2D_Red;
+  vtkSmartPointer<vtkScalarBarActor> ScalarBarActor2D_Red;
   vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget2D_Red;
   vtkSmartPointer<vtkScalarBarActor> ScalarBarActor2D_Yellow;
   vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget2D_Yellow;
@@ -90,7 +90,7 @@ public:
   vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget2D_Green;
   vtkSmartPointer<vtkScalarBarActor> ScalarBarActor3D;
   vtkSmartPointer<vtkScalarBarWidget> ScalarBarWidget3D;
-*/
+
 };
 
 
@@ -102,7 +102,7 @@ vtkMRMLScalarBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLScalarBarDis
 {
   this->External = external;
   this->WindowLevelWidget = vtkSmartPointer<vtkMRMLWindowLevelWidget>::New();
-/*  this->ScalarBarActor2D_Red = vtkSmartPointer<vtkScalarBarActor>::New();
+  this->ScalarBarActor2D_Red = vtkSmartPointer<vtkScalarBarActor>::New();
   this->ScalarBarWidget2D_Red = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->ScalarBarActor2D_Green = vtkSmartPointer<vtkScalarBarActor>::New();
   this->ScalarBarWidget2D_Green = vtkSmartPointer<vtkScalarBarWidget>::New();
@@ -110,7 +110,7 @@ vtkMRMLScalarBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLScalarBarDis
   this->ScalarBarWidget2D_Yellow = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->ScalarBarActor3D = vtkSmartPointer<vtkScalarBarActor>::New();
   this->ScalarBarWidget3D = vtkSmartPointer<vtkScalarBarWidget>::New();
-*/
+
 //  vtkWarningWithObjectMacro(this->External, "vtkInternal::Constructor");
 }
 
@@ -181,10 +181,10 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
   if (!interactor)
   {
     vtkWarningWithObjectMacro(this->External, "Interactor is invalid");
-//    this->ScalarBarWidget2D_Green->SetInteractor(nullptr);
-//    this->ScalarBarWidget2D_Yellow->SetInteractor(nullptr);
-//   this->ScalarBarWidget2D_Red->SetInteractor(nullptr);
-//    this->ScalarBarWidget3D->SetInteractor(nullptr);
+    this->ScalarBarWidget2D_Green->SetInteractor(nullptr);
+    this->ScalarBarWidget2D_Yellow->SetInteractor(nullptr);
+   this->ScalarBarWidget2D_Red->SetInteractor(nullptr);
+    this->ScalarBarWidget3D->SetInteractor(nullptr);
     return;
   }
 
@@ -203,7 +203,7 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
     vtkWarningWithObjectMacro(this->External, "No scalar bar display node");
     return;
   }
-/*
+
   this->ScalarBarWidget2D_Yellow->SetScalarBarActor(this->ScalarBarActor2D_Yellow);
   this->ScalarBarWidget2D_Yellow->SetInteractor(interactor);
   this->ScalarBarWidget2D_Yellow->SetEnabled(true);
@@ -219,7 +219,7 @@ void vtkMRMLScalarBarDisplayableManager::vtkInternal::BuildScalarBar()
   this->ScalarBarWidget3D->SetScalarBarActor(this->ScalarBarActor3D);
   this->ScalarBarWidget3D->SetInteractor(interactor);
   this->ScalarBarWidget3D->SetEnabled(true);
-*/
+
 //  vtkWarningWithObjectMacro(this->External, "BuildScalarBar");
 
 //  int *screenSize = interactor->GetRenderWindow()->GetScreenSize();
@@ -310,9 +310,10 @@ void vtkMRMLScalarBarDisplayableManager::OnMRMLSliceNodeModifiedEvent()
       if (vtkMRMLColorTableNode* colorTableNode = sbNode->GetColorTableNode())
       {
         vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: Set lookup table");
-//        this->Internal->ScalarBarActor2D_Green->SetLookupTable(colorTableNode->GetScalarsToColors());
-//        this->Internal->ScalarBarActor2D_Red->SetLookupTable(colorTableNode->GetScalarsToColors());
-//        this->Internal->ScalarBarActor2D_Yellow->SetLookupTable(colorTableNode->GetScalarsToColors());
+        this->Internal->BuildScalarBar();
+        this->Internal->ScalarBarActor2D_Green->SetLookupTable(colorTableNode->GetScalarsToColors());
+        this->Internal->ScalarBarActor2D_Red->SetLookupTable(colorTableNode->GetScalarsToColors());
+        this->Internal->ScalarBarActor2D_Yellow->SetLookupTable(colorTableNode->GetScalarsToColors());
       }
     }
     else

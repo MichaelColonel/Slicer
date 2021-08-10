@@ -17,23 +17,27 @@
 #define __vtkMRMLScalarBarDisplayNode_h
 
 // MRML includes
-#include <vtkMRMLDisplayNode.h>
+//#include <vtkMRMLDisplayNode.h>
+#include <vtkMRMLNode.h>
 
 class vtkMRMLColorTableNode;
 
-class VTK_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLDisplayNode
+//class VTK_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLDisplayNode
+class VTK_MRML_EXPORT vtkMRMLScalarBarDisplayNode : public vtkMRMLNode
 {
 public:
   static const char* COLOR_TABLE_REFERENCE_ROLE;
 
   static vtkMRMLScalarBarDisplayNode *New();
-  vtkTypeMacro(vtkMRMLScalarBarDisplayNode,vtkMRMLDisplayNode);
+//  vtkTypeMacro(vtkMRMLScalarBarDisplayNode,vtkMRMLDisplayNode);
+  vtkTypeMacro(vtkMRMLScalarBarDisplayNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkMRMLNode* CreateNodeInstance() override;
 
   /// Get node XML tag name (like Volume, Model)
-  const char* GetNodeTagName() override {return "ScalarBarDisplay";}
+//  const char* GetNodeTagName() override {return "ScalarBarDisplay";}
+  const char* GetNodeTagName() override {return "ScalarBar";}
 
   /// Read node attributes from XML file
   void ReadXMLAttributes(const char** atts) override;
