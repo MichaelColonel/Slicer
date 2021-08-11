@@ -86,6 +86,7 @@ set(DisplayableManager_SRCS
   vtkMRMLOrientationMarkerDisplayableManager.cxx
   vtkMRMLRulerDisplayableManager.cxx
   vtkMRMLScalarBarDisplayableManager.cxx
+  vtkMRMLColorBarDisplayableManager.cxx
   )
 
 set(KIT_SRCS
