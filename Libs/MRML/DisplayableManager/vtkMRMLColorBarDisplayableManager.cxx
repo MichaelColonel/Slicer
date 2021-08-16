@@ -198,9 +198,19 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
     vtkWarningMacro("OnMRMLSliceNodeModifiedEvent: view node is invalid");
     return;
   }
-/*
+
   vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
+  vtkMRMLViewNode* threeDViewNode = vtkMRMLViewNode::SafeDownCast(viewNode);
   if (sliceNode)
+  {
+    vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent: Slice 2D Name " << sliceNode->GetName());
+  }
+  else if (threeDViewNode)
+  {
+    vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent: 3D Name " << threeDViewNode->GetName());
+  }
+
+/*  if (sliceNode)
   {
     vtkMRMLScalarBarDisplayNode* sbNode = this->GetScalarBarNode(this->GetMRMLScene());
     if (sbNode)
