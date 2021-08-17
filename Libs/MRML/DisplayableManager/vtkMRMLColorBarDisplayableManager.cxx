@@ -31,7 +31,7 @@
 #include <vtkMRMLWindowLevelWidget.h>
 #include <vtkMRMLViewNode.h>
 #include <vtkMRMLColorTableNode.h>
-//#include <vtkMRMLScalarBarDisplayNode.h>
+#include <vtkMRMLColorBarDisplayNode.h>
 
 // VTK includes
 #include <vtkActor2D.h>
@@ -249,7 +249,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 //---------------------------------------------------------------------------
 void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller, unsigned long event, void *callData)
 {
-  vtkWarningMacro("ProcessMRMLNodesEvents: Modified event observer added for color bar node");
+//  vtkWarningMacro("ProcessMRMLNodesEvents: process color bar node events");
 
   this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
   switch(event)
@@ -258,6 +258,12 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
   // view observes a camera node, create a new camera node if needed
   case vtkCommand::ModifiedEvent:
     {
+      vtkMRMLColorBarDisplayNode* cbNode = vtkMRMLColorBarDisplayNode::SafeDownCast(caller);
+      if (cbNode)
+      {
+        vtkWarningMacro("ProcessMRMLNodesEvents: Color bar node modified, visibility 2D " << cbNode->GetVisibility2D()
+          << " visibility 3D " << cbNode->GetVisibility3D() << " preset position " << cbNode->GetPositionPreset());
+      }
     }
     break;
   default:
