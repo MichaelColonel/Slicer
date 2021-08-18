@@ -19,6 +19,9 @@
 // MRML includes
 #include <vtkMRMLDisplayNode.h>
 
+class vtkMRMLScalarVolumeNode;
+class vtkMRMLModelNode;
+
 class VTK_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
 {
 public:
@@ -43,6 +46,11 @@ public:
   /// Copy node content (excludes basic data, such as name and node references).
   /// \sa vtkMRMLNode::CopyContent
   vtkMRMLCopyContentMacro(vtkMRMLColorBarDisplayNode);
+
+  /// Get displayable node
+  vtkMRMLDisplayableNode* GetDisplayableNode();
+  /// Set and observe displayable node
+  void SetAndObserveDisplayableNode(vtkMRMLDisplayableNode* node);
 
   vtkGetMacro(PositionPreset, PositionPresetType);
   vtkSetMacro(PositionPreset, PositionPresetType);

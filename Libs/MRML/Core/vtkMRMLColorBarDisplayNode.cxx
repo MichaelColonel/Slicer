@@ -25,6 +25,14 @@
 // STD includes
 #include <cstring>
 
+//------------------------------------------------------------------------------
+namespace
+{
+
+const char* DISPLAYABLE_REFERENCE_ROLE = "displayableRef";
+
+} // namespace
+
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 
@@ -146,4 +154,22 @@ int vtkMRMLColorBarDisplayNode::GetPositionPresetFromString(const char* name)
   }
   // unknown name
   return -1;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLDisplayableNode* vtkMRMLColorBarDisplayNode::GetDisplayableNode()
+{
+  return vtkMRMLDisplayableNode::SafeDownCast( this->GetNodeReference(DISPLAYABLE_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayNode::SetAndObserveDisplayableNode(vtkMRMLDisplayableNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveDisplayableNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(DISPLAYABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
