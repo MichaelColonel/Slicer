@@ -41,6 +41,8 @@ vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   :
   PositionPreset(VerticalRight)
 {
+  this->SetVisibility2D(false);
+  this->SetVisibility3D(false);
 //  this->SetSingletonTag("default");
 }
 

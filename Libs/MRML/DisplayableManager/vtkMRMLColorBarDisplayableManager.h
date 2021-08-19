@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkMRMLColorBarDisplayableManager, vtkMRMLAbstractDisplayableManager);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkScalarBarWidget* GetScalarBarWidget() const;
+  void GetColorBarWidgets(vtkScalarBarWidget* widget2D, vtkScalarBarWidget* widget3D) const;
 
 protected:
   vtkMRMLColorBarDisplayableManager();
@@ -54,7 +54,6 @@ protected:
                                       
   /// Called when the SliceNode or Three3DViewNode are modified. May cause ColorBar to remap its position on screen.
   void OnMRMLDisplayableNodeModifiedEvent(vtkObject* caller) override;
-//  void OnMRMLNodeModified(vtkMRMLNode* node) override;
 
   /// Method to perform additional initialization
   void AdditionalInitializeStep() override;
