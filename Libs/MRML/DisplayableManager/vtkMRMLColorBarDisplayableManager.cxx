@@ -234,6 +234,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
           {
 //            vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent: Color table node is valid");
             this->Internal->ColorBarActor2D->SetLookupTable(colorTableNode->GetScalarsToColors());
+            this->RequestRender();
           }
         }
       }
@@ -264,6 +265,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
           {
             vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent: Color table node is valid");
             this->Internal->ColorBarActor2D->SetLookupTable(colorTableNode->GetScalarsToColors());
+            this->RequestRender();
           }
         }
       }
@@ -290,7 +292,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
-    vtkWarningMacro("OnMRMLSceneNodeAdded: Modified event observer added for color bar node");
+//    vtkWarningMacro("OnMRMLSceneNodeAdded: Modified event observer added for color bar node");
   }
 }
 
@@ -310,8 +312,7 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
       if (cbNode)
       {
         this->Internal->ColorBarDisplayNode = cbNode;
-        vtkWarningMacro("ProcessMRMLNodesEvents: Color bar node modified, visibility 2D " << cbNode->GetVisibility2D()
-          << " visibility 3D " << cbNode->GetVisibility3D() << " preset position " << cbNode->GetPositionPreset());
+        vtkWarningMacro("ProcessMRMLNodesEvents: Create or update color bar, send update event");
       }
     }
     break;
