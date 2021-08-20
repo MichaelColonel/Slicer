@@ -266,6 +266,34 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
         {
           this->Internal->BuildColorBar2D();
         }
+        
+        switch (this->Internal->ColorBarDisplayNode->GetPositionPreset())
+        {
+        case vtkMRMLColorBarDisplayNode::VerticalRight:
+        case vtkMRMLColorBarDisplayNode::VerticalLeft:
+          this->Internal->ColorBarActor2D->SetOrientationToVertical();
+          this->Internal->ColorBarActor3D->SetOrientationToVertical();
+          this->Internal->ColorBarActor2D->SetPosition(0.1, 0.1);
+          this->Internal->ColorBarActor2D->SetWidth(0.1);
+          this->Internal->ColorBarActor2D->SetHeight(0.8);
+          this->Internal->ColorBarActor3D->SetPosition(0.1, 0.1);
+          this->Internal->ColorBarActor3D->SetWidth(0.1);
+          this->Internal->ColorBarActor3D->SetHeight(0.8);
+          break;
+        case vtkMRMLColorBarDisplayNode::HorizontalTop:
+        case vtkMRMLColorBarDisplayNode::HorizontalBottom:
+          this->Internal->ColorBarActor2D->SetOrientationToHorizontal();
+          this->Internal->ColorBarActor3D->SetOrientationToHorizontal();
+          this->Internal->ColorBarActor2D->SetPosition(0.1, 0.1);
+          this->Internal->ColorBarActor2D->SetWidth(0.8);
+          this->Internal->ColorBarActor2D->SetHeight(0.1);
+          this->Internal->ColorBarActor3D->SetPosition(0.1, 0.1);
+          this->Internal->ColorBarActor3D->SetWidth(0.8);
+          this->Internal->ColorBarActor3D->SetHeight(0.1);
+          break;
+        default:
+          break;
+        }
         vtkMRMLColorTableNode* colorTableNode = vtkMRMLColorTableNode::SafeDownCast(colorNode);
         if (colorTableNode)
         {
