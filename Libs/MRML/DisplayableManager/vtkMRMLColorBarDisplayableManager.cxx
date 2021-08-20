@@ -236,11 +236,11 @@ void vtkMRMLColorBarDisplayableManager::AdditionalInitializeStep()
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkObject* caller)
+void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkObject* vtkNotUsed(caller))
 {
 //  vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent");
 
-  vtkMRMLAbstractViewNode* viewNode = vtkMRMLAbstractViewNode::SafeDownCast(caller);//this->GetMRMLDisplayableNode());
+  vtkMRMLAbstractViewNode* viewNode = vtkMRMLAbstractViewNode::SafeDownCast(this->GetMRMLDisplayableNode());
   if (!viewNode)
   {
 //    vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent: view node is invalid");
@@ -376,7 +376,8 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
       {
         this->Internal->ColorBarDisplayNode = cbNode;
 //        this->RequestRender();
-        vtkWarningMacro("ProcessMRMLNodesEvents: Create or update color bar, send update event");
+//        vtkWarningMacro("ProcessMRMLNodesEvents: Create or update color bar, send update event");
+//        this->OnMRMLDisplayableNodeModifiedEvent(cbNode);
       }
     }
     break;
