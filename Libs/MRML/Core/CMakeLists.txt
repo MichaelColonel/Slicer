@@ -130,7 +130,6 @@ set(MRMLCore_SRCS
   vtkMRMLClipModelsNode.cxx
   vtkMRMLColorNode.cxx
   vtkMRMLColors.cxx
-  vtkMRMLColorBarDisplayNode.cxx
   vtkMRMLColorTableNode.cxx
   vtkMRMLColorTableStorageNode.cxx
   vtkMRMLCoreTestingUtilities.cxx

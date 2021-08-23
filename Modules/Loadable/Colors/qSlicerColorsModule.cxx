@@ -44,6 +44,10 @@
 #include <vtkSlicerApplicationLogic.h>
 #include "vtkSlicerColorLogic.h"
 
+// DisplayableManager initialization
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkSlicerColorsModuleMRMLDisplayableManager)
+
 //-----------------------------------------------------------------------------
 class qSlicerColorsModulePrivate
 {
@@ -86,6 +90,7 @@ void qSlicerColorsModule::setup()
 {
   Q_D(qSlicerColorsModule);
 
+  // DisplayableManager initialization
   // Register color bar displayable manager for slice and 3D views
   vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
     "vtkMRMLColorBarDisplayableManager");
