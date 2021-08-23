@@ -58,7 +58,7 @@
 
 // STD includes
 #include <algorithm>
-#include <cassert>
+#include <cstring>
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLColorBarDisplayableManager);
@@ -73,23 +73,23 @@ public:
   vtkObserverManager* GetMRMLNodesObserverManager();
   void Modified();
 
-  // Slice
-  vtkMRMLSliceNode* GetSliceNode();
-  void UpdateSliceNode();
-
   // Build the color bars
-  void BuildColorBar2D();
-  void UpdateColorBar2D();
-  void BuildColorBar3D();
-  void UpdateColorBar3D();
+  void BuildColorBar2D(vtkMRMLSliceNode* sliceNode = nullptr);
+  void BuildColorBar3D(vtkMRMLViewNode* viewNode = nullptr);
+
+  void SetupActor(vtkScalarBarActor*);
 
   vtkMRMLColorBarDisplayableManager*        External;
 
-  vtkSmartPointer<vtkScalarBarActor> ColorBarActor2D;
-  vtkSmartPointer<vtkScalarBarWidget> ColorBarWidget2D;
+  vtkSmartPointer<vtkScalarBarActor> ColorBarActorRed;
+  vtkSmartPointer<vtkScalarBarWidget> ColorBarWidgetRed;
+  vtkSmartPointer<vtkScalarBarActor> ColorBarActorGreen;
+  vtkSmartPointer<vtkScalarBarWidget> ColorBarWidgetGreen;
+  vtkSmartPointer<vtkScalarBarActor> ColorBarActorYellow;
+  vtkSmartPointer<vtkScalarBarWidget> ColorBarWidgetYellow;
   vtkSmartPointer<vtkScalarBarActor> ColorBarActor3D;
   vtkSmartPointer<vtkScalarBarWidget> ColorBarWidget3D;
-  vtkMRMLColorBarDisplayNode* ColorBarDisplayNode;
+  vtkWeakPointer<vtkMRMLColorBarDisplayNode> ColorBarDisplayNode;
 };
 
 
@@ -100,22 +100,24 @@ public:
 vtkMRMLColorBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLColorBarDisplayableManager* external)
   :
   External(external),
-  ColorBarActor2D(vtkSmartPointer<vtkScalarBarActor>::New()),
-  ColorBarWidget2D(vtkSmartPointer<vtkScalarBarWidget>::New()),
+  ColorBarActorRed(vtkSmartPointer<vtkScalarBarActor>::New()),
+  ColorBarWidgetRed(vtkSmartPointer<vtkScalarBarWidget>::New()),
+  ColorBarActorGreen(vtkSmartPointer<vtkScalarBarActor>::New()),
+  ColorBarWidgetGreen(vtkSmartPointer<vtkScalarBarWidget>::New()),
+  ColorBarActorYellow(vtkSmartPointer<vtkScalarBarActor>::New()),
+  ColorBarWidgetYellow(vtkSmartPointer<vtkScalarBarWidget>::New()),
   ColorBarActor3D(vtkSmartPointer<vtkScalarBarActor>::New()),
-  ColorBarWidget3D(vtkSmartPointer<vtkScalarBarWidget>::New()),
-  ColorBarDisplayNode(nullptr)
+  ColorBarWidget3D(vtkSmartPointer<vtkScalarBarWidget>::New())
 {
-  this->ColorBarWidget2D->SetScalarBarActor(this->ColorBarActor2D);
-  this->ColorBarWidget3D->SetScalarBarActor(this->ColorBarActor3D);
-
   vtkWarningWithObjectMacro(this->External, "vtkInternal::Constructor");
 }
 
 //---------------------------------------------------------------------------
 vtkMRMLColorBarDisplayableManager::vtkInternal::~vtkInternal()
 {
-  this->ColorBarWidget2D->SetInteractor(nullptr);
+  this->ColorBarWidgetRed->SetInteractor(nullptr);
+  this->ColorBarWidgetGreen->SetInteractor(nullptr);
+  this->ColorBarWidgetYellow->SetInteractor(nullptr);
   this->ColorBarWidget3D->SetInteractor(nullptr);
   vtkWarningWithObjectMacro(this->External, "vtkInternal::Destructor");
 }
@@ -135,61 +137,173 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::Modified()
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar3D()
+void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar3D(vtkMRMLViewNode* viewNode)
 {
-  vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
-  if (node)
+  if (!viewNode)
   {
-    vtkMRMLViewNode* viewNode = vtkMRMLViewNode::SafeDownCast(node);
-    if (viewNode)
+    vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
+    if (node)
     {
-      vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
-      if (!interactor)
-      {
-        this->ColorBarWidget3D->SetEnabled(false);
-        this->ColorBarWidget3D->SetInteractor(nullptr);
-        return;
-      }
-      vtkWarningWithObjectMacro(this->External, "Build color bar 3D");
-      this->ColorBarWidget3D->SetInteractor(interactor);
-      this->ColorBarWidget3D->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
+      viewNode = vtkMRMLViewNode::SafeDownCast(node);
+    }
+  }
+
+  if (!viewNode)
+  {
+    vtkErrorWithObjectMacro(this->External, "3D view node is invalid");
+    return;
+  }
+
+  vtkWarningWithObjectMacro( this->External, "View node name: " << viewNode->GetName());
+  vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
+  if (!interactor)
+  {
+    this->ColorBarWidget3D->SetEnabled(false);
+    this->ColorBarWidget3D->SetInteractor(nullptr);
+    return;
+  }
+  vtkWarningWithObjectMacro(this->External, "Build color bar 3D");
+  // Setup/update scalar bar actor
+  if (this->ColorBarDisplayNode)
+  {
+    SetupActor(this->ColorBarActor3D);
+
+    this->ColorBarWidget3D->SetScalarBarActor(this->ColorBarActor3D);
+    this->ColorBarWidget3D->SetInteractor(interactor);
+    this->ColorBarWidget3D->SetEnabled(this->ColorBarDisplayNode->GetVisibility3D());
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(this->External, "Color bar display node is invalid");
+    return;
+  }
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar2D(vtkMRMLSliceNode* sliceNode)
+{
+  if (!sliceNode)
+  {
+    vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
+    if (node)
+    {
+      sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
+    }
+  }
+
+  if (!sliceNode)
+  {
+    vtkErrorWithObjectMacro(this->External, "Slice node is invalid");
+    return;
+  }
+
+  vtkWarningWithObjectMacro( this->External, "Slice node name: " << sliceNode->GetName());
+  vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
+
+  if (std::strcmp(sliceNode->GetName(), "Red") == 0)
+  {
+    if (!interactor)
+    {
+      this->ColorBarWidgetRed->SetEnabled(false);
+      this->ColorBarWidgetRed->SetInteractor(nullptr);
+      return;
+    }
+    vtkWarningWithObjectMacro(this->External, "Build color bar 2D red");
+    // Setup/update scalar bar actor
+    if (this->ColorBarDisplayNode)
+    {
+      SetupActor(this->ColorBarActorRed);
+
+      this->ColorBarWidgetRed->SetScalarBarActor(this->ColorBarActorRed);
+      this->ColorBarWidgetRed->SetInteractor(interactor);
+      this->ColorBarWidgetRed->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(this->External, "Color bar display node is invalid");
+      return;
+    }
+  }
+  else if (std::strcmp(sliceNode->GetName(), "Green") == 0)
+  {
+    if (!interactor)
+    {
+      this->ColorBarWidgetGreen->SetEnabled(false);
+      this->ColorBarWidgetGreen->SetInteractor(nullptr);
+      return;
+    }
+    vtkWarningWithObjectMacro(this->External, "Build color bar 2D green");
+    // Setup/update scalar bar actor
+    if (this->ColorBarDisplayNode)
+    {
+      SetupActor(this->ColorBarActorGreen);
+
+      this->ColorBarWidgetGreen->SetScalarBarActor(this->ColorBarActorGreen);
+      this->ColorBarWidgetGreen->SetInteractor(interactor);
+      this->ColorBarWidgetGreen->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(this->External, "Color bar display node is invalid");
+      return;
+    }
+  }
+  else if (std::strcmp(sliceNode->GetName(), "Yellow") == 0)
+  {
+    if (!interactor)
+    {
+      this->ColorBarWidgetYellow->SetEnabled(false);
+      this->ColorBarWidgetYellow->SetInteractor(nullptr);
+      return;
+    }
+    vtkWarningWithObjectMacro(this->External, "Build color bar 2D yellow");
+    // Setup/update scalar bar actor
+    if (this->ColorBarDisplayNode)
+    {
+      SetupActor(this->ColorBarActorYellow);
+
+      this->ColorBarWidgetYellow->SetScalarBarActor(this->ColorBarActorYellow);
+      this->ColorBarWidgetYellow->SetInteractor(interactor);
+      this->ColorBarWidgetYellow->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
+    }
+    else
+    {
+      vtkErrorWithObjectMacro(this->External, "Color bar display node is invalid");
+      return;
     }
   }
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateColorBar3D()
+void vtkMRMLColorBarDisplayableManager::vtkInternal::SetupActor(vtkScalarBarActor* actor)
 {
-  this->ColorBarWidget3D->SetEnabled(this->ColorBarDisplayNode->GetVisibility3D());
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar2D()
-{
-  vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
-  if (node)
+  switch (this->ColorBarDisplayNode->GetPositionPreset())
   {
-    vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
-    if (sliceNode)
-    {
-      vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
-      if (!interactor)
-      {
-        this->ColorBarWidget2D->SetEnabled(false);
-        this->ColorBarWidget2D->SetInteractor(nullptr);
-        return;
-      }
-      vtkWarningWithObjectMacro(this->External, "Build color bar 2D");
-      this->ColorBarWidget2D->SetInteractor(interactor);
-      this->ColorBarWidget2D->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
-    }
+  case vtkMRMLColorBarDisplayNode::VerticalRight:
+  case vtkMRMLColorBarDisplayNode::VerticalLeft:
+    actor->SetOrientationToVertical();
+    actor->SetOrientationToVertical();
+    actor->SetPosition(0.1, 0.1);
+    actor->SetWidth(0.1);
+    actor->SetHeight(0.8);
+    actor->SetPosition(0.1, 0.1);
+    actor->SetWidth(0.1);
+    actor->SetHeight(0.8);
+    break;
+  case vtkMRMLColorBarDisplayNode::HorizontalTop:
+  case vtkMRMLColorBarDisplayNode::HorizontalBottom:
+    actor->SetOrientationToHorizontal();
+    actor->SetOrientationToHorizontal();
+    actor->SetPosition(0.1, 0.1);
+    actor->SetWidth(0.8);
+    actor->SetHeight(0.1);
+    actor->SetPosition(0.1, 0.1);
+    actor->SetWidth(0.8);
+    actor->SetHeight(0.1);
+    break;
+  default:
+    break;
   }
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateColorBar2D()
-{
-  this->ColorBarWidget2D->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
 }
 
 //---------------------------------------------------------------------------
@@ -217,7 +331,7 @@ void vtkMRMLColorBarDisplayableManager::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkMRMLColorBarDisplayableManager::GetColorBarWidgets(vtkScalarBarWidget* widget2D, vtkScalarBarWidget* widget3D) const
 {
-  widget2D = this->Internal->ColorBarWidget2D.GetPointer();
+  widget2D = this->Internal->ColorBarWidgetRed.GetPointer();
   widget3D = this->Internal->ColorBarWidget3D.GetPointer();
 }
 
@@ -243,7 +357,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
   vtkMRMLAbstractViewNode* viewNode = vtkMRMLAbstractViewNode::SafeDownCast(this->GetMRMLDisplayableNode());
   if (!viewNode)
   {
-//    vtkWarningMacro("OnMRMLDisplayableNodeModifiedEvent: view node is invalid");
+    vtkErrorMacro("OnMRMLDisplayableNodeModifiedEvent: View node is invalid");
     return;
   }
 
@@ -260,13 +374,24 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
       {
         if (threeDViewNode)
         {
-          this->Internal->BuildColorBar3D();
+          vtkWarningMacro("3D view vode name: " << threeDViewNode->GetName());
+          this->Internal->BuildColorBar3D(threeDViewNode);
         }
         else if (sliceNode)
         {
-          this->Internal->BuildColorBar2D();
+          vtkWarningMacro("Slice vode name: " << sliceNode->GetName());
+          this->Internal->BuildColorBar2D(sliceNode);
         }
-        
+
+        vtkMRMLColorTableNode* colorTableNode = vtkMRMLColorTableNode::SafeDownCast(colorNode);
+        if (colorTableNode)
+        {
+          this->Internal->ColorBarActorRed->SetLookupTable(colorTableNode->GetScalarsToColors());
+          this->Internal->ColorBarActorGreen->SetLookupTable(colorTableNode->GetScalarsToColors());
+          this->Internal->ColorBarActorYellow->SetLookupTable(colorTableNode->GetScalarsToColors());
+          this->Internal->ColorBarActor3D->SetLookupTable(colorTableNode->GetScalarsToColors());
+        }
+/*
         switch (this->Internal->ColorBarDisplayNode->GetPositionPreset())
         {
         case vtkMRMLColorBarDisplayNode::VerticalRight:
@@ -300,6 +425,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
           this->Internal->ColorBarActor2D->SetLookupTable(colorTableNode->GetScalarsToColors());
           this->Internal->ColorBarActor3D->SetLookupTable(colorTableNode->GetScalarsToColors());
         }
+        */
       }
     }
   }
@@ -383,7 +509,6 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
-//    vtkWarningMacro("OnMRMLSceneNodeAdded: Modified event observer added for color bar node");
   }
 }
 
@@ -399,10 +524,10 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
   // view observes a camera node, create a new camera node if needed
   case vtkCommand::ModifiedEvent:
     {
-      vtkMRMLColorBarDisplayNode* cbNode = vtkMRMLColorBarDisplayNode::SafeDownCast(caller);
-      if (cbNode)
+      vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(caller);
+      if (colorBarNode)
       {
-        this->Internal->ColorBarDisplayNode = cbNode;
+        this->Internal->ColorBarDisplayNode = colorBarNode;
 //        this->RequestRender();
 //        vtkWarningMacro("ProcessMRMLNodesEvents: Create or update color bar, send update event");
 //        this->OnMRMLDisplayableNodeModifiedEvent(cbNode);
