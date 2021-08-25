@@ -282,24 +282,22 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::SetupActor(vtkScalarBarActo
   case vtkMRMLColorBarDisplayNode::VerticalRight:
   case vtkMRMLColorBarDisplayNode::VerticalLeft:
     actor->SetOrientationToVertical();
-    actor->SetOrientationToVertical();
-    actor->SetPosition(0.1, 0.1);
-    actor->SetWidth(0.1);
-    actor->SetHeight(0.8);
-    actor->SetPosition(0.1, 0.1);
-    actor->SetWidth(0.1);
-    actor->SetHeight(0.8);
+//    actor->SetPosition(0.1, 0.1);
+//    actor->SetWidth(0.1);
+//    actor->SetHeight(0.8);
+//    actor->SetPosition(0.1, 0.1);
+//    actor->SetWidth(0.1);
+//    actor->SetHeight(0.8);
     break;
   case vtkMRMLColorBarDisplayNode::HorizontalTop:
   case vtkMRMLColorBarDisplayNode::HorizontalBottom:
     actor->SetOrientationToHorizontal();
-    actor->SetOrientationToHorizontal();
-    actor->SetPosition(0.1, 0.1);
-    actor->SetWidth(0.8);
-    actor->SetHeight(0.1);
-    actor->SetPosition(0.1, 0.1);
-    actor->SetWidth(0.8);
-    actor->SetHeight(0.1);
+//    actor->SetPosition(0.1, 0.1);
+//    actor->SetWidth(0.8);
+//    actor->SetHeight(0.1);
+//    actor->SetPosition(0.1, 0.1);
+//    actor->SetWidth(0.8);
+//    actor->SetHeight(0.1);
     break;
   default:
     break;
@@ -377,7 +375,7 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkOb
       {
         if (threeDViewNode)
         {
-          vtkWarningMacro("3D view vode name: " << threeDViewNode->GetName());
+          vtkWarningMacro("3D view node name: " << threeDViewNode->GetName());
           this->Internal->BuildColorBar3D(threeDViewNode);
         }
         else if (sliceNode)
@@ -528,12 +526,22 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
   case vtkCommand::ModifiedEvent:
     {
       vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(caller);
-      if (colorBarNode)
+      if (!this->Internal->ColorBarDisplayNode && colorBarNode)
       {
+        // Build new scalar bars
         this->Internal->ColorBarDisplayNode = colorBarNode;
 //        this->RequestRender();
 //        vtkWarningMacro("ProcessMRMLNodesEvents: Create or update color bar, send update event");
 //        this->OnMRMLDisplayableNodeModifiedEvent(cbNode);
+      }
+      else if (this->Internal->ColorBarDisplayNode && colorBarNode)
+      {
+        // Update scalar bars using new prorepties of the bars
+        this->Internal->ColorBarDisplayNode = colorBarNode;
+      }
+      else
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: Unable to create/update colour bar, colour bar display node is invalid");
       }
     }
     break;
