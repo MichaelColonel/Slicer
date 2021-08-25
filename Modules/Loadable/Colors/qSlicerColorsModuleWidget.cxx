@@ -69,6 +69,7 @@ public:
 
   vtkScalarBarWidget* ScalarBarWidget;
   vtkSlicerScalarBarActor* ScalarBarActor;
+  vtkWeakPointer<vtkScalarBarActor> ColorBarActor;
 };
 
 //-----------------------------------------------------------------------------
