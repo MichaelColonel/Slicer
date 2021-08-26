@@ -17,6 +17,7 @@
 
 // MRML includes
 #include <vtkMRMLDisplayableNode.h>
+#include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLScene.h>
 
 // VTK includes
@@ -30,6 +31,7 @@ namespace
 {
 
 const char* DISPLAYABLE_REFERENCE_ROLE = "displayableRef";
+const char* COLOR_TABLE_REFERENCE_ROLE = "colorTableRef";
 
 } // namespace
 
@@ -155,6 +157,24 @@ int vtkMRMLColorBarDisplayNode::GetPositionPresetFromString(const char* name)
   }
   // unknown name
   return -1;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLColorTableNode* vtkMRMLColorBarDisplayNode::GetColorTableNode()
+{
+  return vtkMRMLColorTableNode::SafeDownCast( this->GetNodeReference(COLOR_TABLE_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayNode::SetAndObserveColorTableNode(vtkMRMLColorTableNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveDisplayableNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(COLOR_TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

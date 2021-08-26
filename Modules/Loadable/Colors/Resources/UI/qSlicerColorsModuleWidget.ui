@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>366</width>
-    <height>520</height>
+    <width>310</width>
+    <height>539</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -190,114 +190,48 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="ScalarBarCollapsibleButton">
+    <widget class="ctkCollapsibleButton" name="ColorBarDisplayCollapsibleButton">
      <property name="text">
-      <string>Color Scalar Bar</string>
+      <string>Color Bar Display Node</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="CenterLabelCheckBox">
-        <property name="toolTip">
-         <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="toolTip">
-         <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
-        </property>
-        <property name="text">
-         <string>Use color names for labels: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QCheckBox" name="UseColorNameAsLabelCheckBox">
-        <property name="toolTip">
-         <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label">
-        <property name="toolTip">
-         <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
-        </property>
-        <property name="text">
-         <string>Center labels: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QRadioButton" name="VecticalOrientationRadioButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Vectical</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">ColorBarOrientationButtonGroup</string>
-            </attribute>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="HorizontalOrientationRadioButton">
-            <property name="text">
-             <string>Horizontal</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">ColorBarOrientationButtonGroup</string>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="ColorBarOrientationLabel">
-          <property name="text">
-           <string>Orientation:</string>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLModelNode</string>
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="PresetColorBarLabel">
           <property name="toolTip">
            <string>Select preset view node color bar actor </string>
           </property>
           <property name="text">
-           <string>Preset view node:</string>
+           <string>Show on a view:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="0" column="0">
+         <widget class="QLabel" name="DisplayableNodeLabel">
+          <property name="text">
+           <string>Add to node:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
          <widget class="ctkComboBox" name="PresetColorBarActorComboBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -326,10 +260,145 @@
           </item>
          </widget>
         </item>
+        <item row="2" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QRadioButton" name="VecticalOrientationRadioButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Vectical</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">ColorBarOrientationButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="HorizontalOrientationRadioButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Horizontal</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">ColorBarOrientationButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="ColorBarOrientationLabel">
+          <property name="text">
+           <string>Orientation:</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="AddColorBarDisplayNodePushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="RemoveColorBarDisplayNodePushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Remove</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="ScalarBarCollapsibleButton">
+     <property name="text">
+      <string>Color Scalar Bar</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="4" column="0" colspan="2">
        <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="toolTip">
+         <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
+        </property>
+        <property name="text">
+         <string>Use color names for labels: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="UseColorNameAsLabelCheckBox">
+        <property name="toolTip">
+         <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="CenterLabelCheckBox">
+        <property name="toolTip">
+         <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label">
+        <property name="toolTip">
+         <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
+        </property>
+        <property name="text">
+         <string>Center labels: </string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -502,6 +571,22 @@
     <hint type="destinationlabel">
      <x>179</x>
      <y>200</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerColorsModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>DisplayableNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>154</x>
+     <y>544</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>488</y>
     </hint>
    </hints>
   </connection>

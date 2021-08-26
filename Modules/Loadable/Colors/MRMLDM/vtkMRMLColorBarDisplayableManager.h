@@ -23,6 +23,7 @@
 #include "vtkSlicerColorsModuleMRMLDisplayableManagerExport.h"
 
 class vtkScalarBarWidget;
+class vtkScalarBarActor;
 class vtkMRMLScene;
 
 /// \brief Displayable manager for the scalar bars.
@@ -37,7 +38,17 @@ public:
   vtkTypeMacro(vtkMRMLColorBarDisplayableManager, vtkMRMLAbstractDisplayableManager);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void GetColorBarWidgets(vtkScalarBarWidget* widget2D[3], vtkScalarBarWidget* widget3D) const;
+  void GetScalarBarWidgets(vtkScalarBarWidget* widget2D[3], vtkScalarBarWidget* widget3D) const;
+
+  vtkScalarBarWidget* GetScalarBarWidgetRed() const;
+  vtkScalarBarWidget* GetScalarBarWidgetGreen() const;
+  vtkScalarBarWidget* GetScalarBarWidgetYellow() const;
+  vtkScalarBarWidget* GetScalarBarWidget3D() const;
+
+  vtkScalarBarActor* GetScalarBarActorRed() const;
+  vtkScalarBarActor* GetScalarBarActorGreen() const;
+  vtkScalarBarActor* GetScalarBarActorYellow() const;
+  vtkScalarBarActor* GetScalarBarActor3D() const;
 
 protected:
   vtkMRMLColorBarDisplayableManager();
