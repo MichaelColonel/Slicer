@@ -38,17 +38,12 @@ public:
   vtkTypeMacro(vtkMRMLColorBarDisplayableManager, vtkMRMLAbstractDisplayableManager);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void GetScalarBarWidgets(vtkScalarBarWidget* widget2D[3], vtkScalarBarWidget* widget3D) const;
-
-  vtkScalarBarWidget* GetScalarBarWidgetRed() const;
-  vtkScalarBarWidget* GetScalarBarWidgetGreen() const;
-  vtkScalarBarWidget* GetScalarBarWidgetYellow() const;
-  vtkScalarBarWidget* GetScalarBarWidget3D() const;
-
-  vtkScalarBarActor* GetScalarBarActorRed() const;
-  vtkScalarBarActor* GetScalarBarActorGreen() const;
-  vtkScalarBarActor* GetScalarBarActorYellow() const;
-  vtkScalarBarActor* GetScalarBarActor3D() const;
+  /// \brief Get scalar bar widget
+  /// \return scalar bar widget pointer
+  vtkScalarBarWidget* GetScalarBarWidget() const;
+  /// \brief Get scalar bar actor
+  /// \return scalar bar actor pointer
+  vtkScalarBarActor* GetScalarBarActor() const;
 
 protected:
   vtkMRMLColorBarDisplayableManager();
