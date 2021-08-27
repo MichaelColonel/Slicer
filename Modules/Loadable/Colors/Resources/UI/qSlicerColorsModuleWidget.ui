@@ -227,39 +227,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="ctkComboBox" name="PresetColorBarActorComboBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <item>
-           <property name="text">
-            <string>2D Slice View - Red</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>2D Slice View - Green</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>2D Slice View - Yellow</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>3D View</string>
-           </property>
-          </item>
-         </widget>
-        </item>
         <item row="2" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
@@ -305,6 +272,9 @@
            <string>Orientation:</string>
           </property>
          </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
         </item>
        </layout>
       </item>
@@ -433,11 +403,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ctkComboBox</class>
-   <extends>QComboBox</extends>
-   <header>ctkComboBox.h</header>
-  </customwidget>
-  <customwidget>
    <class>ctkDynamicSpacer</class>
    <extends>QWidget</extends>
    <header>ctkDynamicSpacer.h</header>
@@ -448,6 +413,11 @@
    <header>ctkRangeWidget.h</header>
   </customwidget>
   <customwidget>
+   <class>qMRMLCheckableNodeComboBox</class>
+   <extends>qMRMLNodeComboBox</extends>
+   <header>qMRMLCheckableNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>qMRMLColorTableComboBox</class>
    <extends>qMRMLNodeComboBox</extends>
    <header>qMRMLColorTableComboBox.h</header>
@@ -456,6 +426,11 @@
    <class>qMRMLColorTableView</class>
    <extends>QTableView</extends>
    <header>qMRMLColorTableView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLDisplayNodeViewComboBox</class>
+   <extends>qMRMLCheckableNodeComboBox</extends>
+   <header>qMRMLDisplayNodeViewComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>qMRMLNodeComboBox</class>
@@ -587,6 +562,22 @@
     <hint type="destinationlabel">
      <x>205</x>
      <y>488</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerColorsModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>DisplayNodeViewComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>154</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>390</y>
     </hint>
    </hints>
   </connection>

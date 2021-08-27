@@ -146,9 +146,14 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar()
   vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
   if (!interactor)
   {
+    // interactor is invalid
     return;
   }
-  this->ColorBarWidget->SetInteractor(interactor);
+  else if (!this->ColorBarWidget->GetInteractor())
+  {
+    this->ColorBarWidget->SetInteractor(interactor);
+  }
+
   // Setup/update scalar bar actor
   if (this->ColorBarDisplayNode)
   {
@@ -178,8 +183,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::SetupActor()
 
   switch (this->ColorBarDisplayNode->GetPositionPreset())
   {
-  case vtkMRMLColorBarDisplayNode::VerticalRight:
-  case vtkMRMLColorBarDisplayNode::VerticalLeft:
+  case vtkMRMLColorBarDisplayNode::Vertical:
     this->ColorBarActor->SetOrientationToVertical();
 
 //    actor->SetNumberOfLabels(11);
@@ -201,8 +205,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::SetupActor()
 //    actor->SetWidth(0.1);
 //    actor->SetHeight(0.8);
     break;
-  case vtkMRMLColorBarDisplayNode::HorizontalTop:
-  case vtkMRMLColorBarDisplayNode::HorizontalBottom:
+  case vtkMRMLColorBarDisplayNode::Horizontal:
     this->ColorBarActor->SetOrientationToHorizontal();
 
 //    actor->SetNumberOfLabels(11);

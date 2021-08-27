@@ -41,7 +41,7 @@ vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 //-----------------------------------------------------------------------------
 vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   :
-  PositionPreset(VerticalRight)
+  PositionPreset(Vertical)
 {
   this->SetVisibility2D(false);
   this->SetVisibility3D(false);
@@ -107,17 +107,11 @@ void vtkMRMLColorBarDisplayNode::SetPositionPreset(int id)
   switch (id)
   {
   case 0:
-    SetPositionPreset(HorizontalBottom);
+    SetPositionPreset(Horizontal);
     break;
   case 1:
-    SetPositionPreset(HorizontalTop);
-    break;
-  case 2:
-    SetPositionPreset(VerticalLeft);
-    break;
-  case 3:
   default:
-    SetPositionPreset(VerticalRight);
+    SetPositionPreset(Vertical);
     break;
   }
 }
@@ -127,15 +121,11 @@ const char* vtkMRMLColorBarDisplayNode::GetPositionPresetAsString(int id)
 {
   switch (id)
   {
-  case HorizontalTop:
-    return "HorizontalTop";
-  case HorizontalBottom:
-    return "HorizontalBottom";
-  case VerticalLeft:
-    return "VerticalLeft";
-  case VerticalRight:
+  case Horizontal:
+    return "Horizontal";
+  case Vertical:
   default:
-    return "VerticalRight";
+    return "Vertical";
   }
 }
 

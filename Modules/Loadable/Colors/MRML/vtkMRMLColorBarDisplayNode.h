@@ -25,7 +25,7 @@ class VTK_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
 {
 public:
   /// Color bar position preset on a view node
-  enum PositionPresetType : int { HorizontalBottom = 0, HorizontalTop, VerticalLeft, VerticalRight, PositionPreset_Last };
+  enum PositionPresetType : int { Horizontal = 0, Vertical, PositionPreset_Last };
 
   static vtkMRMLColorBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLColorBarDisplayNode,vtkMRMLDisplayNode);
