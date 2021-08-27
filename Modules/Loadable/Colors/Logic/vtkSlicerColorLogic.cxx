@@ -16,6 +16,10 @@
 // MRML
 #include "vtkMRMLColorTableStorageNode.h"
 #include "vtkMRMLProceduralColorStorageNode.h"
+#include "vtkMRMLColorBarDisplayNode.h"
+#include "vtkMRMLModelNode.h"
+#include "vtkMRMLDisplayableNode.h"
+#include "vtkMRMLScene.h"
 
 // VTK includes
 #include <vtkNew.h>
@@ -29,6 +33,8 @@
 #include <cerrno>
 #endif
 
+#include <cstring>
+
 vtkStandardNewMacro(vtkSlicerColorLogic);
 
 //----------------------------------------------------------------------------
@@ -36,6 +42,21 @@ vtkSlicerColorLogic::vtkSlicerColorLogic() = default;
 
 //----------------------------------------------------------------------------
 vtkSlicerColorLogic::~vtkSlicerColorLogic() = default;
+
+//-----------------------------------------------------------------------------
+void vtkSlicerColorLogic::RegisterNodes()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+    {
+    vtkErrorMacro("RegisterNodes: Invalid MRML scene");
+    return;
+    }
+  if (!scene->IsNodeClassRegistered("vtkMRMLColorBarDisplayNode"))
+    {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLColorBarDisplayNode>::New());
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkSlicerColorLogic::PrintSelf(ostream& os, vtkIndent indent)
@@ -208,4 +229,109 @@ std::vector<std::string> vtkSlicerColorLogic::FindColorFiles(const std::vector<s
 #endif
     } // end of looping over dirs
   return filenames;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLColorBarDisplayNode* vtkSlicerColorLogic::CreateAndObserveColorBarForNode(vtkMRMLDisplayableNode* dispNode)
+{
+  if (!dispNode)
+   {
+   vtkErrorMacro("CreateAndObserveColorBarForNode: Displayable node is invalid");
+   return nullptr;
+   }
+
+  vtkMRMLColorBarDisplayNode* cbNode = this->GetFirstColorBarDisplayNode(dispNode);
+  if (cbNode)
+    {
+    vtkDebugMacro("CreateAndObserveColorBarForNode: Already existed color bar node found, ID " << cbNode->GetID());
+    return cbNode;
+    }
+
+  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
+  if (!mrmlScene)
+   {
+   vtkErrorMacro("CreateAndObserveColorBarForNode: Invalid MRML scene");
+   return nullptr;
+   }
+
+  // Create color bar and observe color bar by displayable node
+  vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(mrmlScene->AddNewNodeByClass("vtkMRMLColorBarDisplayNode"));
+  if (colorBarNode)
+    {
+    dispNode->AddAndObserveDisplayNodeID(colorBarNode->GetID());
+    return colorBarNode;
+    }
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLColorBarDisplayNode* vtkSlicerColorLogic::GetNthColorBarDisplayNode(vtkMRMLDisplayableNode* dispNode, int n)
+{
+  if (!dispNode)
+   {
+   vtkErrorMacro("GetNthColorBarDisplayNode: Displayable node is invalid");
+   return nullptr;
+   }
+
+  int colorBarIndex = 0;
+  int nofDisplayNodes = dispNode->GetNumberOfDisplayNodes();
+  for (int i = 0; i < nofDisplayNodes; ++i)
+    {
+    if (vtkMRMLDisplayNode* node = dispNode->GetNthDisplayNode(i))
+      {
+      vtkMRMLColorBarDisplayNode* cbNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
+      if (cbNode && colorBarIndex != n)
+        {
+        colorBarIndex++;
+        }
+      else if (cbNode && colorBarIndex == n)
+        {
+        return cbNode;
+        }
+      }
+    }
+
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerColorLogic::GetColorBarDisplayNodeNumberByNode(vtkMRMLDisplayableNode* dispNode, vtkMRMLColorBarDisplayNode* cbNode)
+{
+  if (!dispNode || !cbNode)
+   {
+   vtkErrorMacro("GetColorBarDisplayNodeNumberByNode: Displayable node or color bar display node are invalid");
+   return -1;
+   }
+  return this->GetColorBarDisplayNodeNumberByID( dispNode, cbNode->GetID());
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerColorLogic::GetColorBarDisplayNodeNumberByID(vtkMRMLDisplayableNode* dispNode, const char* cbNodeID)
+{
+  if (!dispNode || !cbNodeID)
+    {
+    vtkErrorMacro("GetColorBarDisplayNodeNumberByNode: Displayable node or color bar display node ID are invalid");
+    return -1;
+    }
+
+  int nofDisplayNodes = dispNode->GetNumberOfDisplayNodes();
+  for (int i = 0; i < nofDisplayNodes; ++i)
+    {
+    if (vtkMRMLDisplayNode* node = dispNode->GetNthDisplayNode(i))
+      {
+      vtkMRMLColorBarDisplayNode* cbNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
+      if (cbNode && (std::strcmp( cbNodeID, cbNode->GetID()) == 0))
+        {
+        return i;
+        }
+      }
+    }
+
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLColorBarDisplayNode* vtkSlicerColorLogic::GetFirstColorBarDisplayNode(vtkMRMLDisplayableNode* dispNode)
+{
+  return this->GetNthColorBarDisplayNode(dispNode, 0);
 }

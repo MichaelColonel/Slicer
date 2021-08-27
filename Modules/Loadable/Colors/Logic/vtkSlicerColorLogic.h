@@ -19,6 +19,9 @@
 #include <vtkMRMLColorLogic.h>
 #include "vtkSlicerColorsModuleLogicExport.h"
 
+class vtkMRMLColorBarDisplayNode;
+class vtkMRMLDisplayableNode;
+
 class VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT vtkSlicerColorLogic
   : public vtkMRMLColorLogic
 {
@@ -44,11 +47,21 @@ class VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT vtkSlicerColorLogic
   std::vector<std::string> FindDefaultColorFiles() override;
   std::vector<std::string> FindUserColorFiles() override;
 
+  vtkMRMLColorBarDisplayNode* CreateAndObserveColorBarForNode(vtkMRMLDisplayableNode*);
+  vtkMRMLColorBarDisplayNode* GetNthColorBarDisplayNode(vtkMRMLDisplayableNode*, int n);
+  int GetColorBarDisplayNodeNumberByNode(vtkMRMLDisplayableNode*, vtkMRMLColorBarDisplayNode*);
+  int GetColorBarDisplayNodeNumberByID(vtkMRMLDisplayableNode*, const char*);
+  vtkMRMLColorBarDisplayNode* GetFirstColorBarDisplayNode(vtkMRMLDisplayableNode*);
+
 protected:
   vtkSlicerColorLogic();
   ~vtkSlicerColorLogic() override;
   vtkSlicerColorLogic(const vtkSlicerColorLogic&);
   void operator=(const vtkSlicerColorLogic&);
+
+  /// Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
+  void RegisterNodes() override;
+
   std::vector<std::string> FindColorFiles(const std::vector<std::string>& directories);
 };
 

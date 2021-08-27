@@ -59,6 +59,7 @@ class ColorsScalarBarSelfTestWidget(ScriptedLoadableModuleWidget):
     # Add vertical spacer
     self.layout.addStretch(1)
 
+
   def cleanup(self):
     pass
 
@@ -77,12 +78,15 @@ class ColorsScalarBarSelfTestTest(ScriptedLoadableModuleTest):
     """ Do whatever is needed to reset the state - typically a scene clear will be enough.
     """
     slicer.mrmlScene.Clear(0)
+    # Timeout delay
+    self.delayMs = 700
 
   def runTest(self):
     """Run as few or as many tests as needed here.
     """
     self.setUp()
     self.test_ColorsScalarBarSelfTest1()
+    self.test_ColorsScalarBarSelfTest2()
 
   def test_ColorsScalarBarSelfTest1(self):
 
@@ -117,4 +121,70 @@ class ColorsScalarBarSelfTestTest(ScriptedLoadableModuleTest):
 
     logging.info('Processing completed')
 
+    self.delayDisplay('Test passed!')
+
+  def test_ColorsScalarBarSelfTest2(self):
+
+    self.delayDisplay("Starting the color bar displayable manager test")
+
+    logging.info('Processing started')
+
+    import SampleData
+    sampleDataLogic = SampleData.SampleDataLogic()
+    ctVolumeNode = sampleDataLogic.downloadCTChest()
+    self.assertIsNotNone( ctVolumeNode )
+
+    self.delayDisplay('Test color bar on 3D view', self.delayMs)
+    colorBar = slicer.modules.colors.logic().CreateAndObserveColorBarForNode(ctVolumeNode)
+    self.assertIsNotNone( colorBar )
+
+    # signal to displayable manager to update last selected scalar bar widget and actor
+    colorBar.Modified()
+
+    # get 3D color bar displayable manager
+    threeDViewWidget = slicer.app.layoutManager().threeDWidget(0)
+    colorBarDisplayableManager3D = threeDViewWidget.threeDView().displayableManagerByClassName('vtkMRMLColorBarDisplayableManager')
+    self.assertIsNotNone( colorBarDisplayableManager3D )
+    # get scalar bar widget
+    scalarBarWidget3D = colorBarDisplayableManager3D.GetScalarBarWidget()
+    # check that scalar bar widget is valid
+    self.assertIsNotNone( scalarBarWidget3D )
+    # check that 3D color bar is enabled
+    scalarBarWidget3D.SetEnabled(True)
+    # update GUI
+    colorBar.Modified()
+    self.assertEqual( scalarBarWidget3D.GetEnabled(), 1 )
+    # hide 3D color bar
+    scalarBarWidget3D.SetEnabled(False)
+    # update GUI
+    colorBar.Modified()
+    # check that 3D color bar is disabled
+    self.assertEqual( scalarBarWidget3D.GetEnabled(), 0 )
+    self.delayDisplay('Test color bar on 3D view finished!', self.delayMs)
+
+    sliceNames = [ 'Red', 'Green', 'Yellow' ]
+    for sliceName in sliceNames:
+      self.delayDisplay('Test color bar on the ' + sliceName + ' slice view', self.delayMs)
+      # get slice color bar displayable manager
+      sliceWidget = slicer.app.layoutManager().sliceWidget(sliceName)
+      sliceColorBarDisplayableManager = sliceWidget.sliceView().displayableManagerByClassName('vtkMRMLColorBarDisplayableManager')
+      self.assertIsNotNone( sliceColorBarDisplayableManager )
+      sliceScalarBarWidget = sliceColorBarDisplayableManager.GetScalarBarWidget()
+      # check that scalar bar widget is valid
+      self.assertIsNotNone( sliceScalarBarWidget )
+      # check that slice color bar is enabled
+      sliceScalarBarWidget.SetEnabled(True)
+      # update GUI
+      colorBar.Modified()
+      # check that slice color bar is enabled
+      self.assertEqual( sliceScalarBarWidget.GetEnabled(), 1 )
+      # hide slice color bar
+      sliceScalarBarWidget.SetEnabled(False)
+      # update GUI
+      colorBar.Modified()
+      # check that slice color bar is disabled
+      self.assertEqual( sliceScalarBarWidget.GetEnabled(), 0 )
+      self.delayDisplay('Test color bar on the ' + sliceName + ' slice view finished!',self.delayMs)
+
+    logging.info('Processing completed')
     self.delayDisplay('Test passed!')

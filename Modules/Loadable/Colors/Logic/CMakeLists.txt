@@ -5,6 +5,8 @@ set(KIT ${PROJECT_NAME})
 set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT")
 
 set(${KIT}_INCLUDE_DIRECTORIES
+  ${vtkSlicer${MODULE_NAME}ModuleMRML_SOURCE_DIR}
+  ${vtkSlicer${MODULE_NAME}ModuleMRML_BINARY_DIR}
   )
 
 set(${KIT}_SRCS
@@ -13,6 +15,7 @@ set(${KIT}_SRCS
   )
 
 set(${KIT}_TARGET_LIBRARIES
+  vtkSlicer${MODULE_NAME}ModuleMRML
   )
 
 #-----------------------------------------------------------------------------
