@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>310</width>
+    <width>304</width>
     <height>539</height>
    </rect>
   </property>
@@ -198,34 +198,46 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLModelNode</string>
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ctkPathListButtonsWidget" name="ControlColorBarButtonsWidget">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="showAddDirectoryButton" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="showRemoveButton" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="showEditButton" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="textAddFilesButton">
+             <string>Add color bar display node</string>
+            </property>
+            <property name="textRemoveButton">
+             <string>Remove color bar display node</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="PresetColorBarLabel">
-          <property name="toolTip">
-           <string>Select preset view node color bar actor </string>
-          </property>
-          <property name="text">
-           <string>Show on a view:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="DisplayableNodeLabel">
-          <property name="text">
-           <string>Add to node:</string>
-          </property>
-         </widget>
+        <item row="4" column="1">
+         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
         </item>
         <item row="2" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -266,6 +278,23 @@
           </item>
          </layout>
         </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="PresetColorBarLabel">
+          <property name="toolTip">
+           <string>Select preset view node color bar actor </string>
+          </property>
+          <property name="text">
+           <string>Show on a view:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="DisplayableNodeLabel">
+          <property name="text">
+           <string>Add to node:</string>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="0">
          <widget class="QLabel" name="ColorBarOrientationLabel">
           <property name="text">
@@ -274,40 +303,16 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QPushButton" name="AddColorBarDisplayNodePushButton">
+         <widget class="QCheckBox" name="UseSelectedColorsCheckBox">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="RemoveColorBarDisplayNodePushButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Remove</string>
+           <string>Use selected color table node</string>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -408,6 +413,11 @@
    <header>ctkDynamicSpacer.h</header>
   </customwidget>
   <customwidget>
+   <class>ctkPathListButtonsWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkPathListButtonsWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkRangeWidget</class>
    <extends>QWidget</extends>
    <header>ctkRangeWidget.h</header>
@@ -436,6 +446,7 @@
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>qMRMLRangeWidget</class>

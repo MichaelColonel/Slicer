@@ -41,7 +41,8 @@ vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 //-----------------------------------------------------------------------------
 vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   :
-  PositionPreset(Vertical)
+  PositionPreset(Foreground),
+  OrientationPreset(Vertical)
 {
   this->SetVisibility2D(false);
   this->SetVisibility3D(false);
@@ -57,6 +58,7 @@ void vtkMRMLColorBarDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
   vtkMRMLPrintEnumMacro(PositionPreset);
+  vtkMRMLPrintEnumMacro(OrientationPreset);
   vtkMRMLPrintEndMacro();
 }
 
@@ -68,6 +70,7 @@ void vtkMRMLColorBarDisplayNode::WriteXML(ostream& of, int nIndent)
 
   vtkMRMLWriteXMLBeginMacro(of);
   vtkMRMLWriteXMLEnumMacro(PositionPreset, PositionPreset);
+  vtkMRMLWriteXMLEnumMacro(OrientationPreset, OrientationPreset);
   vtkMRMLWriteXMLEndMacro();
 }
 
@@ -79,6 +82,7 @@ void vtkMRMLColorBarDisplayNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLEnumMacro(PositionPreset, PositionPreset);
+  vtkMRMLReadXMLEnumMacro(OrientationPreset, OrientationPreset);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -98,6 +102,7 @@ void vtkMRMLColorBarDisplayNode::CopyContent(vtkMRMLNode* anode, bool deepCopy/*
 
   vtkMRMLCopyBeginMacro(anode);
   vtkMRMLCopyEnumMacro(PositionPreset);
+  vtkMRMLCopyEnumMacro(OrientationPreset);
   vtkMRMLCopyEndMacro();
 }
 
@@ -107,11 +112,11 @@ void vtkMRMLColorBarDisplayNode::SetPositionPreset(int id)
   switch (id)
   {
   case 0:
-    SetPositionPreset(Horizontal);
+    SetPositionPreset(Foreground);
     break;
   case 1:
   default:
-    SetPositionPreset(Vertical);
+    SetPositionPreset(Background);
     break;
   }
 }
@@ -121,11 +126,11 @@ const char* vtkMRMLColorBarDisplayNode::GetPositionPresetAsString(int id)
 {
   switch (id)
   {
-  case Horizontal:
-    return "Horizontal";
-  case Vertical:
+  case Foreground:
+    return "Foreground";
+  case Background:
   default:
-    return "Vertical";
+    return "Background";
   }
 }
 
@@ -140,6 +145,54 @@ int vtkMRMLColorBarDisplayNode::GetPositionPresetFromString(const char* name)
   for (int i = 0; i < PositionPreset_Last; i++)
   {
     if (std::strcmp(name, GetPositionPresetAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayNode::SetOrientationPreset(int id)
+{
+  switch (id)
+  {
+  case 0:
+    SetOrientationPreset(Horizontal);
+    break;
+  case 1:
+  default:
+    SetPositionPreset(Vertical);
+    break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLColorBarDisplayNode::GetOrientationPresetAsString(int id)
+{
+  switch (id)
+  {
+  case Horizontal:
+    return "Horizontal";
+  case Vertical:
+  default:
+    return "Vertical";
+  }
+}
+
+//-----------------------------------------------------------
+int vtkMRMLColorBarDisplayNode::GetOrientationPresetFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < OrientationPreset_Last; i++)
+  {
+    if (std::strcmp(name, GetOrientationPresetAsString(i)) == 0)
     {
       // found a matching name
       return i;
@@ -183,4 +236,17 @@ void vtkMRMLColorBarDisplayNode::SetAndObserveDisplayableNode(vtkMRMLDisplayable
   }
 
   this->SetNodeReferenceID(DISPLAYABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayNode::SetVisibilityOnView( const std::string& viewName, bool visibility/* = true */)
+{
+  this->VisibilityOnViewMap[viewName] = visibility;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLColorBarDisplayNode::GetVisibilityOnView(const std::string& viewName)
+{
+  return this->VisibilityOnViewMap[viewName];
 }

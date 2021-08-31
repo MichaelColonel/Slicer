@@ -18,14 +18,16 @@
 
 // MRML includes
 #include <vtkMRMLDisplayNode.h>
+#include "vtkSlicerColorsModuleMRMLExport.h"
 
 class vtkMRMLColorTableNode;
 
-class VTK_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
+class VTK_SLICER_COLORS_MODULE_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
 {
 public:
   /// Color bar position preset on a view node
-  enum PositionPresetType : int { Horizontal = 0, Vertical, PositionPreset_Last };
+  enum OrientationPresetType : int { Horizontal = 0, Vertical, OrientationPreset_Last };
+  enum PositionPresetType : int { Foreground = 0, Background, PositionPreset_Last };
 
   static vtkMRMLColorBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLColorBarDisplayNode,vtkMRMLDisplayNode);
@@ -59,6 +61,12 @@ public:
   vtkGetMacro(PositionPreset, PositionPresetType);
   vtkSetMacro(PositionPreset, PositionPresetType);
 
+  vtkGetMacro(OrientationPreset, OrientationPresetType);
+  vtkSetMacro(OrientationPreset, OrientationPresetType);
+
+  void SetVisibilityOnView( const std::string& viewName, bool visibility = true);
+  bool GetVisibilityOnView(const std::string& viewName);
+
 protected:
   vtkMRMLColorBarDisplayNode();
   ~vtkMRMLColorBarDisplayNode() override;
@@ -69,8 +77,14 @@ protected:
   static int GetPositionPresetFromString(const char* name);
   void SetPositionPreset(int id);
 
+  static const char* GetOrientationPresetAsString(int id);
+  static int GetOrientationPresetFromString(const char* name);
+  void SetOrientationPreset(int id);
+
 private:
   PositionPresetType PositionPreset;
+  OrientationPresetType OrientationPreset;
+  std::map< std::string, bool > VisibilityOnViewMap;
 };
 
 #endif

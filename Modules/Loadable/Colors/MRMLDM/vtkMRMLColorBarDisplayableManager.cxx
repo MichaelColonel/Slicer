@@ -82,7 +82,7 @@ public:
   vtkScalarBarActor* GetActor() const { return this->ColorBarActor; }
   vtkScalarBarWidget* GetWidget() const { return this->ColorBarWidget; }
 
-  vtkMRMLColorBarDisplayableManager*        External;
+  vtkMRMLColorBarDisplayableManager* External;
 
   vtkSmartPointer<vtkScalarBarActor> ColorBarActor;
   vtkSmartPointer<vtkScalarBarWidget> ColorBarWidget;
@@ -102,13 +102,13 @@ vtkMRMLColorBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLColorBarDispl
 {
   this->ColorBarWidget->SetScalarBarActor(this->ColorBarActor);
 
-  vtkScalarBarRepresentation* repr = this->ColorBarWidget->GetScalarBarRepresentation();
-  if (repr)
+  vtkScalarBarRepresentation* window = this->ColorBarWidget->GetScalarBarRepresentation();
+  if (window)
   {
-    repr->SetShowHorizontalBorder(true);
-    repr->SetShowVerticalBorder(true);
+    window->SetShowHorizontalBorder(true);
+    window->SetShowVerticalBorder(true);
     // show the border when hovering over with the mouse
-    repr->SetShowBorderToActive();
+    window->SetShowBorderToActive();
   }
 }
 
@@ -134,14 +134,14 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::Modified()
 //---------------------------------------------------------------------------
 void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar()
 {
-  vtkMRMLViewNode* threeDViewNode = nullptr;
-  vtkMRMLSliceNode* sliceNode = nullptr;
+//  vtkMRMLViewNode* threeDViewNode = nullptr;
+//  vtkMRMLSliceNode* sliceNode = nullptr;
   vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
-  if (node)
-  {
-    threeDViewNode = vtkMRMLViewNode::SafeDownCast(node);
-    sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
-  }
+//  if (node)
+//  {
+//    threeDViewNode = vtkMRMLViewNode::SafeDownCast(node);
+//    sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
+//  }
 
   vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
   if (!interactor)
@@ -155,16 +155,10 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar()
   }
 
   // Setup/update scalar bar actor
-  if (this->ColorBarDisplayNode)
+  if (this->ColorBarDisplayNode && node)
   {
-    if (sliceNode)
-    {
-      this->ColorBarWidget->SetEnabled(this->ColorBarDisplayNode->GetVisibility2D());
-    }
-    else if (threeDViewNode)
-    {
-      this->ColorBarWidget->SetEnabled(this->ColorBarDisplayNode->GetVisibility3D());
-    }
+    bool visible = this->ColorBarDisplayNode->GetVisibilityOnView(node->GetName());
+    this->ColorBarWidget->SetEnabled(visible);
   }
   else
   {
@@ -181,7 +175,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::SetupActor()
     return;
   }
 
-  switch (this->ColorBarDisplayNode->GetPositionPreset())
+  switch (this->ColorBarDisplayNode->GetOrientationPreset())
   {
   case vtkMRMLColorBarDisplayNode::Vertical:
     this->ColorBarActor->SetOrientationToVertical();
