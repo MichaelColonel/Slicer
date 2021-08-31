@@ -26,9 +26,9 @@ class vtkScalarBarWidget;
 class vtkScalarBarActor;
 class vtkMRMLScene;
 
-/// \brief Displayable manager for the scalar bars.
+/// \brief Displayable manager for the color scalar bars.
 ///
-/// This displayable manager implements scalar bar display in both 2D and 3D views.
+/// This displayable manager implements color scalar bar display in both 2D and 3D views.
 class VTK_SLICER_COLORS_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT vtkMRMLColorBarDisplayableManager :
   public vtkMRMLAbstractDisplayableManager
 {

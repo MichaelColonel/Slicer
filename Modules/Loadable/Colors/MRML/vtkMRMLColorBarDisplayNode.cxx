@@ -35,6 +35,8 @@ const char* COLOR_TABLE_REFERENCE_ROLE = "colorTableRef";
 
 } // namespace
 
+const char* vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE = "colorBarRef";
+
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 

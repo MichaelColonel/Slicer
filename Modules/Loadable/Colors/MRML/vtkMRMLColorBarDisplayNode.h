@@ -29,6 +29,8 @@ public:
   enum OrientationPresetType : int { Horizontal = 0, Vertical, OrientationPreset_Last };
   enum PositionPresetType : int { Foreground = 0, Background, PositionPreset_Last };
 
+  const char* COLOR_BAR_REFERENCE_ROLE;
+
   static vtkMRMLColorBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLColorBarDisplayNode,vtkMRMLDisplayNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
