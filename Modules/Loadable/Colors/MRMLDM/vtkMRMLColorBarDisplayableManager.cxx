@@ -157,8 +157,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar()
   // Setup/update scalar bar actor
   if (this->ColorBarDisplayNode && node)
   {
-    bool visible = this->ColorBarDisplayNode->GetVisibilityOnView(node->GetName());
-    this->ColorBarWidget->SetEnabled(visible);
+    this->ColorBarWidget->SetEnabled(this->ColorBarDisplayNode->IsDisplayableInView(node->GetID()));
   }
   else
   {

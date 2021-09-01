@@ -239,16 +239,3 @@ void vtkMRMLColorBarDisplayNode::SetAndObserveDisplayableNode(vtkMRMLDisplayable
 
   this->SetNodeReferenceID(DISPLAYABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
-
-//----------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayNode::SetVisibilityOnView( const std::string& viewName, bool visibility/* = true */)
-{
-  this->VisibilityOnViewMap[viewName] = visibility;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-bool vtkMRMLColorBarDisplayNode::GetVisibilityOnView(const std::string& viewName)
-{
-  return this->VisibilityOnViewMap[viewName];
-}

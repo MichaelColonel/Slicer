@@ -21,6 +21,7 @@
 // Qt includes
 #include <QDebug>
 #include <QInputDialog>
+//#include <QAbstractButton>
 
 // CTK includes
 #include <ctkVTKScalarsToColorsView.h>
@@ -43,6 +44,7 @@
 // MRML includes
 #include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLProceduralColorNode.h>
+#include <vtkMRMLDisplayableNode.h>
 #include <vtkMRMLScene.h>
 
 // VTK includes
@@ -202,6 +204,12 @@ void qSlicerColorsModuleWidget::setup()
   d->ContinuousScalarsToColorsWidget->view()->setValidBounds(validBounds);
   d->ContinuousScalarsToColorsWidget->view()->addColorTransferFunction(nullptr);
 
+  connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
+  connect( d->AddColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onAddColorBarButtonClicked()));
+  connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
+  connect( d->ColorBarOrientationButtonGroup, SIGNAL(clicked(QAbstractButton*)), this, SLOT(onAddColorBarButtonClicked(QAbstractButton*)));
+  connect( d->DisplayNodeViewComboBox, SIGNAL(checkedNodesChanged()), this, SLOT(onViewCheckedNodesChanged()));
+
   // Select the default color node
   d->setDefaultColorNode();
 }
@@ -212,6 +220,8 @@ void qSlicerColorsModuleWidget::setMRMLScene(vtkMRMLScene *scene)
   Q_D(qSlicerColorsModuleWidget);
   this->qSlicerAbstractModuleWidget::setMRMLScene(scene);
   d->setDefaultColorNode();
+
+  d->DisplayNodeViewComboBox->setEnabled(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -446,6 +456,45 @@ void qSlicerColorsModuleWidget::copyCurrentColorNode()
     {
     d->ColorTableComboBox->setCurrentNode(colorNode);
     }
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerColorsModuleWidget);
+  vtkMRMLDisplayableNode* displayableNode = vtkMRMLDisplayableNode::SafeDownCast(node);
+  if (!displayableNode)
+  {
+    d->AddColorBarNodePushButton->setEnabled(false);
+    d->UseSelectedColorsCheckBox->setEnabled(false);
+    d->VerticalOrientationRadioButton->setEnabled(false);
+    d->HorizontalOrientationRadioButton->setEnabled(false);
+    d->DisplayNodeViewComboBox->setEnabled(false);
+  }
+
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onAddColorBarButtonClicked()
+{
+
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onViewCheckedNodesChanged()
+{
+
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onColorBarOrientationButtonClicked(QAbstractButton*)
+{
+
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool)
+{
 }
 
 //-----------------------------------------------------------

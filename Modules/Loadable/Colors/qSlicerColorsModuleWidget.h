@@ -30,6 +30,7 @@
 class qSlicerColorsModuleWidgetPrivate;
 class vtkMRMLNode;
 class vtkScalarBarWidget;
+class QAbstractButton;
 
 class Q_SLICER_QTMODULES_COLORS_EXPORT qSlicerColorsModuleWidget
   : public qSlicerAbstractModuleWidget
@@ -53,6 +54,11 @@ public slots:
   void copyCurrentColorNode();
   void setUseColorNameAsLabel(bool);
   void setCenterLabel(bool);
+  void onDisplayableNodeChanged(vtkMRMLNode*);
+  void onUseSelectedColorsToggled(bool);
+  void onAddColorBarButtonClicked();
+  void onViewCheckedNodesChanged();
+  void onColorBarOrientationButtonClicked(QAbstractButton*);
 
 protected slots:
   void onMRMLColorNodeChanged(vtkMRMLNode* newColorNode);

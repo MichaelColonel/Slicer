@@ -29,7 +29,7 @@ public:
   enum OrientationPresetType : int { Horizontal = 0, Vertical, OrientationPreset_Last };
   enum PositionPresetType : int { Foreground = 0, Background, PositionPreset_Last };
 
-  const char* COLOR_BAR_REFERENCE_ROLE;
+  static const char* COLOR_BAR_REFERENCE_ROLE;
 
   static vtkMRMLColorBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLColorBarDisplayNode,vtkMRMLDisplayNode);
@@ -66,9 +66,6 @@ public:
   vtkGetMacro(OrientationPreset, OrientationPresetType);
   vtkSetMacro(OrientationPreset, OrientationPresetType);
 
-  void SetVisibilityOnView( const std::string& viewName, bool visibility = true);
-  bool GetVisibilityOnView(const std::string& viewName);
-
 protected:
   vtkMRMLColorBarDisplayNode();
   ~vtkMRMLColorBarDisplayNode() override;
@@ -86,7 +83,6 @@ protected:
 private:
   PositionPresetType PositionPreset;
   OrientationPresetType OrientationPreset;
-  std::map< std::string, bool > VisibilityOnViewMap;
 };
 
 #endif
