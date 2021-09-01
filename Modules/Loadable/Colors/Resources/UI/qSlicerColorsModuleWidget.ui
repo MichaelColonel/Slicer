@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
-    <height>539</height>
+    <width>292</width>
+    <height>563</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,11 +43,11 @@
       <item row="0" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="qMRMLColorTableComboBox" name="ColorTableComboBox">
-          <property name="addEnabled">
+         <widget class="qMRMLColorTableComboBox" name="ColorTableComboBox" native="true">
+          <property name="addEnabled" stdset="0">
            <bool>false</bool>
           </property>
-          <property name="removeEnabled">
+          <property name="removeEnabled" stdset="0">
            <bool>false</bool>
           </property>
          </widget>
@@ -177,7 +177,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="ctkVTKScalarsToColorsWidget" name="ContinuousScalarsToColorsWidget">
+       <widget class="ctkVTKScalarsToColorsWidget" name="ContinuousScalarsToColorsWidget" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -203,8 +203,14 @@
         <item row="0" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
               <string>vtkMRMLScalarVolumeNode</string>
@@ -217,15 +223,39 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>Add</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../../Slicer-SuperBuild-Release/CTK/Libs/Widgets/Resources/ctkWidgets.qrc">
+              <normaloff>:/Icons/plus.png</normaloff>:/Icons/plus.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RemoveColorBarNodePushButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../../Slicer-SuperBuild-Release/CTK/Libs/Widgets/Resources/ctkWidgets.qrc">
+              <normaloff>:/Icons/minus.png</normaloff>:/Icons/minus.png</iconset>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item row="4" column="1">
-         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
+         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox" native="true"/>
         </item>
         <item row="2" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -315,7 +345,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="4" column="0" colspan="2">
-       <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar"/>
+       <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar" native="true"/>
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_2">
@@ -380,16 +410,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ctkVTKScalarBarWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkVTKScalarBarWidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkVTKScalarsToColorsWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkVTKScalarsToColorsWidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
@@ -406,24 +426,19 @@
    <header>ctkRangeWidget.h</header>
   </customwidget>
   <customwidget>
-   <class>qMRMLCheckableNodeComboBox</class>
-   <extends>qMRMLNodeComboBox</extends>
-   <header>qMRMLCheckableNodeComboBox.h</header>
+   <class>ctkVTKScalarBarWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkVTKScalarBarWidget.h</header>
   </customwidget>
   <customwidget>
-   <class>qMRMLColorTableComboBox</class>
-   <extends>qMRMLNodeComboBox</extends>
-   <header>qMRMLColorTableComboBox.h</header>
+   <class>ctkVTKScalarsToColorsWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkVTKScalarsToColorsWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qMRMLColorTableView</class>
    <extends>QTableView</extends>
    <header>qMRMLColorTableView.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLDisplayNodeViewComboBox</class>
-   <extends>qMRMLCheckableNodeComboBox</extends>
-   <header>qMRMLDisplayNodeViewComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>qMRMLNodeComboBox</class>
@@ -442,9 +457,28 @@
    <header>qSlicerWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>qMRMLCheckableNodeComboBox</class>
+   <extends>qMRMLNodeComboBox</extends>
+   <header>qMRMLCheckableNodeComboBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLColorTableComboBox</class>
+   <extends>qMRMLNodeComboBox</extends>
+   <header>qMRMLColorTableComboBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLDisplayNodeViewComboBox</class>
+   <extends>qMRMLCheckableNodeComboBox</extends>
+   <header>qMRMLDisplayNodeViewComboBox.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="../qSlicerColorsModule.qrc"/>
+  <include location="../../../../../Slicer-SuperBuild-Release/CTK/Libs/Widgets/Resources/ctkWidgets.qrc"/>
  </resources>
  <connections>
   <connection>

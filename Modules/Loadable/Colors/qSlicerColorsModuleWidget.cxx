@@ -71,6 +71,7 @@ public:
 
   vtkScalarBarWidget* ScalarBarWidget;
   vtkSlicerScalarBarActor* ScalarBarActor;
+  vtkWeakPointer<vtkMRMLDisplayableNode> DisplayableNode;
   vtkWeakPointer<vtkScalarBarActor> ColorBarActor;
 };
 
@@ -462,8 +463,8 @@ void qSlicerColorsModuleWidget::copyCurrentColorNode()
 void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerColorsModuleWidget);
-  vtkMRMLDisplayableNode* displayableNode = vtkMRMLDisplayableNode::SafeDownCast(node);
-  if (!displayableNode)
+  d->DisplayableNode = vtkMRMLDisplayableNode::SafeDownCast(node);
+  if (!d->DisplayableNode)
   {
     d->AddColorBarNodePushButton->setEnabled(false);
     d->UseSelectedColorsCheckBox->setEnabled(false);
@@ -471,19 +472,46 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
     d->HorizontalOrientationRadioButton->setEnabled(false);
     d->DisplayNodeViewComboBox->setEnabled(false);
   }
-
+  else
+  {
+    d->AddColorBarNodePushButton->setEnabled(true);
+    d->UseSelectedColorsCheckBox->setEnabled(false);
+    d->VerticalOrientationRadioButton->setEnabled(false);
+    d->HorizontalOrientationRadioButton->setEnabled(false);
+    d->DisplayNodeViewComboBox->setEnabled(false);
+  }
 }
 
 //-----------------------------------------------------------
 void qSlicerColorsModuleWidget::onAddColorBarButtonClicked()
 {
+  Q_D(qSlicerColorsModuleWidget);
 
+  if (!d->DisplayableNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Displayable node is invalid";
+    return;
+  }
+
+  vtkNew<vtkMRMLColorBarDisplayNode> cbNode;
+  this->mrmlScene()->AddNode(cbNode);
+  d->DisplayableNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, cbNode->GetID());
+  cbNode->SetAndObserveDisplayableNode(d->DisplayableNode);
+
+  d->DisplayNodeViewComboBox->setEnabled(true);
+  d->DisplayNodeViewComboBox->setMRMLDisplayNode(cbNode);
+
+  d->AddColorBarNodePushButton->setEnabled(false);
+  d->VerticalOrientationRadioButton->setEnabled(true);
+  d->HorizontalOrientationRadioButton->setEnabled(true);
+  d->UseSelectedColorsCheckBox->setEnabled(false);
 }
 
 //-----------------------------------------------------------
 void qSlicerColorsModuleWidget::onViewCheckedNodesChanged()
 {
-
+  Q_D(qSlicerColorsModuleWidget);
+  QList< vtkMRMLAbstractViewNode* > checkedList = d->DisplayNodeViewComboBox->checkedViewNodes();
 }
 
 //-----------------------------------------------------------
