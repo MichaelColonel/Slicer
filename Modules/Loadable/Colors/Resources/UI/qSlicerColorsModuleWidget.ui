@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
-    <height>539</height>
+    <width>316</width>
+    <height>566</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -257,45 +257,6 @@
         <item row="4" column="1">
          <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
         </item>
-        <item row="2" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QRadioButton" name="VerticalOrientationRadioButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Vectical</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">ColorBarOrientationButtonGroup</string>
-            </attribute>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="HorizontalOrientationRadioButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Horizontal</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">ColorBarOrientationButtonGroup</string>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </item>
         <item row="4" column="0">
          <widget class="QLabel" name="PresetColorBarLabel">
           <property name="toolTip">
@@ -310,13 +271,6 @@
          <widget class="QLabel" name="DisplayableNodeLabel">
           <property name="text">
            <string>Add to node:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="ColorBarOrientationLabel">
-          <property name="text">
-           <string>Orientation:</string>
           </property>
          </widget>
         </item>
@@ -344,10 +298,7 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="4" column="0" colspan="2">
-       <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar"/>
-      </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="label_2">
         <property name="toolTip">
          <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
@@ -357,20 +308,17 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="UseColorNameAsLabelCheckBox">
-        <property name="toolTip">
-         <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
+      <item row="0" column="1">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox">
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLSliceNode</string>
+          <string>vtkMRMLThreeDViewNode</string>
+         </stringlist>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QCheckBox" name="CenterLabelCheckBox">
         <property name="toolTip">
          <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
@@ -383,7 +331,20 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="UseColorNameAsLabelCheckBox">
+        <property name="toolTip">
+         <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
        <widget class="QLabel" name="label">
         <property name="toolTip">
          <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
@@ -392,6 +353,62 @@
          <string>Center labels: </string>
         </property>
        </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Scalar bar from view:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="ColorBarOrientationLabel">
+        <property name="text">
+         <string>Orientation:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QRadioButton" name="VerticalOrientationRadioButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Vectical</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">ColorBarOrientationButtonGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="HorizontalOrientationRadioButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Horizontal</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">ColorBarOrientationButtonGroup</string>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

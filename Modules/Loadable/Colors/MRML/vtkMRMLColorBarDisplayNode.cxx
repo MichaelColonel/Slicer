@@ -46,8 +46,6 @@ vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   PositionPreset(Foreground),
   OrientationPreset(Vertical)
 {
-  this->SetVisibility2D(false);
-  this->SetVisibility3D(false);
 }
 
 //-----------------------------------------------------------------------------

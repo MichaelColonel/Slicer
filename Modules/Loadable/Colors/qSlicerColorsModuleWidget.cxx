@@ -35,6 +35,8 @@
 #include "qMRMLColorModel.h"
 #include "qMRMLThreeDView.h"
 #include "qMRMLThreeDWidget.h"
+#include "qMRMLSliceView.h"
+#include "qMRMLSliceWidget.h"
 
 // Slicer logic includes
 #include <vtkSlicerColorLogic.h>
@@ -46,6 +48,8 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLColorBarDisplayNode.h>
 #include <vtkMRMLAbstractViewNode.h>
+#include <vtkMRMLAbstractDisplayableManager.h>
+#include <vtkMRMLColorBarDisplayableManager.h>
 
 // VTK includes
 #include <vtkBorderRepresentation.h>
@@ -74,6 +78,7 @@ public:
 //  vtkSlicerScalarBarActor* ScalarBarActor;
   vtkWeakPointer<vtkMRMLDisplayableNode> DisplayableNode;
   vtkWeakPointer<vtkScalarBarActor> ColorBarActor;
+  vtkWeakPointer<vtkMRMLColorBarDisplayNode> ColorBarNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -213,6 +218,7 @@ void qSlicerColorsModuleWidget::setup()
 
   connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
   connect( d->AddColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onAddColorBarButtonClicked()));
+  connect( d->RemoveColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onRemoveColorBarButtonClicked()));
   connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
   connect( d->ColorBarOrientationButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onColorBarOrientationButtonClicked(QAbstractButton*)));
   connect( d->DisplayNodeViewComboBox, SIGNAL(checkedNodesChanged()), this, SLOT(onViewCheckedNodesChanged()));
@@ -477,19 +483,36 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
   if (!d->DisplayableNode)
   {
     d->AddColorBarNodePushButton->setEnabled(false);
+    d->RemoveColorBarNodePushButton->setEnabled(false);
     d->UseSelectedColorsCheckBox->setEnabled(false);
     d->VerticalOrientationRadioButton->setEnabled(false);
     d->HorizontalOrientationRadioButton->setEnabled(false);
     d->DisplayNodeViewComboBox->setEnabled(false);
+    return;
   }
-  else
+
+  vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
+    d->DisplayableNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
+  if (colorBarNode)
   {
-    d->AddColorBarNodePushButton->setEnabled(true);
-    d->UseSelectedColorsCheckBox->setEnabled(false);
-    d->VerticalOrientationRadioButton->setEnabled(false);
-    d->HorizontalOrientationRadioButton->setEnabled(false);
-    d->DisplayNodeViewComboBox->setEnabled(false);
+    d->ColorBarNode = colorBarNode;
+    d->DisplayNodeViewComboBox->setEnabled(true);
+    d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
+
+    d->AddColorBarNodePushButton->setEnabled(false);
+    d->RemoveColorBarNodePushButton->setEnabled(true);
+    d->VerticalOrientationRadioButton->setEnabled(true);
+    d->HorizontalOrientationRadioButton->setEnabled(true);
+    d->UseSelectedColorsCheckBox->setEnabled(true);
+    return;
   }
+
+  d->AddColorBarNodePushButton->setEnabled(true);
+  d->RemoveColorBarNodePushButton->setEnabled(false);
+  d->UseSelectedColorsCheckBox->setEnabled(false);
+  d->VerticalOrientationRadioButton->setEnabled(false);
+  d->HorizontalOrientationRadioButton->setEnabled(false);
+  d->DisplayNodeViewComboBox->setEnabled(false);
 }
 
 //-----------------------------------------------------------
@@ -505,6 +528,9 @@ void qSlicerColorsModuleWidget::onAddColorBarButtonClicked()
 
   vtkNew<vtkMRMLColorBarDisplayNode> colorBarNode;
   this->mrmlScene()->AddNode(colorBarNode);
+
+  d->ColorBarNode = colorBarNode;
+
   d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, colorBarNode->GetID());
   colorBarNode->SetAndObserveDisplayableNode(d->DisplayableNode);
 
@@ -512,9 +538,37 @@ void qSlicerColorsModuleWidget::onAddColorBarButtonClicked()
   d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
 
   d->AddColorBarNodePushButton->setEnabled(false);
+  d->RemoveColorBarNodePushButton->setEnabled(true);
   d->VerticalOrientationRadioButton->setEnabled(true);
   d->HorizontalOrientationRadioButton->setEnabled(true);
-  d->UseSelectedColorsCheckBox->setEnabled(false);
+  d->UseSelectedColorsCheckBox->setEnabled(true);
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onRemoveColorBarButtonClicked()
+{
+  Q_D(qSlicerColorsModuleWidget);
+
+  if (!d->DisplayableNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Displayable node is invalid";
+    return;
+  }
+
+  vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
+    d->DisplayableNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
+  if (colorBarNode)
+  {
+    this->mrmlScene()->RemoveNode(colorBarNode);
+    d->ColorBarNode = nullptr;
+
+    d->DisplayNodeViewComboBox->setEnabled(false);
+    d->AddColorBarNodePushButton->setEnabled(true);
+    d->RemoveColorBarNodePushButton->setEnabled(false);
+    d->VerticalOrientationRadioButton->setEnabled(false);
+    d->HorizontalOrientationRadioButton->setEnabled(false);
+    d->UseSelectedColorsCheckBox->setEnabled(false);
+  }
 }
 
 //-----------------------------------------------------------
@@ -539,6 +593,33 @@ void qSlicerColorsModuleWidget::onViewCheckedNodesChanged()
       for (int i = 0; i < dispViews; ++i)
       {
         qDebug() << Q_FUNC_INFO << "Checked view IDs in node: " << colorBarNode->GetNthViewNodeID(i);
+      }
+    }
+  }
+
+  // Get color bar displayable manager
+//  qSlicerCoreApplication* app = qSlicerCoreApplication::application();
+  qSlicerApplication* app = qSlicerApplication::application();
+  if (!app)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid Slicer application instance";
+  }
+  else
+  {
+//    qSlicerModuleManager* manager = app->moduleManager();
+    qSlicerLayoutManager* layoutManager = app->layoutManager();
+    QStringList sliceViewNames = layoutManager->sliceViewNames();
+    for (const QString& svName : sliceViewNames)
+    {
+      qMRMLSliceWidget* sliceWidget = layoutManager->sliceWidget(svName);
+      qMRMLSliceView* sliceView = sliceWidget->sliceView();
+      vtkMRMLAbstractDisplayableManager* displayManager = sliceView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (displayManager)
+      {
+        vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+        vtkScalarBarActor* scalarBarActor = colorBarManager->GetScalarBarActor();
+        vtkScalarBarWidget* scalarBarWidget = colorBarManager->GetScalarBarWidget();
+        qDebug() << Q_FUNC_INFO << "Actor and widget available";
       }
     }
   }
