@@ -134,14 +134,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::Modified()
 //---------------------------------------------------------------------------
 void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar()
 {
-//  vtkMRMLViewNode* threeDViewNode = nullptr;
-//  vtkMRMLSliceNode* sliceNode = nullptr;
   vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
-//  if (node)
-//  {
-//    threeDViewNode = vtkMRMLViewNode::SafeDownCast(node);
-//    sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
-//  }
 
   vtkRenderWindowInteractor* interactor = this->External->GetInteractor();
   if (!interactor)
@@ -274,7 +267,7 @@ void vtkMRMLColorBarDisplayableManager::AdditionalInitializeStep()
 void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkObject* vtkNotUsed(caller))
 {
   vtkMRMLColorTableNode* colorTableNode = nullptr;
-  
+
   if (this->Internal->ColorBarDisplayNode)
   {
     vtkMRMLDisplayableNode* displayableNode = this->Internal->ColorBarDisplayNode->GetDisplayableNode();
