@@ -58,6 +58,7 @@ public slots:
   void onUseSelectedColorsToggled(bool);
   void onAddColorBarButtonClicked();
   void onRemoveColorBarButtonClicked();
+  void onViewNodeChanged(vtkMRMLNode*);
   void onViewCheckedNodesChanged();
   void onColorBarOrientationButtonClicked(QAbstractButton*);
 

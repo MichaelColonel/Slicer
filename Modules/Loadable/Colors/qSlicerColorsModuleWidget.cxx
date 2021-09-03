@@ -42,6 +42,8 @@
 #include <vtkSlicerColorLogic.h>
 
 // MRML includes
+#include <vtkMRMLSliceNode.h>
+#include <vtkMRMLViewNode.h>
 #include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLProceduralColorNode.h>
 #include <vtkMRMLDisplayableNode.h>
@@ -61,6 +63,9 @@
 #include <vtkScalarBarWidget.h>
 #include <vtkSlicerScalarBarActor.h>
 
+// STD includes
+#include <cstring>
+
 //-----------------------------------------------------------------------------
 class qSlicerColorsModuleWidgetPrivate: public Ui_qSlicerColorsModuleWidget
 {
@@ -76,8 +81,13 @@ public:
 
 //  vtkScalarBarWidget* ScalarBarWidget;
 //  vtkSlicerScalarBarActor* ScalarBarActor;
+
+  /// Node to which color bar display node will be added
   vtkWeakPointer<vtkMRMLDisplayableNode> DisplayableNode;
+  /// Actor and widget from displayable manager
   vtkWeakPointer<vtkScalarBarActor> ColorBarActor;
+  vtkWeakPointer<vtkScalarBarWidget> ColorBarWidget;
+
   vtkWeakPointer<vtkMRMLColorBarDisplayNode> ColorBarNode;
 };
 
@@ -217,6 +227,7 @@ void qSlicerColorsModuleWidget::setup()
   d->ContinuousScalarsToColorsWidget->view()->addColorTransferFunction(nullptr);
 
   connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
+  connect( d->ViewNodesComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onViewNodeChanged(vtkMRMLNode*)));
   connect( d->AddColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onAddColorBarButtonClicked()));
   connect( d->RemoveColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onRemoveColorBarButtonClicked()));
   connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
@@ -575,6 +586,7 @@ void qSlicerColorsModuleWidget::onRemoveColorBarButtonClicked()
 void qSlicerColorsModuleWidget::onViewCheckedNodesChanged()
 {
   Q_D(qSlicerColorsModuleWidget);
+/*
   QList< vtkMRMLAbstractViewNode* > checkedList = d->DisplayNodeViewComboBox->checkedViewNodes();
   qDebug() << Q_FUNC_INFO << "Checked views:";
   for (const auto viewNode : checkedList)
@@ -596,33 +608,319 @@ void qSlicerColorsModuleWidget::onViewCheckedNodesChanged()
       }
     }
   }
+*/
+
+  // Configure scalar bar actor
+  // Get scalar bar actor for a selected view
+  vtkMRMLNode *currentNode = d->ViewNodesComboBox->currentNode();
+  if (!currentNode)
+  {
+    qDebug() << Q_FUNC_INFO << "View node is invalid";
+    return;
+  }
+
+  vtkMRMLAbstractViewNode* viewNode = vtkMRMLAbstractViewNode::SafeDownCast(currentNode);
+  if (!viewNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Abstract view node is invalid";
+    return;
+  }
 
   // Get color bar displayable manager
-//  qSlicerCoreApplication* app = qSlicerCoreApplication::application();
   qSlicerApplication* app = qSlicerApplication::application();
   if (!app)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid Slicer application instance";
+    return;
   }
-  else
+
+  vtkMRMLSliceNode* selectedSliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
+  vtkMRMLViewNode* selected3dViewNode = vtkMRMLViewNode::SafeDownCast(viewNode);
+  if (selectedSliceNode)
   {
-//    qSlicerModuleManager* manager = app->moduleManager();
+    // Iterate all slice views
     qSlicerLayoutManager* layoutManager = app->layoutManager();
     QStringList sliceViewNames = layoutManager->sliceViewNames();
     for (const QString& svName : sliceViewNames)
     {
+//      qDebug() << Q_FUNC_INFO << "Slice view name: " << svName;
       qMRMLSliceWidget* sliceWidget = layoutManager->sliceWidget(svName);
       qMRMLSliceView* sliceView = sliceWidget->sliceView();
+
+      vtkMRMLSliceNode* widgetSliceNode = sliceWidget->mrmlSliceNode();
+      if (widgetSliceNode)
+      {
+//        qDebug() << Q_FUNC_INFO << "Widget slice view name ID: " << widgetSliceNode->GetID();
+      }
+      else
+      {
+//        qDebug() << Q_FUNC_INFO << "Nodes are invalid!";
+        return;
+      }
       vtkMRMLAbstractDisplayableManager* displayManager = sliceView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
       if (displayManager)
       {
-        vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
-        vtkScalarBarActor* scalarBarActor = colorBarManager->GetScalarBarActor();
-        vtkScalarBarWidget* scalarBarWidget = colorBarManager->GetScalarBarWidget();
-        qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        if (std::strcmp(widgetSliceNode->GetID(), selectedSliceNode->GetID()) == 0)
+        {
+//          qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedSliceNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
       }
     }
   }
+  else if (selected3dViewNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Selected 3D view name ID: " << selected3dViewNode->GetID();
+  }
+/*
+  {
+    // Iterate all slice views
+    qSlicerLayoutManager* layoutManager = app->layoutManager();
+    QStringList sliceViewNames = layoutManager->sliceViewNames();
+    for (const QString& svName : sliceViewNames)
+    {
+      qDebug() << Q_FUNC_INFO << "Slice view name: " << svName;
+      qMRMLSliceWidget* sliceWidget = layoutManager->sliceWidget(svName);
+      qMRMLSliceView* sliceView = sliceWidget->sliceView();
+
+      vtkMRMLSliceNode* widgetSliceNode = sliceWidget->mrmlSliceNode();
+      if (widgetSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Widget slice view name ID: " << widgetSliceNode->GetID();
+      }
+      else if (selectedSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedSliceNode->GetID();
+      }
+      else if (!widgetSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Widget slice view is invalid";
+        return;
+      }
+      else if (!selectedSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Selected slice view is invalid";
+        return;
+      }
+      else
+      {
+        qDebug() << Q_FUNC_INFO << "Nodes are invalid!";
+        return;
+      }
+      vtkMRMLAbstractDisplayableManager* displayManager = sliceView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (displayManager)
+      {
+        if (std::strcmp(widgetSliceNode->GetID(), selectedSliceNode->GetID()) == 0)
+        {
+          qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedSliceNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
+      }
+    }
+
+    // Iterate all 3D views
+    for (int i = 0; i < layoutManager->threeDViewCount(); ++i)
+    {
+      qDebug() << Q_FUNC_INFO << "3D view count: " << i;
+      qMRMLThreeDWidget* threeDWidget = layoutManager->threeDWidget(i);
+      qMRMLThreeDView* threeDView = threeDWidget->threeDView();
+      vtkMRMLViewNode* widgetViewNode = threeDWidget->mrmlViewNode();
+      vtkMRMLViewNode* selectedViewNode = vtkMRMLViewNode::SafeDownCast(viewNode);
+
+      vtkMRMLAbstractDisplayableManager* displayManager = threeDView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (displayManager)
+      {
+        if (std::strcmp(widgetViewNode->GetID(), selectedViewNode->GetID()) == 0)
+        {
+          qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedViewNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
+      }
+    }
+
+  }
+*/
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onViewNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerColorsModuleWidget);
+
+  // Configure scalar bar actor
+  // Get scalar bar actor for a selected view
+  vtkMRMLAbstractViewNode* viewNode = vtkMRMLAbstractViewNode::SafeDownCast(node);
+  if (!viewNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Abstract view node is invalid";
+    return;
+  }
+
+  // Get color bar displayable manager
+  qSlicerApplication* app = qSlicerApplication::application();
+  if (!app)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid Slicer application instance";
+    return;
+  }
+
+  qSlicerLayoutManager* layoutManager = app->layoutManager();
+
+  vtkMRMLSliceNode* selectedSliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
+  vtkMRMLViewNode* selected3dViewNode = vtkMRMLViewNode::SafeDownCast(viewNode);
+  if (selectedSliceNode)
+  {
+    // Iterate all slice views
+    QStringList sliceViewNames = layoutManager->sliceViewNames();
+    for (const QString& svName : sliceViewNames)
+    {
+//      qDebug() << Q_FUNC_INFO << "Slice view name: " << svName;
+      qMRMLSliceWidget* sliceWidget = layoutManager->sliceWidget(svName);
+      qMRMLSliceView* sliceView = sliceWidget->sliceView();
+
+      vtkMRMLSliceNode* widgetSliceNode = sliceWidget->mrmlSliceNode();
+      if (widgetSliceNode)
+      {
+//        qDebug() << Q_FUNC_INFO << "Widget slice view name ID: " << widgetSliceNode->GetID();
+      }
+      else
+      {
+//        qDebug() << Q_FUNC_INFO << "Node is invalid!";
+        return;
+      }
+      vtkMRMLAbstractDisplayableManager* displayManager = sliceView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (displayManager)
+      {
+        if (std::strcmp(widgetSliceNode->GetID(), selectedSliceNode->GetID()) == 0)
+        {
+          qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedSliceNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
+      }
+    }
+  }
+  else if (selected3dViewNode)
+  {
+    // Iterate all 3D views
+    for (int i = 0; i < layoutManager->threeDViewCount(); ++i)
+    {
+//      qDebug() << Q_FUNC_INFO << "3D view count: " << i;
+      qMRMLThreeDWidget* threeDWidget = layoutManager->threeDWidget(i);
+      qMRMLThreeDView* threeDView = threeDWidget->threeDView();
+      vtkMRMLViewNode* widgetViewNode = threeDView->mrmlViewNode();
+      if (widgetViewNode)
+      {
+//        qDebug() << Q_FUNC_INFO << "Widget 3D view name ID: " << widgetViewNode->GetID();
+      }
+      else
+      {
+//        qDebug() << Q_FUNC_INFO << "Node is invalid!";
+        return;
+      }
+      vtkMRMLAbstractDisplayableManager* displayManager = threeDView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (std::strcmp(widgetViewNode->GetID(), selected3dViewNode->GetID()) == 0)
+        {
+          qDebug() << Q_FUNC_INFO << "Selected 3D view name ID: " << selected3dViewNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
+    }
+  }
+/*
+  {
+    // Iterate all slice views
+    qSlicerLayoutManager* layoutManager = app->layoutManager();
+    QStringList sliceViewNames = layoutManager->sliceViewNames();
+    for (const QString& svName : sliceViewNames)
+    {
+      qDebug() << Q_FUNC_INFO << "Slice view name: " << svName;
+      qMRMLSliceWidget* sliceWidget = layoutManager->sliceWidget(svName);
+      qMRMLSliceView* sliceView = sliceWidget->sliceView();
+
+      vtkMRMLSliceNode* widgetSliceNode = sliceWidget->mrmlSliceNode();
+      if (widgetSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Widget slice view name ID: " << widgetSliceNode->GetID();
+      }
+      else if (selectedSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedSliceNode->GetID();
+      }
+      else if (!widgetSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Widget slice view is invalid";
+        return;
+      }
+      else if (!selectedSliceNode)
+      {
+        qDebug() << Q_FUNC_INFO << "Selected slice view is invalid";
+        return;
+      }
+      else
+      {
+        qDebug() << Q_FUNC_INFO << "Nodes are invalid!";
+        return;
+      }
+      vtkMRMLAbstractDisplayableManager* displayManager = sliceView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (displayManager)
+      {
+        if (std::strcmp(widgetSliceNode->GetID(), selectedSliceNode->GetID()) == 0)
+        {
+          qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedSliceNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
+      }
+    }
+
+    // Iterate all 3D views
+    for (int i = 0; i < layoutManager->threeDViewCount(); ++i)
+    {
+      qDebug() << Q_FUNC_INFO << "3D view count: " << i;
+      qMRMLThreeDWidget* threeDWidget = layoutManager->threeDWidget(i);
+      qMRMLThreeDView* threeDView = threeDWidget->threeDView();
+      vtkMRMLViewNode* widgetViewNode = threeDWidget->mrmlViewNode();
+      vtkMRMLViewNode* selectedViewNode = vtkMRMLViewNode::SafeDownCast(viewNode);
+
+      vtkMRMLAbstractDisplayableManager* displayManager = threeDView->displayableManagerByClassName("vtkMRMLColorBarDisplayableManager");
+      if (displayManager)
+      {
+        if (std::strcmp(widgetViewNode->GetID(), selectedViewNode->GetID()) == 0)
+        {
+          qDebug() << Q_FUNC_INFO << "Selected slice view name ID: " << selectedViewNode->GetID();
+          vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
+          d->ColorBarActor = colorBarManager->GetScalarBarActor();
+          d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
+//          d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
+//          qDebug() << Q_FUNC_INFO << "Actor and widget available";
+        }
+      }
+    }
+
+  }
+*/
 }
 
 //-----------------------------------------------------------
@@ -632,17 +930,49 @@ void qSlicerColorsModuleWidget::onColorBarOrientationButtonClicked(QAbstractButt
   QRadioButton* radioButton = qobject_cast<QRadioButton*>(button);
   if (radioButton == d->HorizontalOrientationRadioButton)
   {
-    qDebug() << Q_FUNC_INFO << "Horizontal orientation";
+    if (d->ColorBarNode)
+    {
+      d->ColorBarNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Horizontal);
+      d->ColorBarNode->Modified();
+    }
   }
   else if (radioButton == d->VerticalOrientationRadioButton)
   {
-    qDebug() << Q_FUNC_INFO << "Vertical orientation";
+    if (d->ColorBarNode)
+    {
+      d->ColorBarNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Vertical);
+      d->ColorBarNode->Modified();
+    }
   }
 }
 
 //-----------------------------------------------------------
-void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool)
+void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool toggled)
 {
+  Q_D(qSlicerColorsModuleWidget);
+
+  if (!d->ColorBarNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Color bar display node is invalid";
+    return;
+  }
+
+  if (toggled)
+  {
+    vtkMRMLColorTableNode* colorTableNode = vtkMRMLColorTableNode::SafeDownCast(d->ColorTableComboBox->currentNode());
+    if (colorTableNode)
+    {
+      d->ColorBarNode->SetAndObserveColorTableNode(colorTableNode);
+    }
+    else
+    {
+      qDebug() << Q_FUNC_INFO << "Color table node is invalid";
+    }
+  }
+  else
+  {
+    d->ColorBarNode->SetAndObserveColorTableNode(nullptr);
+  }
 }
 
 //-----------------------------------------------------------
