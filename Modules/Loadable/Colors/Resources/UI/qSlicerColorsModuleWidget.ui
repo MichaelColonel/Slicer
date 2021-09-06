@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
+    <width>367</width>
     <height>539</height>
    </rect>
   </property>
@@ -200,6 +200,19 @@
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="1" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="4" column="1">
+         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="PresetColorBarLabel">
+          <property name="toolTip">
+           <string>Select preset view node color bar actor </string>
+          </property>
+          <property name="text">
+           <string>Show on views:</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
@@ -218,69 +231,30 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="AddColorBarNodePushButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../../Slicer-SuperBuild-Release/CTK/Libs/Widgets/Resources/ctkWidgets.qrc">
-              <normaloff>:/Icons/plus.png</normaloff>:/Icons/plus.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="RemoveColorBarNodePushButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../../Slicer-SuperBuild-Release/CTK/Libs/Widgets/Resources/ctkWidgets.qrc">
-              <normaloff>:/Icons/minus.png</normaloff>:/Icons/minus.png</iconset>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
-        <item row="4" column="1">
-         <widget class="qMRMLDisplayNodeViewComboBox" name="DisplayNodeViewComboBox"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="PresetColorBarLabel">
-          <property name="toolTip">
-           <string>Select preset view node color bar actor </string>
-          </property>
-          <property name="text">
-           <string>Show on a view:</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="DisplayableNodeLabel">
+         <widget class="ctkCheckBox" name="ColorBarVisibilityCheckBox">
           <property name="text">
-           <string>Add to node:</string>
+           <string>Displayable:</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <property name="indicatorIcon">
+           <iconset resource="../../../../../Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
+            <normaloff>:/Icons/VisibleOn.png</normaloff>
+            <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="5" column="0" colspan="2">
          <widget class="QCheckBox" name="UseSelectedColorsCheckBox">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Use selected color table node</string>
+           <string>Use pre-selected colors</string>
           </property>
          </widget>
         </item>
@@ -302,7 +276,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="6" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="UseColorNamesFromLabelsLabel">
         <property name="toolTip">
          <string>Toggle between using the names of color table colors and the scalar values for the labels in the scalar bar widget.</string>
         </property>
@@ -354,7 +328,7 @@
        </widget>
       </item>
       <item row="7" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="CenterLabelsLabel">
         <property name="toolTip">
          <string>Toggle between centerling names of color table colors on color swatches in the scalar bar widget.</string>
         </property>
@@ -367,9 +341,9 @@
        <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar"/>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="UseScalarBarFromViewLabel">
         <property name="text">
-         <string>Scalar bar from view:</string>
+         <string>Use scalar bar from view:</string>
         </property>
        </widget>
       </item>
@@ -446,6 +420,11 @@
    <header>ctkVTKScalarsToColorsWidget.h</header>
   </customwidget>
   <customwidget>
+   <class>ctkCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>ctkCheckBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
@@ -505,6 +484,7 @@
  <resources>
   <include location="../qSlicerColorsModule.qrc"/>
   <include location="../../../../../Slicer-SuperBuild-Release/CTK/Libs/Widgets/Resources/ctkWidgets.qrc"/>
+  <include location="../../../../../Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc"/>
  </resources>
  <connections>
   <connection>

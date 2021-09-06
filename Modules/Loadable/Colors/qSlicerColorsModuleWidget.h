@@ -56,8 +56,7 @@ public slots:
   void setCenterLabel(bool);
   void onDisplayableNodeChanged(vtkMRMLNode*);
   void onUseSelectedColorsToggled(bool);
-  void onAddColorBarButtonClicked();
-  void onRemoveColorBarButtonClicked();
+  void onColorBarVisibilityToggled(bool);
   void onViewNodeChanged(vtkMRMLNode*);
   void onViewCheckedNodesChanged();
   void onColorBarOrientationButtonClicked(QAbstractButton*);

@@ -37,6 +37,9 @@ public:
   vtkTypeMacro(vtkMRMLColorBarDisplayableManager, vtkMRMLAbstractDisplayableManager);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /// Update the renderer based on the master renderer (the one that the orientation marker follows)
+  void UpdateFromRenderer();
+
   /// \brief Get scalar bar widget
   /// \return scalar bar widget pointer
   vtkScalarBarWidget* GetScalarBarWidget() const;
@@ -52,8 +55,9 @@ protected:
   /// vtkMRMLSliceNode
   void Create() override;
 
-  void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
-  
+  void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
+  void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+
   void ProcessMRMLNodesEvents(vtkObject *caller,
                                       unsigned long event,
                                       void *callData) override;

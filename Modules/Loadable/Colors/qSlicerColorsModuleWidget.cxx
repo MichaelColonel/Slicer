@@ -228,8 +228,7 @@ void qSlicerColorsModuleWidget::setup()
 
   connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
   connect( d->ViewNodesComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onViewNodeChanged(vtkMRMLNode*)));
-  connect( d->AddColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onAddColorBarButtonClicked()));
-  connect( d->RemoveColorBarNodePushButton, SIGNAL(clicked()), this, SLOT(onRemoveColorBarButtonClicked()));
+  connect( d->ColorBarVisibilityCheckBox, SIGNAL(toggled(bool)), this, SLOT(onColorBarVisibilityToggled(bool)));
   connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
   connect( d->ColorBarOrientationButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onColorBarOrientationButtonClicked(QAbstractButton*)));
   connect( d->DisplayNodeViewComboBox, SIGNAL(checkedNodesChanged()), this, SLOT(onViewCheckedNodesChanged()));
@@ -494,8 +493,7 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
   d->DisplayableNode = vtkMRMLDisplayableNode::SafeDownCast(node);
   if (!d->DisplayableNode)
   {
-    d->AddColorBarNodePushButton->setEnabled(false);
-    d->RemoveColorBarNodePushButton->setEnabled(false);
+    d->ColorBarVisibilityCheckBox->setChecked(false);
     d->UseSelectedColorsCheckBox->setEnabled(false);
     d->VerticalOrientationRadioButton->setEnabled(false);
     d->HorizontalOrientationRadioButton->setEnabled(false);
@@ -511,16 +509,14 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
     d->DisplayNodeViewComboBox->setEnabled(true);
     d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
 
-    d->AddColorBarNodePushButton->setEnabled(false);
-    d->RemoveColorBarNodePushButton->setEnabled(true);
+    d->ColorBarVisibilityCheckBox->setChecked(true);
     d->VerticalOrientationRadioButton->setEnabled(true);
     d->HorizontalOrientationRadioButton->setEnabled(true);
     d->UseSelectedColorsCheckBox->setEnabled(true);
     return;
   }
 
-  d->AddColorBarNodePushButton->setEnabled(true);
-  d->RemoveColorBarNodePushButton->setEnabled(false);
+  d->ColorBarVisibilityCheckBox->setChecked(false);
   d->UseSelectedColorsCheckBox->setEnabled(false);
   d->VerticalOrientationRadioButton->setEnabled(false);
   d->HorizontalOrientationRadioButton->setEnabled(false);
@@ -528,7 +524,7 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
 }
 
 //-----------------------------------------------------------
-void qSlicerColorsModuleWidget::onAddColorBarButtonClicked()
+void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
 {
   Q_D(qSlicerColorsModuleWidget);
 
@@ -538,48 +534,39 @@ void qSlicerColorsModuleWidget::onAddColorBarButtonClicked()
     return;
   }
 
-  vtkNew<vtkMRMLColorBarDisplayNode> colorBarNode;
-  this->mrmlScene()->AddNode(colorBarNode);
-
-  d->ColorBarNode = colorBarNode;
-
-  d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, colorBarNode->GetID());
-  colorBarNode->SetAndObserveDisplayableNode(d->DisplayableNode);
-
-  d->DisplayNodeViewComboBox->setEnabled(true);
-  d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
-
-  d->AddColorBarNodePushButton->setEnabled(false);
-  d->RemoveColorBarNodePushButton->setEnabled(true);
-  d->VerticalOrientationRadioButton->setEnabled(true);
-  d->HorizontalOrientationRadioButton->setEnabled(true);
-  d->UseSelectedColorsCheckBox->setEnabled(true);
-}
-
-//-----------------------------------------------------------
-void qSlicerColorsModuleWidget::onRemoveColorBarButtonClicked()
-{
-  Q_D(qSlicerColorsModuleWidget);
-
-  if (!d->DisplayableNode)
+  if (toggled)
   {
-    qDebug() << Q_FUNC_INFO << "onRemoveColorBarButtonClicked: Displayable node is invalid";
-    return;
+    vtkNew<vtkMRMLColorBarDisplayNode> colorBarNode;
+    this->mrmlScene()->AddNode(colorBarNode);
+
+    d->ColorBarNode = colorBarNode;
+
+    d->DisplayableNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, colorBarNode->GetID());
+    colorBarNode->SetAndObserveDisplayableNode(d->DisplayableNode);
+
+    d->DisplayNodeViewComboBox->setEnabled(true);
+    d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
+
+    d->VerticalOrientationRadioButton->setEnabled(true);
+    d->HorizontalOrientationRadioButton->setEnabled(true);
+    d->UseSelectedColorsCheckBox->setEnabled(true);
+    colorBarNode->Modified();
   }
-
-  vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
-    d->DisplayableNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
-  if (colorBarNode)
+  else
   {
-    this->mrmlScene()->RemoveNode(colorBarNode);
-    d->ColorBarNode = nullptr;
+    vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
+      d->DisplayableNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
+    if (colorBarNode)
+    {
+      this->mrmlScene()->RemoveNode(colorBarNode);
+      d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, nullptr);
+      d->ColorBarNode = nullptr;
 
-    d->DisplayNodeViewComboBox->setEnabled(false);
-    d->AddColorBarNodePushButton->setEnabled(true);
-    d->RemoveColorBarNodePushButton->setEnabled(false);
-    d->VerticalOrientationRadioButton->setEnabled(false);
-    d->HorizontalOrientationRadioButton->setEnabled(false);
-    d->UseSelectedColorsCheckBox->setEnabled(false);
+      d->DisplayNodeViewComboBox->setEnabled(false);
+      d->VerticalOrientationRadioButton->setEnabled(false);
+      d->HorizontalOrientationRadioButton->setEnabled(false);
+      d->UseSelectedColorsCheckBox->setEnabled(false);
+    }
   }
 }
 
