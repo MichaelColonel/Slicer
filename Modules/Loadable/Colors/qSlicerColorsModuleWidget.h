@@ -58,7 +58,6 @@ public slots:
   void onUseSelectedColorsToggled(bool);
   void onColorBarVisibilityToggled(bool);
   void onViewNodeChanged(vtkMRMLNode*);
-  void onViewCheckedNodesChanged();
   void onColorBarOrientationButtonClicked(QAbstractButton*);
   void onScalarBarWidgetModified();
 

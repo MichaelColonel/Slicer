@@ -231,7 +231,6 @@ void qSlicerColorsModuleWidget::setup()
   connect( d->ColorBarVisibilityCheckBox, SIGNAL(toggled(bool)), this, SLOT(onColorBarVisibilityToggled(bool)));
   connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
   connect( d->ColorBarOrientationButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onColorBarOrientationButtonClicked(QAbstractButton*)));
-  connect( d->DisplayNodeViewComboBox, SIGNAL(checkedNodesChanged()), this, SLOT(onViewCheckedNodesChanged()));
   connect( d->VTKScalarBar, SIGNAL(modified()), this, SLOT(onScalarBarWidgetModified()));
 
   // Select the default color node
@@ -244,8 +243,6 @@ void qSlicerColorsModuleWidget::setMRMLScene(vtkMRMLScene *scene)
   Q_D(qSlicerColorsModuleWidget);
   this->qSlicerAbstractModuleWidget::setMRMLScene(scene);
   d->setDefaultColorNode();
-
-  d->DisplayNodeViewComboBox->setEnabled(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -497,7 +494,6 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
     d->UseSelectedColorsCheckBox->setEnabled(false);
     d->VerticalOrientationRadioButton->setEnabled(false);
     d->HorizontalOrientationRadioButton->setEnabled(false);
-    d->DisplayNodeViewComboBox->setEnabled(false);
     return;
   }
 
@@ -506,8 +502,6 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
   if (colorBarNode)
   {
     d->ColorBarNode = colorBarNode;
-    d->DisplayNodeViewComboBox->setEnabled(true);
-    d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
 
     d->ColorBarVisibilityCheckBox->setChecked(true);
     d->VerticalOrientationRadioButton->setEnabled(true);
@@ -520,7 +514,6 @@ void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
   d->UseSelectedColorsCheckBox->setEnabled(false);
   d->VerticalOrientationRadioButton->setEnabled(false);
   d->HorizontalOrientationRadioButton->setEnabled(false);
-  d->DisplayNodeViewComboBox->setEnabled(false);
 }
 
 //-----------------------------------------------------------
@@ -544,9 +537,6 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
     d->DisplayableNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, colorBarNode->GetID());
     colorBarNode->SetAndObserveDisplayableNode(d->DisplayableNode);
 
-    d->DisplayNodeViewComboBox->setEnabled(true);
-    d->DisplayNodeViewComboBox->setMRMLDisplayNode(colorBarNode);
-
     d->VerticalOrientationRadioButton->setEnabled(true);
     d->HorizontalOrientationRadioButton->setEnabled(true);
     d->UseSelectedColorsCheckBox->setEnabled(true);
@@ -562,19 +552,11 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
       d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, nullptr);
       d->ColorBarNode = nullptr;
 
-      d->DisplayNodeViewComboBox->setEnabled(false);
       d->VerticalOrientationRadioButton->setEnabled(false);
       d->HorizontalOrientationRadioButton->setEnabled(false);
       d->UseSelectedColorsCheckBox->setEnabled(false);
     }
   }
-}
-
-//-----------------------------------------------------------
-void qSlicerColorsModuleWidget::onViewCheckedNodesChanged()
-{
-  Q_D(qSlicerColorsModuleWidget);
-  // Update views and slices
 }
 
 //-----------------------------------------------------------
