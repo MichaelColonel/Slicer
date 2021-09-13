@@ -103,11 +103,11 @@ public:
 
   // Build/update color bar
   void BuildColorBar();
-  void UpdateColorBar(bool fromDisplayNode = true);
+  void UpdateColorBar();
 
   // Build/update actor and widget representation
   void BuildActor();
-  void UpdateActor(bool fromDisplayNode = true);
+  void UpdateActor();
 
   vtkScalarBarActor* GetActor() const { return this->ColorBarActor; }
   vtkScalarBarWidget* GetWidget() const { return this->ColorBarWidget; }
@@ -117,7 +117,7 @@ public:
   vtkSmartPointer<vtkScalarBarActor> ColorBarActor;
   vtkSmartPointer<vtkScalarBarWidget> ColorBarWidget;
   vtkWeakPointer<vtkMRMLColorBarDisplayNode> ColorBarDisplayNode;
-  bool InteractorIsSet;
+  bool WidgetInitiated;
 
   vtkSmartPointer<vtkColorBarUpdateObserver> RendererUpdateObserver;
   int RendererUpdateObservationId;
@@ -134,11 +134,11 @@ vtkMRMLColorBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLColorBarDispl
   External(external),
   ColorBarActor(vtkSmartPointer<vtkScalarBarActor>::New()),
   ColorBarWidget(vtkSmartPointer<vtkScalarBarWidget>::New()),
-  InteractorIsSet(false)
+  WidgetInitiated(false)
 {
-//  this->RendererUpdateObserver = vtkSmartPointer<vtkColorBarUpdateObserver>::New();
-//  this->RendererUpdateObserver->DisplayableManager = this->External;
-//  this->RendererUpdateObservationId = 0;
+  this->RendererUpdateObserver = vtkSmartPointer<vtkColorBarUpdateObserver>::New();
+  this->RendererUpdateObserver->DisplayableManager = this->External;
+  this->RendererUpdateObservationId = 0;
 
   this->ColorBarWidget->SetScalarBarActor(this->ColorBarActor);
 
@@ -157,29 +157,29 @@ vtkMRMLColorBarDisplayableManager::vtkInternal::~vtkInternal()
 {
   this->ColorBarWidget->SetScalarBarActor(nullptr);
   this->ColorBarWidget->SetInteractor(nullptr);
-  InteractorIsSet = false;
+  WidgetInitiated = false;
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLColorBarDisplayableManager::vtkInternal::AddRendererUpdateObserver(vtkRenderer* renderer)
 {
-//  RemoveRendererUpdateObserver();
-//  if (renderer)
-//  {
-//    this->ObservedRenderer = renderer;
-//    this->RendererUpdateObservationId = renderer->AddObserver(vtkCommand::StartEvent, this->RendererUpdateObserver);
-//  }
+  RemoveRendererUpdateObserver();
+  if (renderer)
+  {
+    this->ObservedRenderer = renderer;
+    this->RendererUpdateObservationId = renderer->AddObserver(vtkCommand::StartEvent, this->RendererUpdateObserver);
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLColorBarDisplayableManager::vtkInternal::RemoveRendererUpdateObserver()
 {
-//  if (this->ObservedRenderer)
-//  {
-//    this->ObservedRenderer->RemoveObserver(this->RendererUpdateObservationId);
-//    this->RendererUpdateObservationId = 0;
-//    this->ObservedRenderer = nullptr;
-//  }
+  if (this->ObservedRenderer)
+  {
+    this->ObservedRenderer->RemoveObserver(this->RendererUpdateObservationId);
+    this->RendererUpdateObservationId = 0;
+    this->ObservedRenderer = nullptr;
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -208,19 +208,19 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildColorBar()
 //    vtkWarningWithObjectMacro(this->External, "vtkInternal::BuildColorBar: Interactor is set!");
     this->ColorBarWidget->SetInteractor(interactor);
     this->ColorBarWidget->Off();
-    this->InteractorIsSet = true;
+    this->WidgetInitiated = true;
   }
 
   // In 3D viewers we need to follow the renderer and update the orientation marker accordingly
-//  vtkMRMLViewNode* threeDViewNode = vtkMRMLViewNode::SafeDownCast(this->External->GetMRMLDisplayableNode());
-//  if (threeDViewNode)
-//  {
-//    this->AddRendererUpdateObserver(this->External->GetRenderer());
-//  }
+  vtkMRMLViewNode* threeDViewNode = vtkMRMLViewNode::SafeDownCast(this->External->GetMRMLDisplayableNode());
+  if (threeDViewNode)
+  {
+    this->AddRendererUpdateObserver(this->External->GetRenderer());
+  }
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateColorBar(bool fromDisplayNode)
+void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateColorBar()
 {
   vtkMRMLNode* node = this->External->GetMRMLDisplayableNode();
 
@@ -229,13 +229,14 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateColorBar(bool fromDis
 //    this->ColorBarWidget->Off();
     return;
   }
-  vtkWarningWithObjectMacro(this->External, "vtkInternal::UpdateActor: Update color bar, value: " << fromDisplayNode);
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::UpdateActor: Update color bar");
 /*
   if (!fromDisplayNode)
   {
     return;
   }
 */
+
   // Setup/update scalar bar actor
   vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
   vtkMRMLViewNode* threeDViewNode = vtkMRMLViewNode::SafeDownCast(node);
@@ -261,14 +262,14 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildActor()
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor(bool fromDisplayNode)
+void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
 {
   if (!this->ColorBarDisplayNode)
   {
 //    this->ColorBarActor->SetLookupTable(nullptr);
     return;
   }
-  vtkWarningWithObjectMacro(this->External, "vtkInternal::UpdateActor: Update actor, value: " << fromDisplayNode);
+  vtkWarningWithObjectMacro(this->External, "vtkInternal::UpdateActor: Update actor");
 /*
   if (!fromDisplayNode)
   {
@@ -404,21 +405,21 @@ void vtkMRMLColorBarDisplayableManager::AdditionalInitializeStep()
 void vtkMRMLColorBarDisplayableManager::UpdateFromRenderer()
 {
   // Rendering is performed, so let's re-render the marker with up-to-date orientation
-  this->Internal->UpdateColorBar(false);
-  this->Internal->UpdateActor(false);
+  this->Internal->UpdateColorBar();
+  this->Internal->UpdateActor();
 }
 
 
 //---------------------------------------------------------------------------
 void vtkMRMLColorBarDisplayableManager::OnMRMLDisplayableNodeModifiedEvent(vtkObject* vtkNotUsed(caller))
 {
-  if (!this->Internal->InteractorIsSet)
+  if (!this->Internal->WidgetInitiated)
   {
     this->Internal->BuildColorBar();
     this->Internal->BuildActor();
   }
-  this->Internal->UpdateColorBar(false);
-  this->Internal->UpdateActor(false);
+  this->Internal->UpdateColorBar();
+  this->Internal->UpdateActor();
 /*
   vtkMRMLColorTableNode* colorTableNode = nullptr;
 
@@ -469,13 +470,13 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLSceneNodeRemoved(vtkMRMLNode* node
   {
 //    vtkErrorMacro("OnMRMLSceneNodeRemoved: Disable color bar");
     this->Internal->ColorBarDisplayNode = nullptr;
-    this->Internal->InteractorIsSet = false;
+    this->Internal->WidgetInitiated = false;
 //    this->Internal->ColorBarWidget->SetInteractor(nullptr);
     this->Internal->ColorBarWidget->Off();
     this->Internal->ColorBarActor->SetLookupTable(nullptr);
-    this->Internal->UpdateColorBar(false);
-    this->Internal->UpdateActor(false);
-//    this->RequestRender();
+    this->Internal->UpdateColorBar();
+    this->Internal->UpdateActor();
+    this->RequestRender();
   }
 }
 
@@ -507,13 +508,13 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
       this->Internal->ColorBarDisplayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(caller);
       // Update scalar bars using new prorepties of the bars
       // Update color bar orientation
-      if (!this->Internal->InteractorIsSet)
+      if (!this->Internal->WidgetInitiated)
       {
         this->Internal->BuildColorBar();
         this->Internal->BuildActor();
       }
-      this->Internal->UpdateColorBar(true);
-      this->Internal->UpdateActor(true);
+//      this->Internal->UpdateColorBar();
+      this->Internal->UpdateActor();
 //      this->OnMRMLDisplayableNodeModifiedEvent(nullptr);
       this->RequestRender();
     }
