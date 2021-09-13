@@ -264,78 +264,66 @@
    <item row="3" column="0" colspan="3">
     <widget class="ctkCollapsibleButton" name="DisplayColorBarCollapsibleButton">
      <property name="text">
-      <string>Display Color Bar</string>
+      <string>Display Color Bar for Node</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <widget class="QLabel" name="UseColorsFromNodeLabel">
+         <widget class="ctkCheckBox" name="ColorBarVisibilityCheckBox">
           <property name="text">
-           <string>Use colors from node:</string>
+           <string>Node:</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <property name="indicatorIcon">
+           <iconset resource="../../../../../Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
+            <normaloff>:/Icons/VisibleOn.png</normaloff>
+            <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
+          </property>
+          <property name="indicatorIconSize">
+           <size>
+            <width>21</width>
+            <height>21</height>
+           </size>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Use pre-selected colors:</string>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLScalarVolumeNode</string>
+            <string>vtkMRMLModelNode</string>
+           </stringlist>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="1" column="0" colspan="2">
          <widget class="ctkCheckBox" name="UseSelectedColorsCheckBox">
           <property name="toolTip">
            <string>Use pre-selected color table</string>
           </property>
           <property name="text">
-           <string/>
+           <string>Use pre-selected colors</string>
           </property>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="qMRMLNodeComboBox" name="DisplayableNodeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-              <string>vtkMRMLModelNode</string>
-             </stringlist>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="removeEnabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="ctkCheckBox" name="ColorBarVisibilityCheckBox">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-            <property name="indicatorIcon">
-             <iconset resource="../../../../../Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
-              <normaloff>:/Icons/VisibleOn.png</normaloff>
-              <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </item>

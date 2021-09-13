@@ -540,6 +540,9 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
     d->VerticalOrientationRadioButton->setEnabled(true);
     d->HorizontalOrientationRadioButton->setEnabled(true);
     d->UseSelectedColorsCheckBox->setEnabled(true);
+    colorBarNode->SetVisibility(true);
+    colorBarNode->SetVisibility2D(true);
+    colorBarNode->SetVisibility3D(true);
     colorBarNode->Modified();
   }
   else
@@ -605,10 +608,10 @@ void qSlicerColorsModuleWidget::onViewNodeChanged(vtkMRMLNode* node)
         vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
         d->ColorBarActor = colorBarManager->GetScalarBarActor();
         d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
-        if (d->ColorBarNode)
-        {
-          d->ColorBarNode->Modified();
-        }
+//        if (d->ColorBarNode)
+//        {
+//          d->ColorBarNode->Modified();
+//        }
         d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
       }
     }
@@ -632,10 +635,10 @@ void qSlicerColorsModuleWidget::onViewNodeChanged(vtkMRMLNode* node)
         vtkMRMLColorBarDisplayableManager* colorBarManager = vtkMRMLColorBarDisplayableManager::SafeDownCast(displayManager);
         d->ColorBarActor = colorBarManager->GetScalarBarActor();
         d->ColorBarWidget = colorBarManager->GetScalarBarWidget();
-        if (d->ColorBarNode)
-        {
-          d->ColorBarNode->Modified();
-        }
+//        if (d->ColorBarNode)
+//        {
+//          d->ColorBarNode->Modified();
+//        }
         d->VTKScalarBar->setScalarBarWidget(d->ColorBarWidget);
       }
     }
