@@ -31,8 +31,12 @@
 #include <vtkMRMLViewNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLScalarVolumeDisplayNode.h>
+#include <vtkMRMLColorNode.h>
 #include <vtkMRMLColorTableNode.h>
+#include <vtkMRMLProceduralColorNode.h>
 #include <vtkMRMLColorBarDisplayNode.h>
+
+#include <vtkSlicerScalarBarActor.h>
 
 // VTK includes
 #include <vtkActor2D.h>
@@ -55,7 +59,6 @@
 #include <vtkVersion.h>
 #include <vtkScalarBarRepresentation.h>
 #include <vtkScalarBarWidget.h>
-#include <vtkScalarBarActor.h>
 
 // STD includes
 #include <iostream>
@@ -109,12 +112,12 @@ public:
   void BuildActor();
   void UpdateActor();
 
-  vtkScalarBarActor* GetActor() const { return this->ColorBarActor; }
+  vtkSlicerScalarBarActor* GetActor() const { return this->ColorBarActor; }
   vtkScalarBarWidget* GetWidget() const { return this->ColorBarWidget; }
 
   vtkMRMLColorBarDisplayableManager* External;
 
-  vtkSmartPointer<vtkScalarBarActor> ColorBarActor;
+  vtkSmartPointer<vtkSlicerScalarBarActor> ColorBarActor;
   vtkSmartPointer<vtkScalarBarWidget> ColorBarWidget;
   vtkWeakPointer<vtkMRMLColorBarDisplayNode> ColorBarDisplayNode;
 
@@ -133,7 +136,7 @@ public:
 vtkMRMLColorBarDisplayableManager::vtkInternal::vtkInternal(vtkMRMLColorBarDisplayableManager* external)
   :
   External(external),
-  ColorBarActor(vtkSmartPointer<vtkScalarBarActor>::New()),
+  ColorBarActor(vtkSmartPointer<vtkSlicerScalarBarActor>::New()),
   ColorBarWidget(vtkSmartPointer<vtkScalarBarWidget>::New()),
   RendererUpdateObserver(vtkSmartPointer<vtkColorBarUpdateObserver>::New()),
   RendererUpdateObservationId(0),
@@ -260,6 +263,8 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateColorBar()
 void vtkMRMLColorBarDisplayableManager::vtkInternal::BuildActor()
 {
   this->ColorBarActor->SetOrientationToVertical();
+  this->ColorBarActor->SetBarRatio(0.15);
+//  this->ColorBarActor->UseAnnotationAsLabelOn();
 }
 
 //---------------------------------------------------------------------------
@@ -323,9 +328,9 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
   }
 
   vtkMRMLDisplayableNode* displayableNode = this->ColorBarDisplayNode->GetDisplayableNode();
-  vtkMRMLColorTableNode* colorTableNode = this->ColorBarDisplayNode->GetColorTableNode();
+  vtkMRMLColorNode* cNode = this->ColorBarDisplayNode->GetColorNode();
 //  vtkWarningWithObjectMacro(this->External, "OnMRMLDisplayableNodeModifiedEvent: Use external color table node");
-  if (!colorTableNode && displayableNode)
+  if (!cNode && displayableNode)
   {
 //    vtkWarningWithObjectMacro(this->External, "OnMRMLDisplayableNodeModifiedEvent: Displayable node is valid, external color table node is invalid");
     vtkMRMLDisplayableNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(displayableNode);
@@ -336,19 +341,28 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
       if (vtkMRMLColorNode* colorNode = volumeDisplayNode->GetColorNode())
       {
 //        vtkWarningWithObjectMacro(this->External, "OnMRMLDisplayableNodeModifiedEvent: Use displayable color table node");
-        colorTableNode = vtkMRMLColorTableNode::SafeDownCast(colorNode);
+        cNode = colorNode;
       }
     }
   }
-  else if (!colorTableNode && !displayableNode)
+  else if (!cNode && !displayableNode)
   {
 //    vtkWarningWithObjectMacro(this->External, "OnMRMLDisplayableNodeModifiedEvent: Nodes are invalid!");
   }
-  if (colorTableNode)
+  if (cNode)
   {
-    this->ColorBarActor->SetLookupTable(colorTableNode->GetScalarsToColors());
-  }
+    vtkMRMLColorTableNode* colorTableNode = vtkMRMLColorTableNode::SafeDownCast(cNode);
+    vtkMRMLProceduralColorNode* procColorNode = vtkMRMLProceduralColorNode::SafeDownCast(cNode);
 
+    if (colorTableNode && !procColorNode)
+    {
+      this->ColorBarActor->SetLookupTable(colorTableNode->GetScalarsToColors());
+    }
+    else if (!colorTableNode && procColorNode)
+    {
+      this->ColorBarActor->SetLookupTable(procColorNode->GetScalarsToColors());
+    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -379,7 +393,7 @@ vtkScalarBarWidget* vtkMRMLColorBarDisplayableManager::GetScalarBarWidget() cons
 }
 
 //---------------------------------------------------------------------------
-vtkScalarBarActor* vtkMRMLColorBarDisplayableManager::GetScalarBarActor() const
+vtkSlicerScalarBarActor* vtkMRMLColorBarDisplayableManager::GetScalarBarActor() const
 {
   return this->Internal->GetActor();
 }

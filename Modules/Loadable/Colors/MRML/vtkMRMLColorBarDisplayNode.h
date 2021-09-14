@@ -20,7 +20,7 @@
 #include <vtkMRMLDisplayNode.h>
 #include "vtkSlicerColorsModuleMRMLExport.h"
 
-class vtkMRMLColorTableNode;
+class vtkMRMLColorNode;
 
 class VTK_SLICER_COLORS_MODULE_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
 {
@@ -55,10 +55,10 @@ public:
   /// Set and observe displayable node
   void SetAndObserveDisplayableNode(vtkMRMLDisplayableNode* node);
 
-  /// Get color table node
-  vtkMRMLColorTableNode* GetColorTableNode();
-  /// Set and observe color table node
-  void SetAndObserveColorTableNode(vtkMRMLColorTableNode* node);
+  /// Get color node
+  vtkMRMLColorNode* GetColorNode();
+  /// Set and observe node
+  void SetAndObserveColorNode(vtkMRMLColorNode* node);
 
   vtkGetMacro(PositionPreset, PositionPresetType);
   vtkSetMacro(PositionPreset, PositionPresetType);

@@ -17,6 +17,7 @@
 
 // MRML includes
 #include <vtkMRMLDisplayableNode.h>
+#include <vtkMRMLProceduralColorNode.h>
 #include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLScene.h>
 
@@ -31,7 +32,7 @@ namespace
 {
 
 const char* DISPLAYABLE_REFERENCE_ROLE = "displayableRef";
-const char* COLOR_TABLE_REFERENCE_ROLE = "colorTableRef";
+const char* COLOR_REFERENCE_ROLE = "colorRef";
 
 } // namespace
 
@@ -203,21 +204,21 @@ int vtkMRMLColorBarDisplayNode::GetOrientationPresetFromString(const char* name)
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLColorTableNode* vtkMRMLColorBarDisplayNode::GetColorTableNode()
+vtkMRMLColorNode* vtkMRMLColorBarDisplayNode::GetColorNode()
 {
-  return vtkMRMLColorTableNode::SafeDownCast( this->GetNodeReference(COLOR_TABLE_REFERENCE_ROLE) );
+  return vtkMRMLColorNode::SafeDownCast( this->GetNodeReference(COLOR_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayNode::SetAndObserveColorTableNode(vtkMRMLColorTableNode* node)
+void vtkMRMLColorBarDisplayNode::SetAndObserveColorNode(vtkMRMLColorNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveDisplayableNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveColorNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
-  this->SetNodeReferenceID(COLOR_TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(COLOR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

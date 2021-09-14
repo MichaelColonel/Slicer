@@ -23,7 +23,7 @@
 #include "vtkSlicerColorsModuleMRMLDisplayableManagerExport.h"
 
 class vtkScalarBarWidget;
-class vtkScalarBarActor;
+class vtkSlicerScalarBarActor;
 class vtkMRMLScene;
 
 /// \brief Displayable manager for the color scalar bars.
@@ -45,7 +45,7 @@ public:
   vtkScalarBarWidget* GetScalarBarWidget() const;
   /// \brief Get scalar bar actor
   /// \return scalar bar actor pointer
-  vtkScalarBarActor* GetScalarBarActor() const;
+  vtkSlicerScalarBarActor* GetScalarBarActor() const;
 
 protected:
   vtkMRMLColorBarDisplayableManager();
