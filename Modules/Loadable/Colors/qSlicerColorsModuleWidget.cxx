@@ -242,23 +242,30 @@ void qSlicerColorsModuleWidget::setUseColorNameAsLabel(bool useColorName)
 {
   Q_D(qSlicerColorsModuleWidget);
 
-  if (d->ColorBarActor)
+  if (!d->ColorBarNode)
   {
-    if (useColorName)
-    {
-      // text string format
-      d->ColorBarActor->SetLabelFormat(" %s");
-    }
-    else
-    {
-      // number format
-      d->ColorBarActor->SetLabelFormat(" %#8.3f");
-    }
-
-    d->ColorBarActor->SetUseAnnotationAsLabel(useColorName);
+    return;
   }
-}
 
+  if (!d->ColorBarActor)
+  {
+    return;
+  }
+  
+  if (useColorName)
+  {
+    // text string format
+    d->ColorBarActor->SetLabelFormat(" %s");
+  }
+  else
+  {
+    // number format
+    d->ColorBarActor->SetLabelFormat(" %#8.3f");
+  }
+
+  d->ColorBarActor->SetUseAnnotationAsLabel(useColorName);
+  d->ColorBarNode->Modified();
+}
 
 //-----------------------------------------------------------------------------
 void qSlicerColorsModuleWidget::setCenterLabel(bool centerLabel)
@@ -541,6 +548,11 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
   }
   else
   {
+//    if (d->ColorBarWidget)
+//    {
+//      d->VTKScalarBar->setScalarBarWidget(nullptr);
+//      d->VTKScalarBar->setEnabled(false);
+//    }
     vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
       d->DisplayableNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
     if (colorBarNode)
@@ -548,7 +560,10 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
       this->mrmlScene()->RemoveNode(colorBarNode);
       d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, nullptr);
       d->ColorBarNode = nullptr;
-
+      d->ColorBarActor = nullptr;
+      d->ColorBarWidget = nullptr;
+      d->VTKScalarBar->setScalarBarWidget(nullptr);
+      d->VTKScalarBar->setEnabled(false);
       d->VerticalOrientationRadioButton->setEnabled(false);
       d->HorizontalOrientationRadioButton->setEnabled(false);
       d->UseSelectedColorsCheckBox->setEnabled(false);

@@ -59,6 +59,7 @@
 #include <vtkVersion.h>
 #include <vtkScalarBarRepresentation.h>
 #include <vtkScalarBarWidget.h>
+#include <vtkLookupTable.h>
 
 // STD includes
 #include <iostream>
@@ -356,7 +357,25 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
 
     if (colorTableNode && !procColorNode)
     {
-      this->ColorBarActor->SetLookupTable(colorTableNode->GetScalarsToColors());
+      if (this->ColorBarActor->GetUseAnnotationAsLabel())
+      {
+        int newNumberOfColors = colorTableNode->GetNumberOfColors();
+
+        // Update actor
+        this->ColorBarActor->UseAnnotationAsLabelOn(); // Needed each time
+        this->ColorBarActor->SetLookupTable(colorTableNode->GetLookupTable());
+        this->ColorBarActor->SetNumberOfLabels(newNumberOfColors);
+        this->ColorBarActor->SetMaximumNumberOfColors(newNumberOfColors);
+        this->ColorBarActor->GetLookupTable()->ResetAnnotations();
+        for ( int colorIndex = 0; colorIndex < newNumberOfColors; ++colorIndex)
+        {
+          this->ColorBarActor->GetLookupTable()->SetAnnotation(colorIndex, vtkStdString(colorTableNode->GetColorName(colorIndex)));
+        }
+      }
+      else
+      {
+        this->ColorBarActor->SetLookupTable(colorTableNode->GetScalarsToColors());
+      }
     }
     else if (!colorTableNode && procColorNode)
     {
