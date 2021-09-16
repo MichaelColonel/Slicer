@@ -93,50 +93,12 @@ qSlicerColorsModuleWidgetPrivate::qSlicerColorsModuleWidgetPrivate(qSlicerColors
   :
   q_ptr(&object)
 {
-/*
-  this->ScalarBarWidget = vtkScalarBarWidget::New();
-  this->ScalarBarActor = vtkSlicerScalarBarActor::New();
-  this->ScalarBarWidget->SetScalarBarActor(this->ScalarBarActor);
-  this->ScalarBarActor->SetOrientationToVertical();
-  this->ScalarBarActor->SetNumberOfLabels(11);
-  this->ScalarBarActor->SetTitle("(mm)");
 
-  // it's a 2d actor, position it in screen space by percentages
-  this->ScalarBarActor->SetPosition(0.1, 0.1);
-  this->ScalarBarActor->SetWidth(0.1);
-  this->ScalarBarActor->SetHeight(0.8);
-
-  // By default, color swatch is too wide (especially when showing long color names),
-  // therefore, set it to a bit narrower.
-  this->ScalarBarActor->SetBarRatio(0.15);
-
-  // Allow resizing by clicking at the widget border
-  vtkBorderRepresentation* border = this->ScalarBarWidget->GetBorderRepresentation();
-  if (border)
-    {
-    border->SetShowHorizontalBorder(true);
-    border->SetShowVerticalBorder(true);
-    // only show the border when hovering over with the mouse
-    border->SetShowBorderToActive();
-    }
-*/
 }
 
 //-----------------------------------------------------------------------------
 qSlicerColorsModuleWidgetPrivate::~qSlicerColorsModuleWidgetPrivate()
 {
-/*
-  if (this->ScalarBarWidget)
-    {
-    this->ScalarBarWidget->Delete();
-    this->ScalarBarWidget = nullptr;
-    }
-  if (this->ScalarBarActor)
-  {
-    this->ScalarBarActor->Delete();
-    this->ScalarBarActor = nullptr;
-  }
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -194,19 +156,7 @@ void qSlicerColorsModuleWidget::setup()
           this, SLOT(setUseColorNameAsLabel(bool)));
   connect(d->CenterLabelCheckBox, SIGNAL(toggled(bool)),
     this, SLOT(setCenterLabel(bool)));
-/*
-  qSlicerApplication * app = qSlicerApplication::application();
-  if (app && app->layoutManager())
-    {
-    qMRMLThreeDView* threeDView = app->layoutManager()->threeDWidget(0)->threeDView();
-    vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
-    if (activeRenderer)
-      {
-      d->ScalarBarWidget->SetInteractor(activeRenderer->GetRenderWindow()->GetInteractor());
-      }
-    connect(d->VTKScalarBar, SIGNAL(modified()), threeDView, SLOT(scheduleRender()));
-    }
-*/
+
   double validBounds[4] = {VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, 0., 1.};
   d->ContinuousScalarsToColorsWidget->view()->setValidBounds(validBounds);
   d->ContinuousScalarsToColorsWidget->view()->addColorTransferFunction(nullptr);
@@ -292,7 +242,7 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     d->LUTRangeWidget->setValues(0.,0.);
     d->CopyColorNodeButton->setEnabled(false);
     d->ContinuousScalarsToColorsWidget->setEnabled(false);
-//    d->VTKScalarBar->setTitle("(mm)");
+    d->VTKScalarBar->setTitle("");
     return;
     }
 
@@ -324,7 +274,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     if (colorTableNode && colorTableNode->GetLookupTable())
       {
       range = colorTableNode->GetLookupTable()->GetRange();
-//      d->ScalarBarActor->SetLookupTable(colorTableNode->GetLookupTable());
+      if (d->ColorBarActor)
+        {
+        d->ColorBarActor->SetLookupTable(colorTableNode->GetLookupTable());
+        }
       }
     disconnect(d->LUTRangeWidget, SIGNAL(valuesChanged(double, double)),
       this, SLOT(setLookupTableRange(double, double)));
@@ -359,10 +312,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
       indexArray->SetValue(colorIndex, colorIndex);
       stringArray->SetValue(colorIndex, colorNode->GetColorName(colorIndex));
       }
-//    if (d->ColorBarActor)
-//    {
-//      d->ColorBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
-//    }
+      if (d->ColorBarActor)
+      {
+        d->ColorBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
+      }
     }
   else if (procColorNode && !colorTableNode)
     {
@@ -384,20 +337,16 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
         procColorNode->GetType() == vtkMRMLColorNode::User);
 
     // set the lookup table on the scalar bar widget actor
-//    if (d->ColorBarActor && procColorNode->GetColorTransferFunction())
-//      {
-//      d->ColorBarActor->SetLookupTable(procColorNode->GetColorTransferFunction());
-//      }
+    if (d->ColorBarActor && procColorNode->GetColorTransferFunction())
+      {
+      d->ColorBarActor->SetLookupTable(procColorNode->GetColorTransferFunction());
+      }
     }
   else
     {
     // not a valid type of color node
     d->LUTRangeWidget->setValues(0.,0.);
     }
-
-  // add the color name to the scalar bar title
-//  std::string title = std::string(colorNode->GetName()) + std::string(" (mm)");
-//  d->VTKScalarBar->setTitle(title.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -548,25 +497,21 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
   }
   else
   {
-//    if (d->ColorBarWidget)
-//    {
-//      d->VTKScalarBar->setScalarBarWidget(nullptr);
-//      d->VTKScalarBar->setEnabled(false);
-//    }
     vtkMRMLColorBarDisplayNode* colorBarNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
       d->DisplayableNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
     if (colorBarNode)
     {
-      this->mrmlScene()->RemoveNode(colorBarNode);
-      d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, nullptr);
       d->ColorBarNode = nullptr;
       d->ColorBarActor = nullptr;
       d->ColorBarWidget = nullptr;
-      d->VTKScalarBar->setScalarBarWidget(nullptr);
-      d->VTKScalarBar->setEnabled(false);
       d->VerticalOrientationRadioButton->setEnabled(false);
+      d->VerticalOrientationRadioButton->setChecked(true);
       d->HorizontalOrientationRadioButton->setEnabled(false);
       d->UseSelectedColorsCheckBox->setEnabled(false);
+
+      this->mrmlScene()->RemoveNode(colorBarNode);
+      d->DisplayableNode->SetNodeReferenceID( vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, nullptr);
+      d->VTKScalarBar->setScalarBarWidget(nullptr);
     }
   }
 }
@@ -674,10 +619,10 @@ void qSlicerColorsModuleWidget::onScalarBarWidgetModified()
 {
   Q_D(qSlicerColorsModuleWidget);
 
-//  if (d->ColorBarNode)
-//  {
-//    d->ColorBarNode->Modified();
-//  }
+  if (d->ColorBarNode)
+  {
+    d->ColorBarNode->Modified();
+  }
 }
 
 //-----------------------------------------------------------
