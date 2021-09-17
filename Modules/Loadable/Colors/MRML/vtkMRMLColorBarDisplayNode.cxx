@@ -17,6 +17,7 @@
 
 // MRML includes
 #include <vtkMRMLDisplayableNode.h>
+#include <vtkMRMLProceduralColorNode.h>
 #include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLScene.h>
 
@@ -31,9 +32,11 @@ namespace
 {
 
 const char* DISPLAYABLE_REFERENCE_ROLE = "displayableRef";
-const char* COLOR_TABLE_REFERENCE_ROLE = "colorTableRef";
+const char* COLOR_REFERENCE_ROLE = "colorRef";
 
 } // namespace
+
+const char* vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE = "colorBarRef";
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
@@ -41,10 +44,9 @@ vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 //-----------------------------------------------------------------------------
 vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   :
-  PositionPreset(Vertical)
+  PositionPreset(Foreground),
+  OrientationPreset(Vertical)
 {
-  this->SetVisibility2D(false);
-  this->SetVisibility3D(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -57,6 +59,7 @@ void vtkMRMLColorBarDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
   vtkMRMLPrintEnumMacro(PositionPreset);
+  vtkMRMLPrintEnumMacro(OrientationPreset);
   vtkMRMLPrintEndMacro();
 }
 
@@ -68,6 +71,7 @@ void vtkMRMLColorBarDisplayNode::WriteXML(ostream& of, int nIndent)
 
   vtkMRMLWriteXMLBeginMacro(of);
   vtkMRMLWriteXMLEnumMacro(PositionPreset, PositionPreset);
+  vtkMRMLWriteXMLEnumMacro(OrientationPreset, OrientationPreset);
   vtkMRMLWriteXMLEndMacro();
 }
 
@@ -79,6 +83,7 @@ void vtkMRMLColorBarDisplayNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLEnumMacro(PositionPreset, PositionPreset);
+  vtkMRMLReadXMLEnumMacro(OrientationPreset, OrientationPreset);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -98,6 +103,7 @@ void vtkMRMLColorBarDisplayNode::CopyContent(vtkMRMLNode* anode, bool deepCopy/*
 
   vtkMRMLCopyBeginMacro(anode);
   vtkMRMLCopyEnumMacro(PositionPreset);
+  vtkMRMLCopyEnumMacro(OrientationPreset);
   vtkMRMLCopyEndMacro();
 }
 
@@ -107,11 +113,11 @@ void vtkMRMLColorBarDisplayNode::SetPositionPreset(int id)
   switch (id)
   {
   case 0:
-    SetPositionPreset(Horizontal);
+    SetPositionPreset(Foreground);
     break;
   case 1:
   default:
-    SetPositionPreset(Vertical);
+    SetPositionPreset(Background);
     break;
   }
 }
@@ -121,11 +127,11 @@ const char* vtkMRMLColorBarDisplayNode::GetPositionPresetAsString(int id)
 {
   switch (id)
   {
-  case Horizontal:
-    return "Horizontal";
-  case Vertical:
+  case Foreground:
+    return "Foreground";
+  case Background:
   default:
-    return "Vertical";
+    return "Background";
   }
 }
 
@@ -149,22 +155,70 @@ int vtkMRMLColorBarDisplayNode::GetPositionPresetFromString(const char* name)
   return -1;
 }
 
-//----------------------------------------------------------------------------
-vtkMRMLColorTableNode* vtkMRMLColorBarDisplayNode::GetColorTableNode()
+//---------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayNode::SetOrientationPreset(int id)
 {
-  return vtkMRMLColorTableNode::SafeDownCast( this->GetNodeReference(COLOR_TABLE_REFERENCE_ROLE) );
+  switch (id)
+  {
+  case 0:
+    SetOrientationPreset(Horizontal);
+    break;
+  case 1:
+  default:
+    SetPositionPreset(Vertical);
+    break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLColorBarDisplayNode::GetOrientationPresetAsString(int id)
+{
+  switch (id)
+  {
+  case Horizontal:
+    return "Horizontal";
+  case Vertical:
+  default:
+    return "Vertical";
+  }
+}
+
+//-----------------------------------------------------------
+int vtkMRMLColorBarDisplayNode::GetOrientationPresetFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < OrientationPreset_Last; i++)
+  {
+    if (std::strcmp(name, GetOrientationPresetAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayNode::SetAndObserveColorTableNode(vtkMRMLColorTableNode* node)
+vtkMRMLColorNode* vtkMRMLColorBarDisplayNode::GetColorNode()
+{
+  return vtkMRMLColorNode::SafeDownCast( this->GetNodeReference(COLOR_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLColorBarDisplayNode::SetAndObserveColorNode(vtkMRMLColorNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveDisplayableNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveColorNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
-  this->SetNodeReferenceID(COLOR_TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(COLOR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

@@ -23,14 +23,13 @@
 #include "vtkSlicerColorsModuleMRMLDisplayableManagerExport.h"
 
 class vtkScalarBarWidget;
-class vtkScalarBarActor;
+class vtkSlicerScalarBarActor;
 class vtkMRMLScene;
 
-/// \brief Displayable manager for the scalar bars.
+/// \brief Displayable manager for the color scalar bars.
 ///
-/// This displayable manager implements scalar bar display in both 2D and 3D views.
-//class VTK_SLICER_COLORS_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT vtkMRMLColorBarDisplayableManager :
-class VTK_MRML_DISPLAYABLEMANAGER_EXPORT vtkMRMLColorBarDisplayableManager :
+/// This displayable manager implements color scalar bar display in both 2D and 3D views.
+class VTK_SLICER_COLORS_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT vtkMRMLColorBarDisplayableManager :
   public vtkMRMLAbstractDisplayableManager
 {
 public:
@@ -38,12 +37,15 @@ public:
   vtkTypeMacro(vtkMRMLColorBarDisplayableManager, vtkMRMLAbstractDisplayableManager);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /// Update the renderer based on the master renderer (the one that the orientation marker follows)
+  void UpdateFromRenderer();
+
   /// \brief Get scalar bar widget
   /// \return scalar bar widget pointer
   vtkScalarBarWidget* GetScalarBarWidget() const;
   /// \brief Get scalar bar actor
   /// \return scalar bar actor pointer
-  vtkScalarBarActor* GetScalarBarActor() const;
+  vtkSlicerScalarBarActor* GetScalarBarActor() const;
 
 protected:
   vtkMRMLColorBarDisplayableManager();
@@ -53,8 +55,9 @@ protected:
   /// vtkMRMLSliceNode
   void Create() override;
 
-  void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
-  
+  void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
+  void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+
   void ProcessMRMLNodesEvents(vtkObject *caller,
                                       unsigned long event,
                                       void *callData) override;

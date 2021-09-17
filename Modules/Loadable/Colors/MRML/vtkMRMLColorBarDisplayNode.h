@@ -18,14 +18,18 @@
 
 // MRML includes
 #include <vtkMRMLDisplayNode.h>
+#include "vtkSlicerColorsModuleMRMLExport.h"
 
-class vtkMRMLColorTableNode;
+class vtkMRMLColorNode;
 
-class VTK_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
+class VTK_SLICER_COLORS_MODULE_MRML_EXPORT vtkMRMLColorBarDisplayNode : public vtkMRMLDisplayNode
 {
 public:
   /// Color bar position preset on a view node
-  enum PositionPresetType : int { Horizontal = 0, Vertical, PositionPreset_Last };
+  enum OrientationPresetType : int { Horizontal = 0, Vertical, OrientationPreset_Last };
+  enum PositionPresetType : int { Foreground = 0, Background, PositionPreset_Last };
+
+  static const char* COLOR_BAR_REFERENCE_ROLE;
 
   static vtkMRMLColorBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLColorBarDisplayNode,vtkMRMLDisplayNode);
@@ -51,13 +55,16 @@ public:
   /// Set and observe displayable node
   void SetAndObserveDisplayableNode(vtkMRMLDisplayableNode* node);
 
-  /// Get color table node
-  vtkMRMLColorTableNode* GetColorTableNode();
-  /// Set and observe color table node
-  void SetAndObserveColorTableNode(vtkMRMLColorTableNode* node);
+  /// Get color node
+  vtkMRMLColorNode* GetColorNode();
+  /// Set and observe node
+  void SetAndObserveColorNode(vtkMRMLColorNode* node);
 
   vtkGetMacro(PositionPreset, PositionPresetType);
   vtkSetMacro(PositionPreset, PositionPresetType);
+
+  vtkGetMacro(OrientationPreset, OrientationPresetType);
+  vtkSetMacro(OrientationPreset, OrientationPresetType);
 
 protected:
   vtkMRMLColorBarDisplayNode();
@@ -69,8 +76,13 @@ protected:
   static int GetPositionPresetFromString(const char* name);
   void SetPositionPreset(int id);
 
+  static const char* GetOrientationPresetAsString(int id);
+  static int GetOrientationPresetFromString(const char* name);
+  void SetOrientationPreset(int id);
+
 private:
   PositionPresetType PositionPreset;
+  OrientationPresetType OrientationPreset;
 };
 
 #endif
