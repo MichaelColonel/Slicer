@@ -83,6 +83,7 @@ class ColorsScalarBarSelfTestTest(ScriptedLoadableModuleTest):
     """
     self.setUp()
     self.test_ColorsScalarBarSelfTest1()
+    self.test_ColorsScalarBarSelfTest2()
 
   def test_ColorsScalarBarSelfTest1(self):
 
@@ -114,6 +115,43 @@ class ColorsScalarBarSelfTestTest(ScriptedLoadableModuleTest):
       self.delayDisplay('Set Color Node To %s' % colorNode.GetName())
       useColorNameAsLabelCheckbox.setChecked(not checked)
       self.delayDisplay('Toggled using names as labels')
+
+    logging.info('Processing completed')
+
+    self.delayDisplay('Test passed!')
+
+  def test_ColorsScalarBarSelfTest2(self):
+
+    self.delayDisplay("Starting the colorbar displayable manager test")
+
+    logging.info('Processing started')
+
+    import SampleData
+    sampleDataLogic = SampleData.SampleDataLogic()
+    ctVolumeNode = sampleDataLogic.downloadCTChest()
+    self.assertIsNotNone( ctVolumeNode )
+
+    colorBarTest = slicer.mrmlScene.AddNewNodeByClass( 'vtkMRMLColorBarDisplayNode', 'ColorBarTest')
+
+    threeDViewWidget = slicer.app.layoutManager().threeDWidget(0)
+    colorBarDisplayableManager3D = threeDViewWidget.threeDView().displayableManagerByClassName("vtkMRMLColorBarDisplayableManager")
+    if colorBarDisplayableManager3D is None:
+      logging.error("Failed to find the color bar displayable manager in 3D widget")
+
+    redWidget = slicer.app.layoutManager().sliceWidget("Red")
+    colorBarDisplayableManagerRed = redWidget.sliceView().displayableManagerByClassName("vtkMRMLColorBarDisplayableManager")
+    if colorBarDisplayableManagerRed is None:
+      logging.error("Failed to find the color bar displayable manager in red slice widget")
+
+    greenWidget = slicer.app.layoutManager().sliceWidget("Green")
+    colorBarDisplayableManagerGreen = greenWidget.sliceView().displayableManagerByClassName("vtkMRMLColorBarDisplayableManager")
+    if colorBarDisplayableManagerGreen is None:
+      logging.error("Failed to find the color bar displayable manager in green slice widget")
+
+    yellowWidget = slicer.app.layoutManager().sliceWidget("Yellow")
+    colorBarDisplayableManagerYellow = redWidget.sliceView().displayableManagerByClassName("vtkMRMLColorBarDisplayableManager")
+    if colorBarDisplayableManagerYellow is None:
+      logging.error("Failed to find the color bar displayable manager in yellow slice widget")
 
     logging.info('Processing completed')
 

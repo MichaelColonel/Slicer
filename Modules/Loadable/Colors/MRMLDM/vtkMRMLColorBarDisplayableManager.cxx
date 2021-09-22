@@ -313,12 +313,11 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
         int newNumberOfColors = colorTableNode->GetNumberOfColors();
 
         // Update actor
-        this->ColorBarActor->UseAnnotationAsLabelOn(); // Needed each time
         this->ColorBarActor->SetLookupTable(colorTableNode->GetLookupTable());
         this->ColorBarActor->SetNumberOfLabels(newNumberOfColors);
         this->ColorBarActor->SetMaximumNumberOfColors(newNumberOfColors);
         this->ColorBarActor->GetLookupTable()->ResetAnnotations();
-        for ( int colorIndex = 0; colorIndex < newNumberOfColors; ++colorIndex)
+        for (int colorIndex = 0; colorIndex < newNumberOfColors; ++colorIndex)
         {
           this->ColorBarActor->GetLookupTable()->SetAnnotation(colorIndex, vtkStdString(colorTableNode->GetColorName(colorIndex)));
         }
