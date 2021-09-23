@@ -16,6 +16,11 @@
 // MRML
 #include "vtkMRMLColorTableStorageNode.h"
 #include "vtkMRMLProceduralColorStorageNode.h"
+#include "vtkMRMLColorBarDisplayNode.h"
+#include "vtkMRMLScalarVolumeNode.h"
+#include "vtkMRMLModelNode.h"
+#include "vtkMRMLDisplayableNode.h"
+#include "vtkMRMLScene.h"
 
 // VTK includes
 #include <vtkNew.h>
@@ -208,4 +213,39 @@ std::vector<std::string> vtkSlicerColorLogic::FindColorFiles(const std::vector<s
 #endif
     } // end of looping over dirs
   return filenames;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLColorBarDisplayNode* vtkSlicerColorLogic::CreateAndObserveColorBarForNode(vtkMRMLDisplayableNode* dispNode)
+{
+  if (!dispNode)
+  {
+    vtkDebugMacro("CreateAndObserveColorBarForNode: Displayable node is invalid");
+    return nullptr;
+  }
+
+  vtkMRMLColorBarDisplayNode* cbNode = vtkMRMLColorBarDisplayNode::SafeDownCast(
+    dispNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE));
+  if (cbNode)
+  {
+    vtkDebugMacro("CreateAndObserveColorBarForNode: Displayable node already has color bar node");
+    return cbNode;
+  }
+
+  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
+  if (!mrmlScene)
+  {
+    vtkErrorMacro("CreateAndObserveColorBarForNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Create color bar and set reference
+  vtkNew<vtkMRMLColorBarDisplayNode> colorBarNode;
+  mrmlScene->AddNode(colorBarNode);
+  std::string uniqueName = mrmlScene->GenerateUniqueName("ColorBar");
+  colorBarNode->SetName(uniqueName.c_str());
+
+  colorBarNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, colorBarNode->GetID());
+  colorBarNode->SetAndObserveDisplayableNode(dispNode);
+  return colorBarNode;
 }

@@ -479,6 +479,8 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
 
   if (toggled)
   {
+    vtkMRMLColorBarDisplayNode* colorBarNode = d->colorLogic()->CreateAndObserveColorBarForNode(d->DisplayableNode);
+/*
     vtkNew<vtkMRMLColorBarDisplayNode> colorBarNode;
     this->mrmlScene()->AddNode(colorBarNode);
 
@@ -486,17 +488,23 @@ void qSlicerColorsModuleWidget::onColorBarVisibilityToggled(bool toggled)
 
     d->DisplayableNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, colorBarNode->GetID());
     colorBarNode->SetAndObserveDisplayableNode(d->DisplayableNode);
+*/
+    if (colorBarNode)
+    {
+      d->ColorBarNode = colorBarNode;
+      d->VerticalOrientationRadioButton->setEnabled(true);
+      d->HorizontalOrientationRadioButton->setEnabled(true);
+      d->UseSelectedColorsCheckBox->setEnabled(true);
+      d->UseColorNameAsLabelCheckBox->setEnabled(true);
+      d->CenterLabelCheckBox->setEnabled(true);
 
-    d->VerticalOrientationRadioButton->setEnabled(true);
-    d->HorizontalOrientationRadioButton->setEnabled(true);
-    d->UseSelectedColorsCheckBox->setEnabled(true);
-    d->UseColorNameAsLabelCheckBox->setEnabled(true);
-    d->CenterLabelCheckBox->setEnabled(true);
-
-    colorBarNode->SetVisibility(true);
-    colorBarNode->SetVisibility2D(true);
-    colorBarNode->SetVisibility3D(true);
-    colorBarNode->Modified();
+      colorBarNode->DisableModifiedEventOn();
+      colorBarNode->SetVisibility(true);
+      colorBarNode->SetVisibility2D(true);
+      colorBarNode->SetVisibility3D(true);
+      colorBarNode->DisableModifiedEventOff();
+      colorBarNode->Modified();
+    }
   }
   else
   {
