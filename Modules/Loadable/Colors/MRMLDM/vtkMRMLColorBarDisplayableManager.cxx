@@ -175,7 +175,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
     return;
     }
 
-  switch (this->ColorBarDisplayNode->GetOrientationPreset())
+  switch (this->ColorBarDisplayNode->GetOrientation())
     {
     case vtkMRMLColorBarDisplayNode::Vertical:
       this->ColorBarActor->SetOrientationToVertical();
@@ -187,8 +187,14 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
       break;
     }
 
+  vtkMRMLColorNode* cNode = nullptr;
   vtkMRMLDisplayableNode* displayableNode = this->ColorBarDisplayNode->GetDisplayableNode();
-  vtkMRMLColorNode* cNode = this->ColorBarDisplayNode->GetColorNode();
+  const char* cNodeID = this->ColorBarDisplayNode->GetColorNodeID();
+  if (cNodeID)
+    {
+    cNode = vtkMRMLColorNode::SafeDownCast(this->External->GetMRMLScene()->GetNodeByID(cNodeID));
+    }
+
   if (!cNode && displayableNode)
     {
     vtkMRMLDisplayableNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(displayableNode);

@@ -620,7 +620,7 @@ void qSlicerColorsModuleWidget::onColorBarOrientationButtonClicked(QAbstractButt
     {
     if (d->ColorBarNode)
       {
-      d->ColorBarNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Horizontal);
+      d->ColorBarNode->SetOrientation(vtkMRMLColorBarDisplayNode::Horizontal);
       d->ColorBarNode->Modified();
       }
     }
@@ -628,7 +628,7 @@ void qSlicerColorsModuleWidget::onColorBarOrientationButtonClicked(QAbstractButt
     {
     if (d->ColorBarNode)
       {
-      d->ColorBarNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Vertical);
+      d->ColorBarNode->SetOrientation(vtkMRMLColorBarDisplayNode::Vertical);
       d->ColorBarNode->Modified();
       }
     }
@@ -661,7 +661,7 @@ void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool toggled)
     vtkMRMLColorNode* colorNode = vtkMRMLColorNode::SafeDownCast(d->ColorTableComboBox->currentNode());
     if (colorNode)
       {
-      d->ColorBarNode->SetAndObserveColorNode(colorNode);
+      d->ColorBarNode->SetAndObserveColorNodeID(colorNode->GetID());
       }
     else
       {
@@ -670,7 +670,7 @@ void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool toggled)
     }
   else
     {
-    d->ColorBarNode->SetAndObserveColorNode(nullptr);
+    d->ColorBarNode->SetAndObserveColorNodeID(nullptr);
     }
 }
 

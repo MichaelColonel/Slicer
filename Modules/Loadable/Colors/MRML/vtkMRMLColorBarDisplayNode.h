@@ -26,8 +26,7 @@ class VTK_SLICER_COLORS_MODULE_MRML_EXPORT vtkMRMLColorBarDisplayNode : public v
 {
 public:
   /// Color bar position preset on a view node
-  enum OrientationPresetType : int { Horizontal = 0, Vertical, OrientationPreset_Last };
-  enum PositionPresetType : int { Foreground = 0, Background, PositionPreset_Last };
+  enum OrientationType : int { Horizontal = 0, Vertical, Orientation_Last };
 
   static vtkMRMLColorBarDisplayNode *New();
   vtkTypeMacro(vtkMRMLColorBarDisplayNode,vtkMRMLDisplayNode);
@@ -48,16 +47,72 @@ public:
   /// \sa vtkMRMLNode::CopyContent
   vtkMRMLCopyContentMacro(vtkMRMLColorBarDisplayNode);
 
-  /// Get color node
-  vtkMRMLColorNode* GetColorNode();
-  /// Set and observe node
-  void SetAndObserveColorNode(vtkMRMLColorNode* node);
+  vtkGetMacro(Orientation, OrientationType);
+  vtkSetMacro(Orientation, OrientationType);
 
-  vtkGetMacro(PositionPreset, PositionPresetType);
-  vtkSetMacro(PositionPreset, PositionPresetType);
 
-  vtkGetMacro(OrientationPreset, OrientationPresetType);
-  vtkSetMacro(OrientationPreset, OrientationPresetType);
+  vtkGetVector2Macro(Position, float);
+  vtkSetVector2Macro(Position, float);
+
+  vtkGetMacro(Width, double);
+  vtkSetMacro(Width, double);
+
+  vtkGetMacro(Height, double);
+  vtkSetMacro(Height, double);
+
+  vtkGetMacro(TitleText, std::string);
+  vtkSetMacro(TitleText, std::string);
+
+  vtkGetVector3Macro(TitleFontColorRGB, double);
+  vtkSetVector3Macro(TitleFontColorRGB, double);
+
+  vtkGetMacro(TitleFontOpacity, double);
+  vtkSetMacro(TitleFontOpacity, double);
+
+  vtkGetMacro(TitleFontSize, int);
+  vtkSetMacro(TitleFontSize, int);
+
+  vtkGetMacro(TitleFontBold, bool);
+  vtkSetMacro(TitleFontBold, bool);
+
+  vtkGetMacro(TitleFontItalic, bool);
+  vtkSetMacro(TitleFontItalic, bool);
+
+  vtkGetMacro(TitleFontShadow, bool);
+  vtkSetMacro(TitleFontShadow, bool);
+
+  vtkGetVector3Macro(LabelFontColorRGB, double);
+  vtkSetVector3Macro(LabelFontColorRGB, double);
+
+  vtkGetMacro(LabelFontOpacity, double);
+  vtkSetMacro(LabelFontOpacity, double);
+
+  vtkGetMacro(LabelFontSize, int);
+  vtkSetMacro(LabelFontSize, int);
+
+  vtkGetMacro(LabelFontBold, bool);
+  vtkSetMacro(LabelFontBold, bool);
+
+  vtkGetMacro(LabelFontItalic, bool);
+  vtkSetMacro(LabelFontItalic, bool);
+
+  vtkGetMacro(LabelFontShadow, bool);
+  vtkSetMacro(LabelFontShadow, bool);
+
+  vtkGetMacro(LabelFormat, std::string);
+  vtkSetMacro(LabelFormat, std::string);
+
+  vtkGetMacro(MaxNumberOfColors, int);
+  vtkSetMacro(MaxNumberOfColors, int);
+
+  vtkGetMacro(NumberOfLabels, int);
+  vtkSetMacro(NumberOfLabels, int);
+
+  vtkGetMacro(UseColorNamesForLabels, bool);
+  vtkSetMacro(UseColorNamesForLabels, bool);
+
+  vtkGetMacro(CenterLabels, bool);
+  vtkSetMacro(CenterLabels, bool);
 
 protected:
   vtkMRMLColorBarDisplayNode();
@@ -65,17 +120,45 @@ protected:
   vtkMRMLColorBarDisplayNode(const vtkMRMLColorBarDisplayNode&);
   void operator=(const vtkMRMLColorBarDisplayNode&);
 
-  static const char* GetPositionPresetAsString(int id);
-  static int GetPositionPresetFromString(const char* name);
-  void SetPositionPreset(int id);
-
-  static const char* GetOrientationPresetAsString(int id);
-  static int GetOrientationPresetFromString(const char* name);
-  void SetOrientationPreset(int id);
+  static const char* GetOrientationAsString(int id);
+  static int GetOrientationFromString(const char* name);
+  void SetOrientation(int id);
 
 private:
-  PositionPresetType PositionPreset;
-  OrientationPresetType OrientationPreset;
+  OrientationType Orientation{ vtkMRMLColorBarDisplayNode::Vertical }; // Vertical or Horizontal
+  float Position[2]{ 0.1, 0.1 }; // color bar position within view
+  double Width{ 0.1 }; // color bar width within view
+  double Height{ 0.8 }; // color bar height within view
+  std::string TitleText; // color bar title
+  struct FontProperties
+  {
+    double ColorRGB[3]{ 1., 1., 1. }; // text color [0., 1.]
+    double Opacity{ 0. }; // text opacity
+    double Size{ 12. }; // size of the font
+    bool Bold{ false }; // bold font
+    bool Italic{ false }; // italic font
+    bool Shadow{ false }; // shadow font
+  } TitleFontProperties, LabelFontProperties;
+
+  double* TitleFontColorRGB;
+  double& TitleFontOpacity;
+  double& TitleFontSize;
+  bool& TitleFontBold;
+  bool& TitleFontItalic;
+  bool& TitleFontShadow;
+
+  double* LabelFontColorRGB;
+  double& LabelFontOpacity;
+  double& LabelFontSize;
+  bool& LabelFontBold;
+  bool& LabelFontItalic;
+  bool& LabelFontShadow;
+
+  std::string LabelFormat{ "%s" };
+  int MaxNumberOfColors{ 5 };
+  int NumberOfLabels{ 5 };
+  bool UseColorNamesForLabels{ false };
+  bool CenterLabels{ false };
 };
 
 #endif

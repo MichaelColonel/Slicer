@@ -27,22 +27,24 @@
 // STD includes
 #include <cstring>
 
-//------------------------------------------------------------------------------
-namespace
-{
-
-const char* COLOR_REFERENCE_ROLE = "colorRef";
-
-} // namespace
-
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 
 //-----------------------------------------------------------------------------
 vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   :
-  PositionPreset(Foreground),
-  OrientationPreset(Vertical)
+  TitleFontColorRGB(TitleFontProperties.ColorRGB),
+  TitleFontOpacity(TitleFontProperties.Opacity),
+  TitleFontSize(TitleFontProperties.Size),
+  TitleFontBold(TitleFontProperties.Bold),
+  TitleFontItalic(TitleFontProperties.Italic),
+  TitleFontShadow(TitleFontProperties.Shadow),
+  LabelFontColorRGB(LabelFontProperties.ColorRGB),
+  LabelFontOpacity(LabelFontProperties.Opacity),
+  LabelFontSize(LabelFontProperties.Size),
+  LabelFontBold(LabelFontProperties.Bold),
+  LabelFontItalic(LabelFontProperties.Italic),
+  LabelFontShadow(LabelFontProperties.Shadow)
 {
 }
 
@@ -55,8 +57,65 @@ void vtkMRMLColorBarDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
   Superclass::PrintSelf(os, indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
-  vtkMRMLPrintEnumMacro(PositionPreset);
-  vtkMRMLPrintEnumMacro(OrientationPreset);
+  vtkMRMLPrintEnumMacro(Orientation);
+
+  vtkMRMLPrintVectorMacro(Position, float, 2);
+  vtkMRMLPrintFloatMacro(Width);
+  vtkMRMLPrintFloatMacro(Height);
+  vtkMRMLPrintStdStringMacro(TitleText);
+  vtkMRMLPrintVectorMacro(TitleFontColorRGB, double, 3);
+  vtkMRMLPrintFloatMacro(TitleFontOpacity);
+  vtkMRMLPrintFloatMacro(TitleFontSize);
+  vtkMRMLPrintBooleanMacro(TitleFontBold);
+  vtkMRMLPrintBooleanMacro(TitleFontItalic);
+  vtkMRMLPrintBooleanMacro(TitleFontShadow);
+  vtkMRMLPrintVectorMacro(LabelFontColorRGB, double, 3);
+  vtkMRMLPrintFloatMacro(LabelFontOpacity);
+  vtkMRMLPrintFloatMacro(LabelFontSize);
+  vtkMRMLPrintBooleanMacro(LabelFontBold);
+  vtkMRMLPrintBooleanMacro(LabelFontItalic);
+  vtkMRMLPrintBooleanMacro(LabelFontShadow);
+  vtkMRMLPrintStdStringMacro(LabelFormat);
+  vtkMRMLPrintIntMacro(MaxNumberOfColors);
+  vtkMRMLPrintIntMacro(NumberOfLabels);
+  vtkMRMLPrintBooleanMacro(UseColorNamesForLabels);
+  vtkMRMLPrintBooleanMacro(CenterLabels);
+/*
+  int& TitleFontSize;
+  bool& TitleFontBold;
+  bool& TitleFontItalic;
+  bool& TitleFontShadow;
+
+  double* LabelFontColorRGB;
+  double& LabelFontOpacity;
+  int& LabelFontSize;
+  bool& LabelFontBold;
+  bool& LabelFontItalic;
+  bool& LabelFontShadow;
+
+  std::string LabelFormat{ "%s" };
+  int MaxNumberOfColors{ 5 };
+  int NumberOfLabels{ 5 };
+  bool UseColorNamesForLabels{ false };
+  bool CenterLabels{ false };
+
+  vtkMRMLReadXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
+  vtkMRMLReadXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
+  vtkMRMLReadXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
+  vtkMRMLReadXMLVectorMacro(ImagerResolution, ImagerResolution, int, 2);
+  vtkMRMLReadXMLVectorMacro(ImagerSpacing, ImagerSpacing, double, 2);
+  vtkMRMLReadXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
+  vtkMRMLReadXMLBooleanMacro(ImageWindowFlag, ImageWindowFlag);
+  vtkMRMLReadXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
+  vtkMRMLReadXMLBooleanMacro(ExponentialMappingFlag, ExponentialMappingFlag);
+  vtkMRMLReadXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
+  vtkMRMLReadXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
+  vtkMRMLReadXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2);
+  vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
+  vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
+  vtkMRMLReadXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
+  vtkMRMLReadXMLIntMacro(Threading, Threading);
+*/
   vtkMRMLPrintEndMacro();
 }
 
@@ -67,8 +126,29 @@ void vtkMRMLColorBarDisplayNode::WriteXML(ostream& of, int nIndent)
   this->Superclass::WriteXML(of, nIndent);
 
   vtkMRMLWriteXMLBeginMacro(of);
-  vtkMRMLWriteXMLEnumMacro(PositionPreset, PositionPreset);
-  vtkMRMLWriteXMLEnumMacro(OrientationPreset, OrientationPreset);
+  vtkMRMLWriteXMLEnumMacro(Orientation, Orientation);
+  vtkMRMLWriteXMLVectorMacro(Position, Position, float, 2);
+  vtkMRMLWriteXMLFloatMacro(Width, Width);
+  vtkMRMLWriteXMLFloatMacro(Height, Height);
+  vtkMRMLWriteXMLStdStringMacro(TitleText, TitleText);
+  vtkMRMLWriteXMLVectorMacro(TitleFontColorRGB, TitleFontColorRGB, double, 3);
+  vtkMRMLWriteXMLFloatMacro(TitleFontOpacity, TitleFontOpacity);
+  vtkMRMLWriteXMLFloatMacro(TitleFontSize, TitleFontSize);
+  vtkMRMLWriteXMLBooleanMacro(TitleFontBold, TitleFontBold);
+  vtkMRMLWriteXMLBooleanMacro(TitleFontItalic, TitleFontItalic);
+  vtkMRMLWriteXMLBooleanMacro(TitleFontShadow, TitleFontShadow);
+  vtkMRMLWriteXMLVectorMacro(LabelFontColorRGB, LabelFontColorRGB, double, 3);
+  vtkMRMLWriteXMLFloatMacro(LabelFontOpacity, LabelFontOpacity);
+  vtkMRMLWriteXMLFloatMacro(LabelFontSize, LabelFontSize);
+  vtkMRMLWriteXMLBooleanMacro(LabelFontBold, LabelFontBold);
+  vtkMRMLWriteXMLBooleanMacro(LabelFontItalic, LabelFontItalic);
+  vtkMRMLWriteXMLBooleanMacro(LabelFontShadow, LabelFontShadow);
+  vtkMRMLWriteXMLStdStringMacro(LabelFormat, LabelFormat);
+  vtkMRMLWriteXMLIntMacro(MaxNumberOfColors, MaxNumberOfColors);
+  vtkMRMLWriteXMLIntMacro(NumberOfLabels, NumberOfLabels);
+  vtkMRMLWriteXMLBooleanMacro(UseColorNamesForLabels, UseColorNamesForLabels);
+  vtkMRMLWriteXMLBooleanMacro(CenterLabels, CenterLabels);
+
   vtkMRMLWriteXMLEndMacro();
 }
 
@@ -79,8 +159,28 @@ void vtkMRMLColorBarDisplayNode::ReadXMLAttributes(const char** atts)
   this->Superclass::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
-  vtkMRMLReadXMLEnumMacro(PositionPreset, PositionPreset);
-  vtkMRMLReadXMLEnumMacro(OrientationPreset, OrientationPreset);
+  vtkMRMLReadXMLEnumMacro(Orientation, Orientation);
+  vtkMRMLReadXMLVectorMacro(Position, Position, float, 2);
+  vtkMRMLReadXMLFloatMacro(Width, Width);
+  vtkMRMLReadXMLFloatMacro(Height, Height);
+  vtkMRMLReadXMLStdStringMacro(TitleText, TitleText);
+  vtkMRMLReadXMLVectorMacro(TitleFontColorRGB, TitleFontColorRGB, double, 3);
+  vtkMRMLReadXMLFloatMacro(TitleFontOpacity, TitleFontOpacity);
+  vtkMRMLReadXMLFloatMacro(TitleFontSize, TitleFontSize);
+  vtkMRMLReadXMLBooleanMacro(TitleFontBold, TitleFontBold);
+  vtkMRMLReadXMLBooleanMacro(TitleFontItalic, TitleFontItalic);
+  vtkMRMLReadXMLBooleanMacro(TitleFontShadow, TitleFontShadow);
+  vtkMRMLReadXMLVectorMacro(LabelFontColorRGB, LabelFontColorRGB, double, 3);
+  vtkMRMLReadXMLFloatMacro(LabelFontOpacity, LabelFontOpacity);
+  vtkMRMLReadXMLFloatMacro(LabelFontSize, LabelFontSize);
+  vtkMRMLReadXMLBooleanMacro(LabelFontBold, LabelFontBold);
+  vtkMRMLReadXMLBooleanMacro(LabelFontItalic, LabelFontItalic);
+  vtkMRMLReadXMLBooleanMacro(LabelFontShadow, LabelFontShadow);
+  vtkMRMLReadXMLStdStringMacro(LabelFormat, LabelFormat);
+  vtkMRMLReadXMLIntMacro(MaxNumberOfColors, MaxNumberOfColors);
+  vtkMRMLReadXMLIntMacro(NumberOfLabels, NumberOfLabels);
+  vtkMRMLReadXMLBooleanMacro(UseColorNamesForLabels, UseColorNamesForLabels);
+  vtkMRMLReadXMLBooleanMacro(CenterLabels, CenterLabels);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -99,98 +199,70 @@ void vtkMRMLColorBarDisplayNode::CopyContent(vtkMRMLNode* anode, bool deepCopy/*
     }
 
   vtkMRMLCopyBeginMacro(anode);
-  vtkMRMLCopyEnumMacro(PositionPreset);
-  vtkMRMLCopyEnumMacro(OrientationPreset);
+  vtkMRMLCopyEnumMacro(Orientation);
+  vtkMRMLCopyVectorMacro(Position, float, 2);
+  vtkMRMLCopyFloatMacro(Width);
+  vtkMRMLCopyFloatMacro(Height);
+  vtkMRMLCopyStdStringMacro(TitleText);
+  vtkMRMLCopyVectorMacro(TitleFontColorRGB, double, 3);
+  vtkMRMLCopyFloatMacro(TitleFontOpacity);
+  vtkMRMLCopyFloatMacro(TitleFontSize);
+  vtkMRMLCopyBooleanMacro(TitleFontBold);
+  vtkMRMLCopyBooleanMacro(TitleFontItalic);
+  vtkMRMLCopyBooleanMacro(TitleFontShadow);
+  vtkMRMLCopyVectorMacro(LabelFontColorRGB, double, 3);
+  vtkMRMLCopyFloatMacro(LabelFontOpacity);
+  vtkMRMLCopyFloatMacro(LabelFontSize);
+  vtkMRMLCopyBooleanMacro(LabelFontBold);
+  vtkMRMLCopyBooleanMacro(LabelFontItalic);
+  vtkMRMLCopyBooleanMacro(LabelFontShadow);
+  vtkMRMLCopyStdStringMacro(LabelFormat);
+  vtkMRMLCopyIntMacro(MaxNumberOfColors);
+  vtkMRMLCopyIntMacro(NumberOfLabels);
+  vtkMRMLCopyBooleanMacro(UseColorNamesForLabels);
+  vtkMRMLCopyBooleanMacro(CenterLabels);
   vtkMRMLCopyEndMacro();
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayNode::SetPositionPreset(int id)
+void vtkMRMLColorBarDisplayNode::SetOrientation(int id)
 {
   switch (id)
     {
     case 0:
-      SetPositionPreset(Foreground);
+      SetOrientation(vtkMRMLColorBarDisplayNode::Horizontal);
       break;
     case 1:
     default:
-      SetPositionPreset(Background);
+      SetOrientation(vtkMRMLColorBarDisplayNode::Vertical);
       break;
     }
 }
 
 //---------------------------------------------------------------------------
-const char* vtkMRMLColorBarDisplayNode::GetPositionPresetAsString(int id)
+const char* vtkMRMLColorBarDisplayNode::GetOrientationAsString(int id)
 {
   switch (id)
     {
-    case Foreground:
-      return "Foreground";
-    case Background:
-    default:
-      return "Background";
-    }
-}
-
-//-----------------------------------------------------------
-int vtkMRMLColorBarDisplayNode::GetPositionPresetFromString(const char* name)
-{
-  if (name == nullptr)
-    {
-      // invalid name
-      return -1;
-    }
-  for (int i = 0; i < PositionPreset_Last; i++)
-    {
-    if (std::strcmp(name, GetPositionPresetAsString(i)) == 0)
-      {
-      // found a matching name
-      return i;
-      }
-    }
-  // unknown name
-  return -1;
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayNode::SetOrientationPreset(int id)
-{
-  switch (id)
-    {
-    case 0:
-      SetOrientationPreset(Horizontal);
-      break;
-    case 1:
-    default:
-      SetPositionPreset(Vertical);
-      break;
-    }
-}
-
-//---------------------------------------------------------------------------
-const char* vtkMRMLColorBarDisplayNode::GetOrientationPresetAsString(int id)
-{
-  switch (id)
-    {
-    case Horizontal:
+    case vtkMRMLColorBarDisplayNode::Horizontal:
       return "Horizontal";
-    case Vertical:
+    case vtkMRMLColorBarDisplayNode::Vertical:
     default:
       return "Vertical";
     }
 }
 
 //-----------------------------------------------------------
-int vtkMRMLColorBarDisplayNode::GetOrientationPresetFromString(const char* name)
+int vtkMRMLColorBarDisplayNode::GetOrientationFromString(const char* name)
 {
   if (name == nullptr)
     {
     // invalid name
     return -1;
     }
-  for (int i = 0; i < OrientationPreset_Last; i++)
+  for (int i = 0; i < vtkMRMLColorBarDisplayNode::Orientation_Last; i++)
     {
-    if (std::strcmp(name, GetOrientationPresetAsString(i)) == 0)
+    if (std::strcmp(name, vtkMRMLColorBarDisplayNode::GetOrientationAsString(i)) == 0)
       {
       // found a matching name
       return i;
@@ -198,22 +270,4 @@ int vtkMRMLColorBarDisplayNode::GetOrientationPresetFromString(const char* name)
     }
   // unknown name
   return -1;
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLColorNode* vtkMRMLColorBarDisplayNode::GetColorNode()
-{
-  return vtkMRMLColorNode::SafeDownCast( this->GetNodeReference(COLOR_REFERENCE_ROLE) );
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLColorBarDisplayNode::SetAndObserveColorNode(vtkMRMLColorNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-    {
-    vtkErrorMacro("SetAndObserveColorNode: Cannot set reference, the referenced and referencing node are not in the same scene");
-    return;
-    }
-
-  this->SetNodeReferenceID(COLOR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
