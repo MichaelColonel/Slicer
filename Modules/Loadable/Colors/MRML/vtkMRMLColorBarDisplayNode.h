@@ -72,6 +72,9 @@ public:
   vtkGetMacro(TitleFontSize, int);
   vtkSetMacro(TitleFontSize, int);
 
+  vtkGetMacro(TitleFontName, std::string);
+  vtkSetMacro(TitleFontName, std::string);
+
   vtkGetMacro(TitleFontBold, bool);
   vtkSetMacro(TitleFontBold, bool);
 
@@ -89,6 +92,9 @@ public:
 
   vtkGetMacro(LabelFontSize, int);
   vtkSetMacro(LabelFontSize, int);
+
+  vtkGetMacro(LabelFontName, std::string);
+  vtkSetMacro(LabelFontName, std::string);
 
   vtkGetMacro(LabelFontBold, bool);
   vtkSetMacro(LabelFontBold, bool);
@@ -135,6 +141,7 @@ private:
     double ColorRGB[3]{ 1., 1., 1. }; // text color [0., 1.]
     double Opacity{ 0. }; // text opacity
     double Size{ 12. }; // size of the font
+    std::string FontName{ "Arial" }; // "Arial", "Courier", "Times" or "Unknown"
     bool Bold{ false }; // bold font
     bool Italic{ false }; // italic font
     bool Shadow{ false }; // shadow font
@@ -143,6 +150,7 @@ private:
   double* TitleFontColorRGB;
   double& TitleFontOpacity;
   double& TitleFontSize;
+  std::string& TitleFontName;
   bool& TitleFontBold;
   bool& TitleFontItalic;
   bool& TitleFontShadow;
@@ -150,6 +158,7 @@ private:
   double* LabelFontColorRGB;
   double& LabelFontOpacity;
   double& LabelFontSize;
+  std::string& LabelFontName;
   bool& LabelFontBold;
   bool& LabelFontItalic;
   bool& LabelFontShadow;

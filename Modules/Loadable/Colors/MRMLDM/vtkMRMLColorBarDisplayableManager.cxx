@@ -105,6 +105,24 @@ public:
   vtkWeakPointer<vtkSlicerScalarBarActor> ColorBarActor;
   vtkWeakPointer<vtkScalarBarWidget> ColorBarWidget;
 
+  struct ColorBarWidgetData
+  {
+    ColorBarWidgetData(const ColorBarTuple& tuple)
+      {
+      std::tie( this->Actor, this->Widget, this->InteractorInitiated) = tuple;
+      }
+    ColorBarWidgetData(const vtkSmartPointer<vtkSlicerScalarBarActor>& actor,
+      const vtkSmartPointer<vtkScalarBarWidget>& widget,
+      bool interactorInitiated)
+      : Actor(actor), Widget(widget), InteractorInitiated(interactorInitiated)
+      {
+      }
+    ColorBarTuple GetTuple() const { return ColorBarTuple(this->Actor, this->Widget, this->InteractorInitiated); }
+    vtkSmartPointer<vtkSlicerScalarBarActor> Actor;
+    vtkSmartPointer<vtkScalarBarWidget> Widget;
+    bool InteractorInitiated;
+  };
+
   /// Map stores color bar display node ID, tuple
   std::map< std::string, ColorBarTuple > ColorBarTupleMap;
 };
