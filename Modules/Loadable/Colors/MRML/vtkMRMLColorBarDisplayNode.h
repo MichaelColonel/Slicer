@@ -63,11 +63,11 @@ public:
   vtkGetMacro(TitleText, std::string);
   vtkSetMacro(TitleText, std::string);
 
-  vtkGetVector3Macro(TitleFontColorRGB, double);
-  vtkSetVector3Macro(TitleFontColorRGB, double);
+  vtkGetVector3Macro(TitleTextColorRGB, double);
+  vtkSetVector3Macro(TitleTextColorRGB, double);
 
-  vtkGetMacro(TitleFontOpacity, double);
-  vtkSetMacro(TitleFontOpacity, double);
+  vtkGetMacro(TitleTextOpacity, double);
+  vtkSetMacro(TitleTextOpacity, double);
 
   vtkGetMacro(TitleFontSize, int);
   vtkSetMacro(TitleFontSize, int);
@@ -84,29 +84,29 @@ public:
   vtkGetMacro(TitleFontShadow, bool);
   vtkSetMacro(TitleFontShadow, bool);
 
-  vtkGetVector3Macro(LabelFontColorRGB, double);
-  vtkSetVector3Macro(LabelFontColorRGB, double);
+  vtkGetVector3Macro(LabelsTextColorRGB, double);
+  vtkSetVector3Macro(LabelsTextColorRGB, double);
 
-  vtkGetMacro(LabelFontOpacity, double);
-  vtkSetMacro(LabelFontOpacity, double);
+  vtkGetMacro(LabelsTextOpacity, double);
+  vtkSetMacro(LabelsTextOpacity, double);
 
-  vtkGetMacro(LabelFontSize, int);
-  vtkSetMacro(LabelFontSize, int);
+  vtkGetMacro(LabelsFontSize, int);
+  vtkSetMacro(LabelsFontSize, int);
 
-  vtkGetMacro(LabelFontName, std::string);
-  vtkSetMacro(LabelFontName, std::string);
+  vtkGetMacro(LabelsFontName, std::string);
+  vtkSetMacro(LabelsFontName, std::string);
 
-  vtkGetMacro(LabelFontBold, bool);
-  vtkSetMacro(LabelFontBold, bool);
+  vtkGetMacro(LabelsFontBold, bool);
+  vtkSetMacro(LabelsFontBold, bool);
 
-  vtkGetMacro(LabelFontItalic, bool);
-  vtkSetMacro(LabelFontItalic, bool);
+  vtkGetMacro(LabelsFontItalic, bool);
+  vtkSetMacro(LabelsFontItalic, bool);
 
-  vtkGetMacro(LabelFontShadow, bool);
-  vtkSetMacro(LabelFontShadow, bool);
+  vtkGetMacro(LabelsFontShadow, bool);
+  vtkSetMacro(LabelsFontShadow, bool);
 
-  vtkGetMacro(LabelFormat, std::string);
-  vtkSetMacro(LabelFormat, std::string);
+  vtkGetMacro(LabelsFormat, std::string);
+  vtkSetMacro(LabelsFormat, std::string);
 
   vtkGetMacro(MaxNumberOfColors, int);
   vtkSetMacro(MaxNumberOfColors, int);
@@ -145,25 +145,25 @@ private:
     bool Bold{ false }; // bold font
     bool Italic{ false }; // italic font
     bool Shadow{ false }; // shadow font
-  } TitleFontProperties, LabelFontProperties;
+  } TitleFontProperties, LabelsFontProperties;
 
-  double* TitleFontColorRGB;
-  double& TitleFontOpacity;
+  double* TitleTextColorRGB;
+  double& TitleTextOpacity;
   double& TitleFontSize;
   std::string& TitleFontName;
   bool& TitleFontBold;
   bool& TitleFontItalic;
   bool& TitleFontShadow;
 
-  double* LabelFontColorRGB;
-  double& LabelFontOpacity;
-  double& LabelFontSize;
-  std::string& LabelFontName;
-  bool& LabelFontBold;
-  bool& LabelFontItalic;
-  bool& LabelFontShadow;
+  double* LabelsTextColorRGB;
+  double& LabelsTextOpacity;
+  double& LabelsFontSize;
+  std::string& LabelsFontName;
+  bool& LabelsFontBold;
+  bool& LabelsFontItalic;
+  bool& LabelsFontShadow;
 
-  std::string LabelFormat{ "%s" };
+  std::string LabelsFormat{ "%s" };
   int MaxNumberOfColors{ 5 };
   int NumberOfLabels{ 5 };
   bool UseColorNamesForLabels{ false };

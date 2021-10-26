@@ -33,20 +33,20 @@ vtkMRMLNodeNewMacro(vtkMRMLColorBarDisplayNode);
 //-----------------------------------------------------------------------------
 vtkMRMLColorBarDisplayNode::vtkMRMLColorBarDisplayNode()
   :
-  TitleFontColorRGB(TitleFontProperties.ColorRGB),
-  TitleFontOpacity(TitleFontProperties.Opacity),
+  TitleTextColorRGB(TitleFontProperties.ColorRGB),
+  TitleTextOpacity(TitleFontProperties.Opacity),
   TitleFontSize(TitleFontProperties.Size),
   TitleFontName(TitleFontProperties.FontName),
   TitleFontBold(TitleFontProperties.Bold),
   TitleFontItalic(TitleFontProperties.Italic),
   TitleFontShadow(TitleFontProperties.Shadow),
-  LabelFontColorRGB(LabelFontProperties.ColorRGB),
-  LabelFontOpacity(LabelFontProperties.Opacity),
-  LabelFontSize(LabelFontProperties.Size),
-  LabelFontName(LabelFontProperties.FontName),
-  LabelFontBold(LabelFontProperties.Bold),
-  LabelFontItalic(LabelFontProperties.Italic),
-  LabelFontShadow(LabelFontProperties.Shadow)
+  LabelsTextColorRGB(LabelsFontProperties.ColorRGB),
+  LabelsTextOpacity(LabelsFontProperties.Opacity),
+  LabelsFontSize(LabelsFontProperties.Size),
+  LabelsFontName(LabelsFontProperties.FontName),
+  LabelsFontBold(LabelsFontProperties.Bold),
+  LabelsFontItalic(LabelsFontProperties.Italic),
+  LabelsFontShadow(LabelsFontProperties.Shadow)
 {
 }
 
@@ -65,21 +65,21 @@ void vtkMRMLColorBarDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintFloatMacro(Width);
   vtkMRMLPrintFloatMacro(Height);
   vtkMRMLPrintStdStringMacro(TitleText);
-  vtkMRMLPrintVectorMacro(TitleFontColorRGB, double, 3);
-  vtkMRMLPrintFloatMacro(TitleFontOpacity);
+  vtkMRMLPrintVectorMacro(TitleTextColorRGB, double, 3);
+  vtkMRMLPrintFloatMacro(TitleTextOpacity);
   vtkMRMLPrintFloatMacro(TitleFontSize);
   vtkMRMLPrintStdStringMacro(TitleFontName);
   vtkMRMLPrintBooleanMacro(TitleFontBold);
   vtkMRMLPrintBooleanMacro(TitleFontItalic);
   vtkMRMLPrintBooleanMacro(TitleFontShadow);
-  vtkMRMLPrintVectorMacro(LabelFontColorRGB, double, 3);
-  vtkMRMLPrintFloatMacro(LabelFontOpacity);
-  vtkMRMLPrintFloatMacro(LabelFontSize);
-  vtkMRMLPrintStdStringMacro(LabelFontName);
-  vtkMRMLPrintBooleanMacro(LabelFontBold);
-  vtkMRMLPrintBooleanMacro(LabelFontItalic);
-  vtkMRMLPrintBooleanMacro(LabelFontShadow);
-  vtkMRMLPrintStdStringMacro(LabelFormat);
+  vtkMRMLPrintVectorMacro(LabelsTextColorRGB, double, 3);
+  vtkMRMLPrintFloatMacro(LabelsTextOpacity);
+  vtkMRMLPrintFloatMacro(LabelsFontSize);
+  vtkMRMLPrintStdStringMacro(LabelsFontName);
+  vtkMRMLPrintBooleanMacro(LabelsFontBold);
+  vtkMRMLPrintBooleanMacro(LabelsFontItalic);
+  vtkMRMLPrintBooleanMacro(LabelsFontShadow);
+  vtkMRMLPrintStdStringMacro(LabelsFormat);
   vtkMRMLPrintIntMacro(MaxNumberOfColors);
   vtkMRMLPrintIntMacro(NumberOfLabels);
   vtkMRMLPrintBooleanMacro(UseColorNamesForLabels);
@@ -100,21 +100,21 @@ void vtkMRMLColorBarDisplayNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLFloatMacro(Width, Width);
   vtkMRMLWriteXMLFloatMacro(Height, Height);
   vtkMRMLWriteXMLStdStringMacro(TitleText, TitleText);
-  vtkMRMLWriteXMLVectorMacro(TitleFontColorRGB, TitleFontColorRGB, double, 3);
-  vtkMRMLWriteXMLFloatMacro(TitleFontOpacity, TitleFontOpacity);
+  vtkMRMLWriteXMLVectorMacro(TitleTextColorRGB, TitleTextColorRGB, double, 3);
+  vtkMRMLWriteXMLFloatMacro(TitleTextOpacity, TitleTextOpacity);
   vtkMRMLWriteXMLFloatMacro(TitleFontSize, TitleFontSize);
   vtkMRMLWriteXMLStdStringMacro(TitleFontName, TitleFontName);
   vtkMRMLWriteXMLBooleanMacro(TitleFontBold, TitleFontBold);
   vtkMRMLWriteXMLBooleanMacro(TitleFontItalic, TitleFontItalic);
   vtkMRMLWriteXMLBooleanMacro(TitleFontShadow, TitleFontShadow);
-  vtkMRMLWriteXMLVectorMacro(LabelFontColorRGB, LabelFontColorRGB, double, 3);
-  vtkMRMLWriteXMLFloatMacro(LabelFontOpacity, LabelFontOpacity);
-  vtkMRMLWriteXMLFloatMacro(LabelFontSize, LabelFontSize);
-  vtkMRMLWriteXMLStdStringMacro(LabelFontName, LabelFontName);
-  vtkMRMLWriteXMLBooleanMacro(LabelFontBold, LabelFontBold);
-  vtkMRMLWriteXMLBooleanMacro(LabelFontItalic, LabelFontItalic);
-  vtkMRMLWriteXMLBooleanMacro(LabelFontShadow, LabelFontShadow);
-  vtkMRMLWriteXMLStdStringMacro(LabelFormat, LabelFormat);
+  vtkMRMLWriteXMLVectorMacro(LabelsTextColorRGB, LabelsTextColorRGB, double, 3);
+  vtkMRMLWriteXMLFloatMacro(LabelsTextOpacity, LabelsTextOpacity);
+  vtkMRMLWriteXMLFloatMacro(LabelsFontSize, LabelsFontSize);
+  vtkMRMLWriteXMLStdStringMacro(LabelsFontName, LabelsFontName);
+  vtkMRMLWriteXMLBooleanMacro(LabelsFontBold, LabelsFontBold);
+  vtkMRMLWriteXMLBooleanMacro(LabelsFontItalic, LabelsFontItalic);
+  vtkMRMLWriteXMLBooleanMacro(LabelsFontShadow, LabelsFontShadow);
+  vtkMRMLWriteXMLStdStringMacro(LabelsFormat, LabelsFormat);
   vtkMRMLWriteXMLIntMacro(MaxNumberOfColors, MaxNumberOfColors);
   vtkMRMLWriteXMLIntMacro(NumberOfLabels, NumberOfLabels);
   vtkMRMLWriteXMLBooleanMacro(UseColorNamesForLabels, UseColorNamesForLabels);
@@ -135,21 +135,21 @@ void vtkMRMLColorBarDisplayNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLFloatMacro(Width, Width);
   vtkMRMLReadXMLFloatMacro(Height, Height);
   vtkMRMLReadXMLStdStringMacro(TitleText, TitleText);
-  vtkMRMLReadXMLVectorMacro(TitleFontColorRGB, TitleFontColorRGB, double, 3);
-  vtkMRMLReadXMLFloatMacro(TitleFontOpacity, TitleFontOpacity);
+  vtkMRMLReadXMLVectorMacro(TitleTextColorRGB, TitleTextColorRGB, double, 3);
+  vtkMRMLReadXMLFloatMacro(TitleTextOpacity, TitleTextOpacity);
   vtkMRMLReadXMLFloatMacro(TitleFontSize, TitleFontSize);
   vtkMRMLReadXMLStdStringMacro(TitleFontName, TitleFontName);
   vtkMRMLReadXMLBooleanMacro(TitleFontBold, TitleFontBold);
   vtkMRMLReadXMLBooleanMacro(TitleFontItalic, TitleFontItalic);
   vtkMRMLReadXMLBooleanMacro(TitleFontShadow, TitleFontShadow);
-  vtkMRMLReadXMLVectorMacro(LabelFontColorRGB, LabelFontColorRGB, double, 3);
-  vtkMRMLReadXMLFloatMacro(LabelFontOpacity, LabelFontOpacity);
-  vtkMRMLReadXMLFloatMacro(LabelFontSize, LabelFontSize);
-  vtkMRMLReadXMLStdStringMacro(LabelFontName, LabelFontName);
-  vtkMRMLReadXMLBooleanMacro(LabelFontBold, LabelFontBold);
-  vtkMRMLReadXMLBooleanMacro(LabelFontItalic, LabelFontItalic);
-  vtkMRMLReadXMLBooleanMacro(LabelFontShadow, LabelFontShadow);
-  vtkMRMLReadXMLStdStringMacro(LabelFormat, LabelFormat);
+  vtkMRMLReadXMLVectorMacro(LabelsTextColorRGB, LabelsTextColorRGB, double, 3);
+  vtkMRMLReadXMLFloatMacro(LabelsTextOpacity, LabelsTextOpacity);
+  vtkMRMLReadXMLFloatMacro(LabelsFontSize, LabelsFontSize);
+  vtkMRMLReadXMLStdStringMacro(LabelsFontName, LabelsFontName);
+  vtkMRMLReadXMLBooleanMacro(LabelsFontBold, LabelsFontBold);
+  vtkMRMLReadXMLBooleanMacro(LabelsFontItalic, LabelsFontItalic);
+  vtkMRMLReadXMLBooleanMacro(LabelsFontShadow, LabelsFontShadow);
+  vtkMRMLReadXMLStdStringMacro(LabelsFormat, LabelsFormat);
   vtkMRMLReadXMLIntMacro(MaxNumberOfColors, MaxNumberOfColors);
   vtkMRMLReadXMLIntMacro(NumberOfLabels, NumberOfLabels);
   vtkMRMLReadXMLBooleanMacro(UseColorNamesForLabels, UseColorNamesForLabels);
@@ -177,21 +177,21 @@ void vtkMRMLColorBarDisplayNode::CopyContent(vtkMRMLNode* anode, bool deepCopy/*
   vtkMRMLCopyFloatMacro(Width);
   vtkMRMLCopyFloatMacro(Height);
   vtkMRMLCopyStdStringMacro(TitleText);
-  vtkMRMLCopyVectorMacro(TitleFontColorRGB, double, 3);
-  vtkMRMLCopyFloatMacro(TitleFontOpacity);
+  vtkMRMLCopyVectorMacro(TitleTextColorRGB, double, 3);
+  vtkMRMLCopyFloatMacro(TitleTextOpacity);
   vtkMRMLCopyFloatMacro(TitleFontSize);
   vtkMRMLCopyStdStringMacro(TitleFontName);
   vtkMRMLCopyBooleanMacro(TitleFontBold);
   vtkMRMLCopyBooleanMacro(TitleFontItalic);
   vtkMRMLCopyBooleanMacro(TitleFontShadow);
-  vtkMRMLCopyVectorMacro(LabelFontColorRGB, double, 3);
-  vtkMRMLCopyFloatMacro(LabelFontOpacity);
-  vtkMRMLCopyFloatMacro(LabelFontSize);
-  vtkMRMLCopyStdStringMacro(LabelFontName);
-  vtkMRMLCopyBooleanMacro(LabelFontBold);
-  vtkMRMLCopyBooleanMacro(LabelFontItalic);
-  vtkMRMLCopyBooleanMacro(LabelFontShadow);
-  vtkMRMLCopyStdStringMacro(LabelFormat);
+  vtkMRMLCopyVectorMacro(LabelsTextColorRGB, double, 3);
+  vtkMRMLCopyFloatMacro(LabelsTextOpacity);
+  vtkMRMLCopyFloatMacro(LabelsFontSize);
+  vtkMRMLCopyStdStringMacro(LabelsFontName);
+  vtkMRMLCopyBooleanMacro(LabelsFontBold);
+  vtkMRMLCopyBooleanMacro(LabelsFontItalic);
+  vtkMRMLCopyBooleanMacro(LabelsFontShadow);
+  vtkMRMLCopyStdStringMacro(LabelsFormat);
   vtkMRMLCopyIntMacro(MaxNumberOfColors);
   vtkMRMLCopyIntMacro(NumberOfLabels);
   vtkMRMLCopyBooleanMacro(UseColorNamesForLabels);

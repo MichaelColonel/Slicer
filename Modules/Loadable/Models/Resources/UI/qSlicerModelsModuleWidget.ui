@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>722</height>
+    <width>319</width>
+    <height>790</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -162,6 +162,21 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="ColorBarCollapsibleGroupBox">
+        <property name="title">
+         <string>Color Bar</string>
+        </property>
+        <property name="collapsed">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="qMRMLColorBarDisplayNodeWidget" name="ColorBarDisplayNodeWidget"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -235,6 +250,29 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ctkCollapsibleButton</class>
+   <extends>QWidget</extends>
+   <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkExpandableWidget</class>
+   <extends>QFrame</extends>
+   <header>ctkExpandableWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkSearchBox</class>
+   <extends>QLineEdit</extends>
+   <header>ctkSearchBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>qMRMLClipNodeWidget</class>
    <extends>QWidget</extends>
    <header>qMRMLClipNodeWidget.h</header>
@@ -263,6 +301,11 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>qMRMLColorBarDisplayNodeWidget</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLColorBarDisplayNodeWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>qMRMLModelDisplayNodeWidget</class>
    <extends>qMRMLWidget</extends>
    <header>qMRMLModelDisplayNodeWidget.h</header>
@@ -271,23 +314,6 @@
    <class>qMRMLSubjectHierarchyTreeView</class>
    <extends>QTreeView</extends>
    <header>qMRMLSubjectHierarchyTreeView.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkCollapsibleButton</class>
-   <extends>QWidget</extends>
-   <header>ctkCollapsibleButton.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ctkExpandableWidget</class>
-   <extends>QFrame</extends>
-   <header>ctkExpandableWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ctkSearchBox</class>
-   <extends>QLineEdit</extends>
-   <header>ctkSearchBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -385,6 +411,22 @@
     <hint type="destinationlabel">
      <x>207</x>
      <y>-9</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ColorBarCollapsibleGroupBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ColorBarDisplayNodeWidget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>159</x>
+     <y>687</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>166</x>
+     <y>798</y>
     </hint>
    </hints>
   </connection>

@@ -37,6 +37,8 @@
 #include "qMRMLThreeDWidget.h"
 #include "qMRMLSliceView.h"
 #include "qMRMLSliceWidget.h"
+// qMRMLWidget Colors includes
+#include "qMRMLColorBarDisplayNodeWidget.h"
 
 // Slicer logic includes
 #include <vtkSlicerColorLogic.h>
@@ -152,21 +154,21 @@ void qSlicerColorsModuleWidget::setup()
   connect(d->CopyColorNodeButton, SIGNAL(clicked()),
           this, SLOT(copyCurrentColorNode()));
 
-  connect(d->UseColorNameAsLabelCheckBox, SIGNAL(toggled(bool)),
-          this, SLOT(setUseColorNameAsLabel(bool)));
-  connect(d->CenterLabelCheckBox, SIGNAL(toggled(bool)),
-    this, SLOT(setCenterLabel(bool)));
+//  connect(d->UseColorNameAsLabelCheckBox, SIGNAL(toggled(bool)),
+//          this, SLOT(setUseColorNameAsLabel(bool)));
+//  connect(d->CenterLabelCheckBox, SIGNAL(toggled(bool)),
+//    this, SLOT(setCenterLabel(bool)));
 
   double validBounds[4] = {VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, 0., 1.};
   d->ContinuousScalarsToColorsWidget->view()->setValidBounds(validBounds);
   d->ContinuousScalarsToColorsWidget->view()->addColorTransferFunction(nullptr);
 
-  connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
-  connect( d->ViewNodesComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onViewNodeChanged(vtkMRMLNode*)));
-  connect( d->ColorBarVisibilityCheckBox, SIGNAL(toggled(bool)), this, SLOT(onColorBarVisibilityToggled(bool)));
-  connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
-  connect( d->ColorBarOrientationButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onColorBarOrientationButtonClicked(QAbstractButton*)));
-  connect( d->VTKScalarBar, SIGNAL(modified()), this, SLOT(onScalarBarWidgetModified()));
+//  connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
+//  connect( d->ViewNodesComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onViewNodeChanged(vtkMRMLNode*)));
+//  connect( d->ColorBarVisibilityCheckBox, SIGNAL(toggled(bool)), this, SLOT(onColorBarVisibilityToggled(bool)));
+//  connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
+//  connect( d->ColorBarOrientationButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onColorBarOrientationButtonClicked(QAbstractButton*)));
+//  connect( d->VTKScalarBar, SIGNAL(modified()), this, SLOT(onScalarBarWidgetModified()));
 
   // Select the default color node
   d->setDefaultColorNode();
@@ -188,6 +190,7 @@ void qSlicerColorsModuleWidget::setCurrentColorNode(vtkMRMLNode* colorNode)
 }
 
 //-----------------------------------------------------------------------------
+/*
 void qSlicerColorsModuleWidget::setUseColorNameAsLabel(bool useColorName)
 {
   Q_D(qSlicerColorsModuleWidget);
@@ -227,7 +230,7 @@ void qSlicerColorsModuleWidget::setCenterLabel(bool centerLabel)
     d->ColorBarActor->SetCenterLabel(centerLabel);
   }
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode)
 {
@@ -242,7 +245,7 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     d->LUTRangeWidget->setValues(0.,0.);
     d->CopyColorNodeButton->setEnabled(false);
     d->ContinuousScalarsToColorsWidget->setEnabled(false);
-    d->VTKScalarBar->setTitle("");
+//    d->VTKScalarBar->setTitle("");
     return;
     }
 
@@ -312,10 +315,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
       indexArray->SetValue(colorIndex, colorIndex);
       stringArray->SetValue(colorIndex, colorNode->GetColorName(colorIndex));
       }
-      if (d->ColorBarActor)
-      {
-        d->ColorBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
-      }
+//      if (d->ColorBarActor)
+//      {
+//        d->ColorBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
+//      }
     }
   else if (procColorNode && !colorTableNode)
     {
@@ -337,10 +340,10 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
         procColorNode->GetType() == vtkMRMLColorNode::User);
 
     // set the lookup table on the scalar bar widget actor
-    if (d->ColorBarActor && procColorNode->GetColorTransferFunction())
-      {
-      d->ColorBarActor->SetLookupTable(procColorNode->GetColorTransferFunction());
-      }
+//    if (d->ColorBarActor && procColorNode->GetColorTransferFunction())
+//      {
+//      d->ColorBarActor->SetLookupTable(procColorNode->GetColorTransferFunction());
+//      }
     }
   else
     {
@@ -434,6 +437,7 @@ void qSlicerColorsModuleWidget::copyCurrentColorNode()
 }
 
 //-----------------------------------------------------------
+/*
 void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerColorsModuleWidget);
@@ -673,7 +677,7 @@ void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool toggled)
     d->ColorBarNode->SetAndObserveColorNodeID(nullptr);
     }
 }
-
+*/
 //-----------------------------------------------------------
 bool qSlicerColorsModuleWidget::setEditedNode(vtkMRMLNode* node,
                                               QString role /* = QString()*/,
@@ -692,9 +696,9 @@ bool qSlicerColorsModuleWidget::setEditedNode(vtkMRMLNode* node,
 }
 
 //-----------------------------------------------------------
-vtkScalarBarWidget* qSlicerColorsModuleWidget::scalarBar()
-{
-  Q_D(qSlicerColorsModuleWidget);
-
-  return d->ColorBarWidget;
-}
+//vtkScalarBarWidget* qSlicerColorsModuleWidget::scalarBar()
+//{
+//  Q_D(qSlicerColorsModuleWidget);
+//
+//  return d->ColorBarWidget;
+//}

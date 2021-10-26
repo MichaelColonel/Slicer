@@ -66,9 +66,12 @@
 #include <map>
 #include <cstring>
 
-typedef std::tuple< vtkSmartPointer<vtkSlicerScalarBarActor>, \
-                    vtkSmartPointer<vtkScalarBarWidget>, \
-                    bool > ColorBarTuple;
+struct ColorBarWidgetData
+{
+  vtkSmartPointer<vtkSlicerScalarBarActor> Actor;
+  vtkSmartPointer<vtkScalarBarWidget> Widget;
+  bool InteractorInitiated{ false };
+};
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLColorBarDisplayableManager);
@@ -77,6 +80,7 @@ vtkStandardNewMacro(vtkMRMLColorBarDisplayableManager);
 class vtkMRMLColorBarDisplayableManager::vtkInternal
 {
 public:
+
   vtkInternal(vtkMRMLColorBarDisplayableManager * external);
   virtual ~vtkInternal();
 
@@ -93,9 +97,9 @@ public:
   vtkScalarBarWidget* GetWidget() const { return this->ColorBarWidget; }
 
   vtkWeakPointer<vtkSlicerScalarBarActor> GetActor(vtkMRMLColorBarDisplayNode*) const;
-  vtkWeakPointer<vtkScalarBarWidget> GetWidget(vtkMRMLColorBarDisplayNode*) const ;
+  vtkWeakPointer<vtkScalarBarWidget> GetWidget(vtkMRMLColorBarDisplayNode*) const;
   bool GetInitiatedFlag(vtkMRMLColorBarDisplayNode*) const;
-  ColorBarTuple GetTuple(vtkMRMLColorBarDisplayNode*) const;
+  ColorBarWidgetData GetColorBarData(vtkMRMLColorBarDisplayNode*) const;
 
   vtkMRMLColorBarDisplayableManager* External;
 
@@ -105,26 +109,8 @@ public:
   vtkWeakPointer<vtkSlicerScalarBarActor> ColorBarActor;
   vtkWeakPointer<vtkScalarBarWidget> ColorBarWidget;
 
-  struct ColorBarWidgetData
-  {
-    ColorBarWidgetData(const ColorBarTuple& tuple)
-      {
-      std::tie( this->Actor, this->Widget, this->InteractorInitiated) = tuple;
-      }
-    ColorBarWidgetData(const vtkSmartPointer<vtkSlicerScalarBarActor>& actor,
-      const vtkSmartPointer<vtkScalarBarWidget>& widget,
-      bool interactorInitiated)
-      : Actor(actor), Widget(widget), InteractorInitiated(interactorInitiated)
-      {
-      }
-    ColorBarTuple GetTuple() const { return ColorBarTuple(this->Actor, this->Widget, this->InteractorInitiated); }
-    vtkSmartPointer<vtkSlicerScalarBarActor> Actor;
-    vtkSmartPointer<vtkScalarBarWidget> Widget;
-    bool InteractorInitiated;
-  };
-
   /// Map stores color bar display node ID, tuple
-  std::map< std::string, ColorBarTuple > ColorBarTupleMap;
+  std::map< std::string, ColorBarWidgetData > ColorBarTupleMap;
 };
 
 
@@ -267,7 +253,7 @@ void vtkMRMLColorBarDisplayableManager::vtkInternal::UpdateActor()
 vtkWeakPointer<vtkSlicerScalarBarActor> vtkMRMLColorBarDisplayableManager::vtkInternal::GetActor(vtkMRMLColorBarDisplayNode* node) const
 {
   vtkWeakPointer<vtkSlicerScalarBarActor> actor;
-  std::tie( actor, std::ignore, std::ignore) = this->GetTuple(node);
+  actor = this->GetColorBarData(node).Actor;
   return actor;
 }
 
@@ -275,7 +261,7 @@ vtkWeakPointer<vtkSlicerScalarBarActor> vtkMRMLColorBarDisplayableManager::vtkIn
 vtkWeakPointer<vtkScalarBarWidget> vtkMRMLColorBarDisplayableManager::vtkInternal::GetWidget(vtkMRMLColorBarDisplayNode* node) const
 {
   vtkWeakPointer<vtkScalarBarWidget> widget;
-  std::tie( std::ignore, widget, std::ignore) = this->GetTuple(node);
+  widget = this->GetColorBarData(node).Widget;
   return widget;
 }
 
@@ -283,17 +269,18 @@ vtkWeakPointer<vtkScalarBarWidget> vtkMRMLColorBarDisplayableManager::vtkInterna
 bool vtkMRMLColorBarDisplayableManager::vtkInternal::GetInitiatedFlag(vtkMRMLColorBarDisplayNode* node) const
 {
   bool initiated;
-  std::tie( std::ignore, std::ignore, initiated) = this->GetTuple(node);
+  initiated = this->GetColorBarData(node).InteractorInitiated;
   return initiated;
 }
 
 //---------------------------------------------------------------------------
-ColorBarTuple vtkMRMLColorBarDisplayableManager::vtkInternal::GetTuple(vtkMRMLColorBarDisplayNode* node) const
+ColorBarWidgetData vtkMRMLColorBarDisplayableManager::vtkInternal::GetColorBarData(vtkMRMLColorBarDisplayNode* node) const
 {
+  ColorBarWidgetData colorBarData;
   if (!node)
     {
-    vtkErrorWithObjectMacro( this->External, "vtkInternal::GetTuple: Node is invalid");
-    return ColorBarTuple( nullptr, nullptr, false);
+    vtkErrorWithObjectMacro( this->External, "vtkInternal::GetColorBarData: Node is invalid");
+    return colorBarData;
     }
 
   const auto it = this->ColorBarTupleMap.find(node->GetID());
@@ -301,7 +288,7 @@ ColorBarTuple vtkMRMLColorBarDisplayableManager::vtkInternal::GetTuple(vtkMRMLCo
     {
     return it->second;
     }
-  return ColorBarTuple( nullptr, nullptr, false);
+  return colorBarData;
 }
 
 //---------------------------------------------------------------------------
@@ -423,7 +410,11 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
       }
 
     std::string id(node->GetID());
-    this->Internal->ColorBarTupleMap[id] = ColorBarTuple(scalarBarActor, scalarBarWidget, bool(interactor));
+    ColorBarWidgetData colorBarData;
+    colorBarData.Actor = scalarBarActor;
+    colorBarData.Widget = scalarBarWidget;
+    colorBarData.InteractorInitiated = static_cast<bool>(interactor);
+    this->Internal->ColorBarTupleMap[id] = colorBarData;
     }
 }
 
@@ -447,17 +438,20 @@ void vtkMRMLColorBarDisplayableManager::OnMRMLSceneNodeRemoved(vtkMRMLNode* node
     auto it = this->Internal->ColorBarTupleMap.find(node->GetID());
     if (it != this->Internal->ColorBarTupleMap.end())
       {
-      vtkWeakPointer<vtkScalarBarWidget> scalarBarWidget;
-      vtkWeakPointer<vtkSlicerScalarBarActor> scalarBarActor;
+//      vtkWeakPointer<vtkScalarBarWidget> scalarBarWidget;
+//      vtkWeakPointer<vtkSlicerScalarBarActor> scalarBarActor;
 
-      std::tie( scalarBarActor, scalarBarWidget, std::ignore) = it->second;
-      if (scalarBarWidget && scalarBarActor)
+      ColorBarWidgetData& colorBarData = it->second;
+      if (colorBarData.Widget && colorBarData.Actor)
         {
-        scalarBarWidget->Off();
-        this->GetRenderer()->RemoveVolume(scalarBarActor);
-        scalarBarWidget->Delete();
-        scalarBarActor->Delete();
-        it->second = ColorBarTuple( nullptr, nullptr, false);
+        colorBarData.Widget->Off();
+        this->GetRenderer()->RemoveVolume(colorBarData.Actor);
+        colorBarData.Widget->Delete();
+        colorBarData.Actor->Delete();
+
+        colorBarData.InteractorInitiated = false;
+        colorBarData.Widget = nullptr;
+        colorBarData.Actor = nullptr;
         }
       
       if (dispNode && dispNode == this->Internal->ColorBarDisplayNode)
@@ -485,13 +479,12 @@ void vtkMRMLColorBarDisplayableManager::ProcessMRMLNodesEvents(vtkObject *caller
         {
         vtkWeakPointer<vtkScalarBarWidget> widget;
         vtkWeakPointer<vtkSlicerScalarBarActor> actor;
-        bool initiated;
-        std::tie( actor, widget, initiated ) = this->Internal->GetTuple(dispNode);
-        if (initiated)
+        ColorBarWidgetData colorBarData = this->Internal->GetColorBarData(dispNode);
+        if (colorBarData.InteractorInitiated)
           {
           this->Internal->ColorBarDisplayNode = dispNode;
-          this->Internal->ColorBarActor = actor;
-          this->Internal->ColorBarWidget = widget;
+          this->Internal->ColorBarActor = colorBarData.Actor;
+          this->Internal->ColorBarWidget = colorBarData.Widget;
           }
         }
       // Update scalar bars using new prorepties of the bars

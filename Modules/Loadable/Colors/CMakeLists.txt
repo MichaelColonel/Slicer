@@ -10,6 +10,7 @@ add_subdirectory(VTKWidgets)
 add_subdirectory(Logic)
 add_subdirectory(MRML)
 add_subdirectory(MRMLDM)
+add_subdirectory(Widgets)
 
 #-----------------------------------------------------------------------------
 set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
@@ -18,6 +19,8 @@ set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
 set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_SOURCE_DIR}/Logic
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
+  ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
+  ${CMAKE_CURRENT_BINARY_DIR}/Widgets
   )
 
 set(MODULE_SRCS
@@ -37,6 +40,8 @@ set(MODULE_MOC_SRCS
 
 set(MODULE_UI_SRCS
   Resources/UI/qSlicer${MODULE_NAME}ModuleWidget.ui
+  Resources/UI/qSlicerColorBarPropertiesWidget.ui
+  Resources/UI/qMRMLColorBarDisplayNodeWidget.ui
   )
 
 set(MODULE_TARGET_LIBRARIES
@@ -44,6 +49,7 @@ set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   vtkSlicer${MODULE_NAME}ModuleMRML
   vtkSlicer${MODULE_NAME}ModuleMRMLDisplayableManager
+  qSlicer${MODULE_NAME}ModuleWidgets
   )
 
 set(MODULE_RESOURCES

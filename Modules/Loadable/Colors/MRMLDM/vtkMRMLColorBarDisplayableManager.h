@@ -72,7 +72,7 @@ protected:
   void ProcessMRMLNodesEvents(vtkObject *caller,
                                       unsigned long event,
                                       void *callData) override;
-                                      
+
   /// Called when the SliceNode or Three3DViewNode are modified. May cause ColorBar to remap its position on screen.
   void OnMRMLDisplayableNodeModifiedEvent(vtkObject* caller) override;
 

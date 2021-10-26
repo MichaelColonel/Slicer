@@ -45,21 +45,21 @@ public:
   bool setEditedNode(vtkMRMLNode* node, QString role = QString(), QString context = QString()) override;
 
   /// Get scalar bar actor displayed in 3D views.
-  Q_INVOKABLE virtual vtkScalarBarWidget* scalarBar();
+//  Q_INVOKABLE virtual vtkScalarBarWidget* scalarBar();
 
 public slots:
   void setCurrentColorNode(vtkMRMLNode*);
   void updateNumberOfColors();
   void setLookupTableRange(double min, double max);
   void copyCurrentColorNode();
-  void setUseColorNameAsLabel(bool);
-  void setCenterLabel(bool);
-  void onDisplayableNodeChanged(vtkMRMLNode*);
-  void onUseSelectedColorsToggled(bool);
-  void onColorBarVisibilityToggled(bool);
-  void onViewNodeChanged(vtkMRMLNode*);
-  void onColorBarOrientationButtonClicked(QAbstractButton*);
-  void onScalarBarWidgetModified();
+//  void setUseColorNameAsLabel(bool);
+//  void setCenterLabel(bool);
+//  void onDisplayableNodeChanged(vtkMRMLNode*);
+//  void onUseSelectedColorsToggled(bool);
+//  void onColorBarVisibilityToggled(bool);
+//  void onViewNodeChanged(vtkMRMLNode*);
+//  void onColorBarOrientationButtonClicked(QAbstractButton*);
+//  void onScalarBarWidgetModified();
 
 protected slots:
   void onMRMLColorNodeChanged(vtkMRMLNode* newColorNode);
