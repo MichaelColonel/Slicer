@@ -585,6 +585,7 @@ endif()
     UiTools #no dll
     Xml XmlPatterns
     Svg Sql
+    OpcUa
     )
 
   # Add the Qt5X11Extras component for Linux systems

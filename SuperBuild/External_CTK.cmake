@@ -64,13 +64,13 @@ if(NOT DEFINED CTK_DIR AND NOT Slicer_USE_SYSTEM_${proj})
 
   ExternalProject_SetIfNotDefined(
     Slicer_${proj}_GIT_REPOSITORY
-    "${EP_GIT_PROTOCOL}://github.com/commontk/CTK.git"
+    "${EP_GIT_PROTOCOL}://github.com/MichaelColonel/CTK.git"
     QUIET
     )
 
   ExternalProject_SetIfNotDefined(
     Slicer_${proj}_GIT_TAG
-    "2a7851a405bda83639c6bc43dee7aa1e0a4928d7"
+    "154cb90f284ef9672d7e9cf71a57dd9ff2ed03b2"
     QUIET
     )
 
