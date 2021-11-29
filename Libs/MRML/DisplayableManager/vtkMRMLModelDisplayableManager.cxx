@@ -709,9 +709,9 @@ void vtkMRMLModelDisplayableManager::UpdateFromMRMLScene()
 //---------------------------------------------------------------------------
 void vtkMRMLModelDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
-  if ( !node->IsA("vtkMRMLDisplayableNode") &&
-       !node->IsA("vtkMRMLDisplayNode") &&
-       !node->IsA("vtkMRMLClipModelsNode") )
+  if (!node->IsA("vtkMRMLDisplayableNode") &&
+      !node->IsA("vtkMRMLDisplayNode") &&
+      !node->IsA("vtkMRMLClipModelsNode"))
     {
     return;
     }
@@ -1020,7 +1020,8 @@ void vtkMRMLModelDisplayableManager::UpdateModelMesh(vtkMRMLDisplayableNode *dis
     vtkMRMLDisplayNode *displayNode = displayableNode->GetNthDisplayNode(i);
     vtkMRMLModelDisplayNode *modelDisplayNode = vtkMRMLModelDisplayNode::SafeDownCast(displayNode);
 
-    if (displayNode == nullptr)
+    // don't do anything if display node is invalid or it is a color bar
+    if (!displayNode || (displayNode && displayNode->IsA("vtkMRMLColorBarDisplayNode")))
       {
       continue;
       }

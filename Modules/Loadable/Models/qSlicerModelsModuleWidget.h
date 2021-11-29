@@ -60,6 +60,8 @@ public slots:
   void onClippingConfigurationButtonClicked();
   void onDisplayNodeChanged();
   void onClipSelectedModelToggled(bool);
+  /// Create or get first color bar if group box is expanded
+  void onColorBarCollapsibleGroupBoxToggled(bool);
 
   static void onMRMLSceneEvent(vtkObject* vtk_obj, unsigned long event,
                                void* client_data, void* call_data);

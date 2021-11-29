@@ -689,7 +689,7 @@ void qSlicerSubjectHierarchyVolumesPlugin::showVolumeInAllViews(
         {
         continue;
         }
-      if (vtkMRMLVolumeDisplayNode::SafeDownCast(displayNode))
+      if (!displayNode->IsA("vtkMRMLVolumeRenderingDisplayNode")) // ignore everything except VolumeRendering
         {
         // we only manage existing volume rendering display nodes here
         // (we don't want to show volume rendering until volume rendering has been explicitly enabled)

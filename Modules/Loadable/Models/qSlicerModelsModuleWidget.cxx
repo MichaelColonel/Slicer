@@ -22,6 +22,11 @@
 #include <QDebug>
 #include <QScrollArea>
 
+// SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+#include <qSlicerAbstractCoreModule.h>
+
 // Subject hierarchy widgets
 #include "qMRMLSubjectHierarchyTreeView.h"
 #include "qMRMLSubjectHierarchyModel.h"
@@ -34,6 +39,10 @@
 // Logic includes
 #include "vtkMRMLDisplayableHierarchyLogic.h"
 #include "vtkSlicerModelsLogic.h"
+
+// Colors MRML and Logic includes
+#include <vtkSlicerColorLogic.h>
+#include <vtkMRMLColorBarDisplayNode.h>
 
 // MRML includes
 #include "vtkMRMLFolderDisplayNode.h"
@@ -54,6 +63,8 @@ class qSlicerModelsModuleWidgetPrivate: public Ui_qSlicerModelsModuleWidget
 {
 public:
   qSlicerModelsModuleWidgetPrivate();
+  vtkSlicerColorLogic* colorLogic() const;
+
   QStringList HideChildNodeTypes;
   QString FiberDisplayClass;
   vtkSmartPointer<vtkCallbackCommand> CallBack;
@@ -68,6 +79,27 @@ qSlicerModelsModuleWidgetPrivate::qSlicerModelsModuleWidgetPrivate()
   this->HideChildNodeTypes = (QStringList() << "vtkMRMLFiberBundleNode" << "vtkMRMLAnnotationNode");
   this->FiberDisplayClass = "vtkMRMLFiberBundleLineDisplayNode";
   this->CallBack = vtkSmartPointer<vtkCallbackCommand>::New();
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerColorLogic* qSlicerModelsModuleWidgetPrivate::colorLogic() const
+{
+  // Get "Colors" module logic
+  qSlicerAbstractCoreModule* colorsModule = qSlicerCoreApplication::application()->moduleManager()->module("Colors");
+  if (!colorsModule)
+    {
+    qCritical() << Q_FUNC_INFO << ": Can't get abstract Colors module!";
+    return nullptr;
+    }
+
+  vtkSlicerColorLogic* colorLogic = vtkSlicerColorLogic::SafeDownCast(colorsModule->logic());
+  if (!colorLogic)
+    {
+    qCritical() << Q_FUNC_INFO << ": Colors module logic is invalid";
+    return nullptr;
+    }
+
+  return colorLogic;
 }
 
 //-----------------------------------------------------------------------------
@@ -136,6 +168,9 @@ void qSlicerModelsModuleWidget::setup()
 
   connect(d->ClipSelectedModelCheckBox, SIGNAL(toggled(bool)),
     this, SLOT(onClipSelectedModelToggled(bool)) );
+
+  connect(d->ColorBarCollapsibleGroupBox, SIGNAL(toggled(bool)),
+    this, SLOT(onColorBarCollapsibleGroupBoxToggled(bool)));
 
   this->Superclass::setup();
 }
@@ -323,6 +358,16 @@ void qSlicerModelsModuleWidget::onDisplayNodeChanged()
   d->ClipSelectedModelCheckBox->setEnabled(displayNode != nullptr);
   d->ClipSelectedModelCheckBox->setChecked(displayNode != nullptr && displayNode->GetClipping());
   d->ClipSelectedModelCheckBox->blockSignals(wasBlocked);
+
+  if (displayNode)
+    {
+    vtkMRMLDisplayableNode* displayableNode = displayNode->GetDisplayableNode();
+
+    if (displayableNode && displayNode->GetColorNode())
+      {
+      d->ColorBarCollapsibleGroupBox->setEnabled(true);
+      }
+    }
 }
 
 //-----------------------------------------------------------
@@ -377,6 +422,21 @@ void qSlicerModelsModuleWidget::setDisplaySelectionFromSubjectHierarchyItems(QLi
   d->MRMLModelInfoWidget->setMRMLModelNode(d->InformationButton->collapsed() ? nullptr : firstDataNode);
 
   d->ModelDisplayWidget->setCurrentSubjectHierarchyItemIDs(itemIDs);
+
+  if (vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(firstDataNode))
+    {
+    vtkMRMLColorBarDisplayNode* cbNode = d->colorLogic()->GetFirstColorBarDisplayNode(modelNode);
+    d->ColorBarCollapsibleGroupBox->setEnabled(true);
+    if (cbNode)
+      {
+      d->ColorBarDisplayNodeWidget->setParameterNode(cbNode);
+      }
+    d->ColorBarDisplayNodeWidget->setEnabled(static_cast<bool>(cbNode));
+    }
+  else
+    {
+    d->ColorBarCollapsibleGroupBox->setEnabled(false);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -397,5 +457,40 @@ void qSlicerModelsModuleWidget::onInformationSectionCollapsed(bool collapsed)
     {
     QList<vtkIdType> currentItemIDs = d->SubjectHierarchyTreeView->currentItems();
     this->setDisplaySelectionFromSubjectHierarchyItems(currentItemIDs);
+    }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerModelsModuleWidget::onColorBarCollapsibleGroupBoxToggled(bool toggled)
+{
+  Q_D(qSlicerModelsModuleWidget);
+
+  vtkMRMLModelDisplayNode* modelDisplayNode = d->ModelDisplayWidget->mrmlModelDisplayNode();
+
+  vtkMRMLModelNode* modelNode = nullptr;
+  if (modelDisplayNode)
+    {
+    modelNode = vtkMRMLModelNode::SafeDownCast(modelDisplayNode->GetDisplayableNode());
+    }
+
+  if (!modelNode)
+    {
+    qWarning() << Q_FUNC_INFO << ": Model node is invalid";
+    return;
+    }
+
+  if (toggled)
+    {
+    vtkMRMLColorBarDisplayNode* cbNode = d->colorLogic()->CreateAndObserveColorBarDisplayNode(modelNode);
+    if (cbNode)
+      {
+      d->ColorBarDisplayNodeWidget->setParameterNode(cbNode);
+      d->ColorBarDisplayNodeWidget->setEnabled(true);
+      }
+    }
+  else
+    {
+    d->ColorBarDisplayNodeWidget->setParameterNode(nullptr);
+    d->ColorBarDisplayNodeWidget->setEnabled(false);
     }
 }

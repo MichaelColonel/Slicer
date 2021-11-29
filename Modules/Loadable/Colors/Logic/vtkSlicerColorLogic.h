@@ -19,10 +19,13 @@
 #include <vtkMRMLColorLogic.h>
 #include "vtkSlicerColorsModuleLogicExport.h"
 
+class vtkMRMLColorBarDisplayNode;
+class vtkMRMLDisplayableNode;
+
 class VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT vtkSlicerColorLogic
   : public vtkMRMLColorLogic
 {
-  public:
+public:
 
   /// The Usual vtk class functions
   static vtkSlicerColorLogic *New();
@@ -44,11 +47,35 @@ class VTK_SLICER_COLORS_MODULE_LOGIC_EXPORT vtkSlicerColorLogic
   std::vector<std::string> FindDefaultColorFiles() override;
   std::vector<std::string> FindUserColorFiles() override;
 
+  /// Create a new color bar display node for a displayable node and observe it
+  /// it there is no color bar display node. If color bar display node alread exists, return it.
+  /// @param displayableNode - displayable node for which color bar should be created
+  /// @return a newly created and observe color bar display node or first already existed color bar display node
+  /// or nullptr otherwise
+  vtkMRMLColorBarDisplayNode* CreateAndObserveColorBarDisplayNode(vtkMRMLDisplayableNode* displayableNode);
+  /// Return Nth color bar display node
+  /// @param displayableNode - displayable node with color bar display nodes
+  /// @param n - color bar node index
+  /// @return already existed color bar display node or nullptr otherwise
+  vtkMRMLColorBarDisplayNode* GetNthColorBarDisplayNode(vtkMRMLDisplayableNode*, int n);
+
+  int GetColorBarDisplayNodeNumberByNode(vtkMRMLDisplayableNode* displayableNode, vtkMRMLColorBarDisplayNode* colorBarNode);
+  int GetColorBarDisplayNodeNumberByID(vtkMRMLDisplayableNode* displayableNode, const char* colorBarNodeID);
+
+  /// Return first color bar display node
+  /// @param displayableNode - displayable node with color bar display nodes
+  /// @return first color bar display node or nullptr otherwise
+  vtkMRMLColorBarDisplayNode* GetFirstColorBarDisplayNode(vtkMRMLDisplayableNode* displayableNode);
+
 protected:
   vtkSlicerColorLogic();
   ~vtkSlicerColorLogic() override;
   vtkSlicerColorLogic(const vtkSlicerColorLogic&);
   void operator=(const vtkSlicerColorLogic&);
+
+  /// Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
+  void RegisterNodes() override;
+
   std::vector<std::string> FindColorFiles(const std::vector<std::string>& directories);
 };
 

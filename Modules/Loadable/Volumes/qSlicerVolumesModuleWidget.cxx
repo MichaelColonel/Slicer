@@ -21,6 +21,11 @@
 // Qt includes
 #include <QDebug>
 
+// SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+#include <qSlicerAbstractCoreModule.h>
+
 // CTK includes
 //#include <ctkModelTester.h>
 
@@ -28,6 +33,10 @@
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLLabelMapVolumeNode.h>
 #include <vtkMRMLVolumeDisplayNode.h>
+
+// Colors includes
+#include <vtkSlicerColorLogic.h>
+#include <vtkMRMLColorBarDisplayNode.h>
 
 // Volumes includes
 #include "qSlicerVolumesModuleWidget.h"
@@ -40,7 +49,29 @@
 class qSlicerVolumesModuleWidgetPrivate: public Ui_qSlicerVolumesModuleWidget
 {
 public:
+  vtkSlicerColorLogic* colorLogic() const;
 };
+
+//-----------------------------------------------------------------------------
+vtkSlicerColorLogic* qSlicerVolumesModuleWidgetPrivate::colorLogic() const
+{
+  // Get "Colors" module logic
+  qSlicerAbstractCoreModule* colorsModule = qSlicerCoreApplication::application()->moduleManager()->module("Colors");
+
+  if (!colorsModule)
+    {
+    qCritical() << Q_FUNC_INFO << ": Can't get abstract Colors module!";
+    return nullptr;
+    }
+
+  vtkSlicerColorLogic* colorLogic = vtkSlicerColorLogic::SafeDownCast(colorsModule->logic());
+  if (!colorLogic)
+    {
+    qCritical() << Q_FUNC_INFO << ": Colors module logic is invalid";
+    return nullptr;
+    }
+  return colorLogic;
+}
 
 //-----------------------------------------------------------------------------
 qSlicerVolumesModuleWidget::qSlicerVolumesModuleWidget(QWidget* _parent)
@@ -66,6 +97,9 @@ void qSlicerVolumesModuleWidget::setup()
 
   QObject::connect(d->ActiveVolumeNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
                    this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
+
+  QObject::connect(d->ColorBarCollapsibleButton, SIGNAL(contentsCollapsed(bool)),
+                   this, SLOT(colorBarCollapsibleButtonCollapsed(bool)));
 
   // Set up labelmap conversion
   d->ConvertVolumeFrame->setVisible(false);
@@ -121,6 +155,14 @@ void qSlicerVolumesModuleWidget::updateWidgetFromMRML()
   // Set base name of target labelmap node
   d->ConvertVolumeTargetSelector->setBaseName(QString("%1_Label").arg(currentVolumeNode->GetName()));
   d->ConvertVolumeTargetSelector->setNodeTypes(convertTargetNodeTypes);
+
+  vtkMRMLColorBarDisplayNode* colorBarNode = d->colorLogic()->GetFirstColorBarDisplayNode(currentVolumeNode);
+  d->ColorBarDisplayNodeWidget->setParameterNode(colorBarNode);
+  d->ColorBarDisplayNodeWidget->setEnabled(static_cast<bool>(colorBarNode));
+  if (!colorBarNode)
+    {
+    d->ColorBarCollapsibleButton->setCollapsed(true);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -218,4 +260,37 @@ bool qSlicerVolumesModuleWidget::setEditedNode(vtkMRMLNode* node,
     }
 
   return false;
+}
+
+//------------------------------------------------------------------------------
+void qSlicerVolumesModuleWidget::colorBarCollapsibleButtonCollapsed(bool collapsed)
+{
+  Q_D(qSlicerVolumesModuleWidget);
+  vtkMRMLVolumeNode* currentVolume = vtkMRMLVolumeNode::SafeDownCast(d->ActiveVolumeNodeSelector->currentNode());
+
+  if (!currentVolume)
+    {
+    qWarning() << Q_FUNC_INFO << ": Volume node is invalid";
+    return;
+    }
+
+  d->ColorBarDisplayNodeWidget->setEnabled(!collapsed);
+
+  if (!collapsed)
+    {
+    // Create or get first color var display node
+    vtkMRMLColorBarDisplayNode* colorBarNode = d->colorLogic()->CreateAndObserveColorBarDisplayNode(currentVolume);
+    if (colorBarNode)
+      {
+      d->ColorBarDisplayNodeWidget->setParameterNode(colorBarNode);
+      }
+    }
+  else
+    {
+//    vtkMRMLColorBarDisplayNode* cbNode = d->colorLogic()->GetFirstColorBarDisplayNode(currentVolume);
+//    if (cbNode)
+//      {
+//      this->mrmlScene()->RemoveNode(cbNode);
+//      }
+    }
 }

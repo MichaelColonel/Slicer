@@ -35,15 +35,26 @@
 #include "qMRMLColorModel.h"
 #include "qMRMLThreeDView.h"
 #include "qMRMLThreeDWidget.h"
+#include "qMRMLSliceView.h"
+#include "qMRMLSliceWidget.h"
+
+// qMRMLWidget Colors includes
+#include "qMRMLColorBarDisplayNodeWidget.h"
 
 // Slicer logic includes
 #include <vtkSlicerColorLogic.h>
-#include <vtkSlicerScalarBarActor.h>
 
 // MRML includes
+#include <vtkMRMLSliceNode.h>
+#include <vtkMRMLViewNode.h>
 #include <vtkMRMLColorTableNode.h>
 #include <vtkMRMLProceduralColorNode.h>
+#include <vtkMRMLDisplayableNode.h>
 #include <vtkMRMLScene.h>
+#include <vtkMRMLColorBarDisplayNode.h>
+#include <vtkMRMLAbstractViewNode.h>
+#include <vtkMRMLAbstractDisplayableManager.h>
+#include <vtkMRMLColorBarDisplayableManager.h>
 
 // VTK includes
 #include <vtkBorderRepresentation.h>
@@ -53,6 +64,10 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkScalarBarWidget.h>
+#include <vtkSlicerScalarBarActor.h>
+
+// STD includes
+#include <cstring>
 
 //-----------------------------------------------------------------------------
 class qSlicerColorsModuleWidgetPrivate: public Ui_qSlicerColorsModuleWidget
@@ -67,55 +82,21 @@ public:
   vtkSlicerColorLogic* colorLogic()const;
   void setDefaultColorNode();
 
-  vtkScalarBarWidget* ScalarBarWidget;
-  vtkSlicerScalarBarActor* ScalarBarActor;
+  vtkWeakPointer<vtkMRMLDisplayableNode> DisplayableNode; /// Current displayable node
+  vtkWeakPointer<vtkMRMLColorBarDisplayNode> ColorBarNode; /// color bar display node for a current displayable node
 };
 
 //-----------------------------------------------------------------------------
 qSlicerColorsModuleWidgetPrivate::qSlicerColorsModuleWidgetPrivate(qSlicerColorsModuleWidget& object)
-  : q_ptr(&object)
+  :
+  q_ptr(&object)
 {
-  this->ScalarBarWidget = vtkScalarBarWidget::New();
-  this->ScalarBarActor = vtkSlicerScalarBarActor::New();
-  this->ScalarBarWidget->SetScalarBarActor(this->ScalarBarActor);
-  this->ScalarBarActor->SetOrientationToVertical();
-  this->ScalarBarActor->SetNumberOfLabels(11);
-  this->ScalarBarActor->SetTitle("(mm)");
-
-  // it's a 2d actor, position it in screen space by percentages
-  this->ScalarBarActor->SetPosition(0.1, 0.1);
-  this->ScalarBarActor->SetWidth(0.1);
-  this->ScalarBarActor->SetHeight(0.8);
-
-  // By default, color swatch is too wide (especially when showing long color names),
-  // therefore, set it to a bit narrower.
-  this->ScalarBarActor->SetBarRatio(0.15);
-
-  // Allow resizing by clicking at the widget border
-  vtkBorderRepresentation* border = this->ScalarBarWidget->GetBorderRepresentation();
-  if (border)
-    {
-    border->SetShowHorizontalBorder(true);
-    border->SetShowVerticalBorder(true);
-    // only show the border when hovering over with the mouse
-    border->SetShowBorderToActive();
-    }
 
 }
 
 //-----------------------------------------------------------------------------
 qSlicerColorsModuleWidgetPrivate::~qSlicerColorsModuleWidgetPrivate()
 {
-  if (this->ScalarBarWidget)
-    {
-    this->ScalarBarWidget->Delete();
-    this->ScalarBarWidget = nullptr;
-    }
-  if (this->ScalarBarActor)
-  {
-    this->ScalarBarActor->Delete();
-    this->ScalarBarActor = nullptr;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -160,8 +141,6 @@ void qSlicerColorsModuleWidget::setup()
 
   d->CopyColorNodeButton->setIcon(QIcon(":Icons/SlicerCopyColor.png"));
 
-  d->VTKScalarBar->setScalarBarWidget(d->ScalarBarWidget);
-
   connect(d->ColorTableComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
           this, SLOT(onMRMLColorNodeChanged(vtkMRMLNode*)));
   connect(d->NumberOfColorsSpinBox, SIGNAL(editingFinished()),
@@ -171,35 +150,12 @@ void qSlicerColorsModuleWidget::setup()
   connect(d->CopyColorNodeButton, SIGNAL(clicked()),
           this, SLOT(copyCurrentColorNode()));
 
-  if (d->UseColorNameAsLabelCheckBox->isChecked())
-    {
-    // string format
-    d->ScalarBarActor->SetLabelFormat(" %.8s");
-    }
-  else
-    {
-    // number format
-    d->ScalarBarActor->SetLabelFormat(" %#8.3f");
-    }
-  connect(d->UseColorNameAsLabelCheckBox, SIGNAL(toggled(bool)),
-          this, SLOT(setUseColorNameAsLabel(bool)));
-  connect(d->CenterLabelCheckBox, SIGNAL(toggled(bool)),
-    this, SLOT(setCenterLabel(bool)));
-  qSlicerApplication * app = qSlicerApplication::application();
-  if (app && app->layoutManager())
-    {
-    qMRMLThreeDView* threeDView = app->layoutManager()->threeDWidget(0)->threeDView();
-    vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
-    if (activeRenderer)
-      {
-      d->ScalarBarWidget->SetInteractor(activeRenderer->GetRenderWindow()->GetInteractor());
-      }
-    connect(d->VTKScalarBar, SIGNAL(modified()), threeDView, SLOT(scheduleRender()));
-    }
-
   double validBounds[4] = {VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, 0., 1.};
   d->ContinuousScalarsToColorsWidget->view()->setValidBounds(validBounds);
   d->ContinuousScalarsToColorsWidget->view()->addColorTransferFunction(nullptr);
+
+  connect( d->DisplayableNodeComboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onDisplayableNodeChanged(vtkMRMLNode*)));
+  connect( d->UseSelectedColorsCheckBox, SIGNAL(toggled(bool)), this, SLOT(onUseSelectedColorsToggled(bool)));
 
   // Select the default color node
   d->setDefaultColorNode();
@@ -221,30 +177,6 @@ void qSlicerColorsModuleWidget::setCurrentColorNode(vtkMRMLNode* colorNode)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerColorsModuleWidget::setUseColorNameAsLabel(bool useColorName)
-{
-  Q_D(qSlicerColorsModuleWidget);
-  if (useColorName)
-    {
-    // text string format
-    d->ScalarBarActor->SetLabelFormat(" %s");
-    }
-  else
-    {
-    // number format
-    d->ScalarBarActor->SetLabelFormat(" %#8.3f");
-    }
-  d->ScalarBarActor->SetUseAnnotationAsLabel(useColorName);
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerColorsModuleWidget::setCenterLabel(bool centerLabel)
-{
-  Q_D(qSlicerColorsModuleWidget);
-  d->ScalarBarActor->SetCenterLabel(centerLabel);
-}
-
-//-----------------------------------------------------------------------------
 void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode)
 {
   Q_D(qSlicerColorsModuleWidget);
@@ -258,7 +190,6 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     d->LUTRangeWidget->setValues(0.,0.);
     d->CopyColorNodeButton->setEnabled(false);
     d->ContinuousScalarsToColorsWidget->setEnabled(false);
-    d->VTKScalarBar->setTitle("(mm)");
     return;
     }
 
@@ -266,7 +197,7 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
 
   vtkMRMLColorTableNode *colorTableNode = vtkMRMLColorTableNode::SafeDownCast(colorNode);
   vtkMRMLProceduralColorNode *procColorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode);
-  if (colorTableNode != nullptr)
+  if (colorTableNode && !procColorNode)
     {
     // hide the procedural display, show the color table
     // freesurfer nodes are bit of a special case, they're defined
@@ -290,7 +221,6 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     if (colorTableNode && colorTableNode->GetLookupTable())
       {
       range = colorTableNode->GetLookupTable()->GetRange();
-      d->ScalarBarActor->SetLookupTable(colorTableNode->GetLookupTable());
       }
     disconnect(d->LUTRangeWidget, SIGNAL(valuesChanged(double, double)),
       this, SLOT(setLookupTableRange(double, double)));
@@ -325,9 +255,8 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
       indexArray->SetValue(colorIndex, colorIndex);
       stringArray->SetValue(colorIndex, colorNode->GetColorName(colorIndex));
       }
-    d->ScalarBarActor->GetLookupTable()->SetAnnotations(indexArray.GetPointer(), stringArray.GetPointer());
     }
-  else if (procColorNode != nullptr)
+  else if (procColorNode && !colorTableNode)
     {
     // hide and disable the color table display, show the continuous one
     d->NumberOfColorsSpinBox->setEnabled(false);
@@ -345,22 +274,12 @@ void qSlicerColorsModuleWidget::onMRMLColorNodeChanged(vtkMRMLNode* newColorNode
     // only allow editing of user types
     d->ContinuousScalarsToColorsWidget->setEnabled(
         procColorNode->GetType() == vtkMRMLColorNode::User);
-
-    // set the lookup table on the scalar bar widget actor
-    if (procColorNode->GetColorTransferFunction())
-      {
-      d->ScalarBarActor->SetLookupTable(procColorNode->GetColorTransferFunction());
-      }
     }
   else
     {
     // not a valid type of color node
     d->LUTRangeWidget->setValues(0.,0.);
     }
-
-  // add the color name to the scalar bar title
-  std::string title = std::string(colorNode->GetName()) + std::string(" (mm)");
-  d->VTKScalarBar->setTitle(title.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -438,12 +357,65 @@ void qSlicerColorsModuleWidget::copyCurrentColorNode()
     }
   if (!this->mrmlScene()->AddNode(colorNode))
     {
-    qWarning() << "CopyCurrentColroNode: failed to add new node to scene";
+    qWarning() << "CopyCurrentColorNode: failed to add new node to scene";
     }
   colorNode->Delete();
   if (colorNode->GetID())
     {
     d->ColorTableComboBox->setCurrentNode(colorNode);
+    }
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onDisplayableNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerColorsModuleWidget);
+  d->DisplayableNode = vtkMRMLDisplayableNode::SafeDownCast(node);
+  if (!d->DisplayableNode)
+    {
+    d->ColorBarDisplayNodeWidget->setEnabled(false);
+    d->UseSelectedColorsCheckBox->setChecked(false);
+    d->UseSelectedColorsCheckBox->setEnabled(false);
+    return;
+    }
+
+  d->ColorBarNode = d->colorLogic()->CreateAndObserveColorBarDisplayNode(d->DisplayableNode);
+
+  if (d->ColorBarNode)
+    {
+    d->ColorBarDisplayNodeWidget->setEnabled(true);
+    d->ColorBarDisplayNodeWidget->setParameterNode(d->ColorBarNode);
+    d->UseSelectedColorsCheckBox->setChecked(false);
+    d->UseSelectedColorsCheckBox->setEnabled(true);
+    }
+}
+
+//-----------------------------------------------------------
+void qSlicerColorsModuleWidget::onUseSelectedColorsToggled(bool toggled)
+{
+  Q_D(qSlicerColorsModuleWidget);
+
+  if (!d->ColorBarNode)
+    {
+    qDebug() << Q_FUNC_INFO << "onUseSelectedColorsToggled: Color bar display node is invalid";
+    return;
+    }
+
+  if (toggled)
+    {
+    vtkMRMLColorNode* colorNode = vtkMRMLColorNode::SafeDownCast(d->ColorTableComboBox->currentNode());
+    if (colorNode)
+      {
+      d->ColorBarNode->SetAndObserveColorNodeID(colorNode->GetID());
+      }
+    else
+      {
+      qDebug() << Q_FUNC_INFO << "onUseSelectedColorsToggled: Color table node is invalid";
+      }
+    }
+  else
+    {
+    d->ColorBarNode->SetAndObserveColorNodeID(nullptr);
     }
 }
 
@@ -462,11 +434,4 @@ bool qSlicerColorsModuleWidget::setEditedNode(vtkMRMLNode* node,
     }
 
   return false;
-}
-
-//-----------------------------------------------------------
-vtkScalarBarWidget* qSlicerColorsModuleWidget::scalarBar()
-{
-  Q_D(qSlicerColorsModuleWidget);
-  return d->ScalarBarWidget;
 }
