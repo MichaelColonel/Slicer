@@ -711,6 +711,58 @@ void qSlicerSubjectHierarchyVolumesPlugin::showVolumeInAllViews(
       }
     }
 
+  // Color bar display
+  qSlicerSubjectHierarchyAbstractPlugin* colorBarPlugin = qSlicerSubjectHierarchyPluginHandler::instance()->pluginByName("ColorBar");
+  if (colorBarPlugin)
+    {
+    std::vector<vtkMRMLNode*> allViewNodes, allSliceNodes;
+    scene->GetNodesByClass("vtkMRMLViewNode", allViewNodes);
+    scene->GetNodesByClass("vtkMRMLSliceNode", allSliceNodes);
+    int numberOfDisplayNodes = node->GetNumberOfDisplayNodes();
+    for (int displayNodeIndex = 0; displayNodeIndex < numberOfDisplayNodes; displayNodeIndex++)
+      {
+      vtkMRMLDisplayNode* displayNode = node->GetNthDisplayNode(displayNodeIndex);
+      if (!displayNode)
+        {
+        continue;
+        }
+      if (!displayNode->IsA("vtkMRMLColorBarDisplayNode")) // ignore everything except ColorBar
+        {
+        // we only manage existing color bar display nodes here
+        // (we don't want to show color bar until color bar has been explicitly enabled)
+        continue;
+        }
+      // 3D Views
+      for (vtkMRMLNode* node : allViewNodes)
+        {
+        vtkMRMLViewNode* viewNode = vtkMRMLViewNode::SafeDownCast(node);
+        if (!viewNode)
+          {
+          continue;
+          }
+        if (!displayNode->IsDisplayableInView(viewNode->GetID()))
+          {
+          continue;
+          }
+        colorBarPlugin->showItemInView(shItemId, viewNode, allShItemIds);
+        }
+      // 2D Slices
+      for (vtkMRMLNode* node : allSliceNodes)
+        {
+        vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(node);
+        if (!sliceNode)
+          {
+          continue;
+          }
+        if (!displayNode->IsDisplayableInView(sliceNode->GetID()))
+          {
+          continue;
+          }
+        colorBarPlugin->showItemInView(shItemId, sliceNode, allShItemIds);
+        }
+      }
+    }
+
   // Update scene model for subject hierarchy nodes that were just shown
   for ( QSet<vtkIdType>::iterator volumeItemIt = subjectHierarchyItemsToUpdate.begin();
        volumeItemIt != subjectHierarchyItemsToUpdate.end(); ++volumeItemIt )

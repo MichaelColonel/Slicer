@@ -29,7 +29,9 @@
 #include "qSlicerColorsSubjectHierarchyPluginsExport.h"
 
 class qSlicerSubjectHierarchyColorBarPluginPrivate;
+class vtkMRMLSliceNode;
 class vtkMRMLViewNode;
+class vtkMRMLAbstractViewNode;
 class vtkMRMLDisplayNode;
 class vtkSlicerColorLogic;
 
@@ -63,13 +65,14 @@ public:
 
   /// Show/hide color bar in a view.
   /// If viewNode is nullptr then it is displayed in all views in the current layout.
-  bool showColorBar(bool show, vtkIdType itemID, vtkMRMLViewNode* viewNode=nullptr);
+  bool showColorBarInView( bool show, vtkIdType itemID, vtkMRMLViewNode* viewNode=nullptr);
+  bool showColorBarInSlice( bool show, vtkIdType itemID, vtkMRMLSliceNode* sliceNode=nullptr);
 
 protected slots:
   /// Toggle volume rendering option for current volume item
   void toggle2DVisibilityForCurrentItem(bool);
   void toggle3DVisibilityForCurrentItem(bool);
-//  void toggleVolumeRenderingForCurrentItem(bool);
+  void toggleVisibilityForCurrentItem(bool);
   /// Switch to Volume Rendering module and select current volume item
 //  void showVolumeRenderingOptionsForCurrentItem();
 

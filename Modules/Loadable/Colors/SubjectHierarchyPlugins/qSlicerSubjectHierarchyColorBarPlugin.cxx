@@ -39,6 +39,7 @@
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLViewLogic.h>
 #include <vtkMRMLViewNode.h>
+#include <vtkMRMLSliceNode.h>
 #include <vtkMRMLColorBarDisplayNode.h>
 
 // VTK includes
@@ -48,6 +49,7 @@
 // Qt includes
 #include <QDebug>
 #include <QAction>
+#include <QMenu>
 #include <QSettings>
 
 // MRML widgets includes
@@ -69,8 +71,11 @@ public:
 public:
   vtkWeakPointer<vtkSlicerColorLogic> ColorLogic;
 
+  QAction* ColorBarAction;
+  QAction* ShowColorBarAction;
   QAction* ToggleColorBar2DAction;
   QAction* ToggleColorBar3DAction;
+  QMenu* ColorBarMenu;
 };
 
 //-----------------------------------------------------------------------------
@@ -78,9 +83,13 @@ public:
 
 //-----------------------------------------------------------------------------
 qSlicerSubjectHierarchyColorBarPluginPrivate::qSlicerSubjectHierarchyColorBarPluginPrivate(qSlicerSubjectHierarchyColorBarPlugin& object)
-: q_ptr(&object)
-, ToggleColorBar2DAction(nullptr)
-, ToggleColorBar3DAction(nullptr)
+  :
+  q_ptr(&object),
+  ColorBarAction(nullptr),
+  ShowColorBarAction(nullptr),
+  ToggleColorBar2DAction(nullptr),
+  ToggleColorBar3DAction(nullptr),
+  ColorBarMenu(nullptr)
 {
 }
 
@@ -89,15 +98,28 @@ void qSlicerSubjectHierarchyColorBarPluginPrivate::init()
 {
   Q_Q(qSlicerSubjectHierarchyColorBarPlugin);
 
+  this->ShowColorBarAction = new QAction("Show color bar",q);
+  QObject::connect(this->ShowColorBarAction, SIGNAL(toggled(bool)), q, SLOT(toggleVisibilityForCurrentItem(bool)));
+  this->ShowColorBarAction->setCheckable(true);
+  this->ShowColorBarAction->setChecked(false);
+
   this->ToggleColorBar2DAction = new QAction("Show color bar 2D",q);
-  QObject::connect(this->ToggleColorBar2DAction, SIGNAL(toggled(bool)), q, SLOT(toggle2dVisibilityForCurrentItem(bool)));
+  QObject::connect(this->ToggleColorBar2DAction, SIGNAL(toggled(bool)), q, SLOT(toggle2DVisibilityForCurrentItem(bool)));
   this->ToggleColorBar2DAction->setCheckable(true);
   this->ToggleColorBar2DAction->setChecked(false);
 
   this->ToggleColorBar3DAction = new QAction("Show color bar 3D",q);
-  QObject::connect(this->ToggleColorBar2DAction, SIGNAL(toggled(bool)), q, SLOT(toggle3dVisibilityForCurrentItem(bool)));
+  QObject::connect(this->ToggleColorBar2DAction, SIGNAL(toggled(bool)), q, SLOT(toggle3DVisibilityForCurrentItem(bool)));
   this->ToggleColorBar3DAction->setCheckable(true);
   this->ToggleColorBar3DAction->setChecked(false);
+
+  this->ColorBarMenu = new QMenu();
+  this->ColorBarMenu->addAction(this->ShowColorBarAction);
+  this->ColorBarMenu->addAction(this->ToggleColorBar2DAction);
+  this->ColorBarMenu->addAction(this->ToggleColorBar3DAction);
+
+  this->ColorBarAction = new QAction("Color Scalar Bar",q);
+  this->ColorBarAction->setMenu(this->ColorBarMenu);
 }
 
 //-----------------------------------------------------------------------------
@@ -133,7 +155,7 @@ QList<QAction*> qSlicerSubjectHierarchyColorBarPlugin::visibilityContextMenuActi
   Q_D(const qSlicerSubjectHierarchyColorBarPlugin);
 
   QList<QAction*> actions;
-  actions << d->ToggleColorBar2DAction << d->ToggleColorBar3DAction;
+  actions << d->ColorBarAction;
   return actions;
 }
 
@@ -185,6 +207,19 @@ void qSlicerSubjectHierarchyColorBarPlugin::showVisibilityContextMenuActionsForI
 }
 
 //---------------------------------------------------------------------------
+void qSlicerSubjectHierarchyColorBarPlugin::toggleVisibilityForCurrentItem(bool on)
+{
+  Q_D(qSlicerSubjectHierarchyColorBarPlugin);
+  vtkIdType currentItemID = qSlicerSubjectHierarchyPluginHandler::instance()->currentItem();
+  if (currentItemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+    {
+    qCritical() << Q_FUNC_INFO << ": Invalid current item";
+    return;
+    }
+  qDebug() << Q_FUNC_INFO << ": Toggle total visibility";
+}
+
+//---------------------------------------------------------------------------
 void qSlicerSubjectHierarchyColorBarPlugin::toggle2DVisibilityForCurrentItem(bool on)
 {
   Q_D(qSlicerSubjectHierarchyColorBarPlugin);
@@ -195,7 +230,6 @@ void qSlicerSubjectHierarchyColorBarPlugin::toggle2DVisibilityForCurrentItem(boo
     return;
     }
   qDebug() << Q_FUNC_INFO << ": Toggle 2D (Slices) visibility";
-//  this->showVolumeRendering(on, currentItemID, nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -209,34 +243,86 @@ void qSlicerSubjectHierarchyColorBarPlugin::toggle3DVisibilityForCurrentItem(boo
     return;
     }
   qDebug() << Q_FUNC_INFO << ": Toggle 3D (Views) visibility";
-//  this->showVolumeRendering(on, currentItemID, nullptr);
 }
 
 //-----------------------------------------------------------------------------
 bool qSlicerSubjectHierarchyColorBarPlugin::showItemInView(vtkIdType itemID, vtkMRMLAbstractViewNode* viewNode, vtkIdList* allItemsToShow)
 {
+  Q_D(qSlicerSubjectHierarchyColorBarPlugin);
+
   vtkMRMLViewNode* threeDViewNode = vtkMRMLViewNode::SafeDownCast(viewNode);
-  if (threeDViewNode)
+  vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
+
+  vtkMRMLSubjectHierarchyNode* shNode = qSlicerSubjectHierarchyPluginHandler::instance()->subjectHierarchyNode();
+  if (!shNode)
     {
-    return this->showColorBar( true, itemID, threeDViewNode);
+    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy node";
+    return false;
+    }
+  vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(shNode->GetItemDataNode(itemID));
+  if (!volumeNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to find scalar volume node associated to subject hierarchy item " << itemID;
+    return false;
+    }
+
+  if (!d->ColorLogic)
+    {
+    qWarning() << Q_FUNC_INFO << ": color logic is not set, cannot set up toggle color bar action";
+    return false;
+    }
+  bool wasVisible = false;
+  vtkMRMLColorBarDisplayNode* displayNode = d->ColorLogic->GetFirstColorBarDisplayNode(volumeNode);
+  if (displayNode)
+    {
+    wasVisible = displayNode->GetVisibility();
     }
   else
     {
-    // Use volume's module implementation for displaying volume in slice views
-    qSlicerSubjectHierarchyVolumesPlugin* volumesPlugin = qobject_cast<qSlicerSubjectHierarchyVolumesPlugin*>(
-      qSlicerSubjectHierarchyPluginHandler::instance()->pluginByName("Volumes"));
-    if (!volumesPlugin)
-      {
-      qCritical() << Q_FUNC_INFO << ": Failed to access Volumes subject hierarchy plugin";
-      return false;
-      }
-    return volumesPlugin->showItemInView(itemID, viewNode, allItemsToShow);
+    // if there is no color bar node => create it, get first color bar node otherwise
+    displayNode = d->ColorLogic->CreateAndObserveColorBarDisplayNode(volumeNode);
     }
-  qDebug() << Q_FUNC_INFO << ": Show item in view";
+  if (!displayNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to create color display node for scalar volume node " << volumeNode->GetName();
+    return false;
+    }
+
+  if (viewNode)
+    {
+    // Show in specific view
+    MRMLNodeModifyBlocker blocker(displayNode);
+    // show
+    if (!wasVisible)
+      {
+      displayNode->SetVisibility(true);
+      }
+    displayNode->AddViewNodeID(viewNode->GetID());
+    }
+  else if (sliceNode)
+    {
+    // Show in specific view
+    MRMLNodeModifyBlocker blocker(displayNode);
+    // show
+    if (!wasVisible)
+      {
+      displayNode->SetVisibility(true);
+      }
+    displayNode->AddViewNodeID(sliceNode->GetID());
+    }
+  else
+    {
+    // Show in all views
+    MRMLNodeModifyBlocker blocker(displayNode);
+    displayNode->RemoveAllViewNodeIDs();
+    displayNode->SetVisibility(true);
+    }
+
+  return true;
 }
 
 //---------------------------------------------------------------------------
-bool qSlicerSubjectHierarchyColorBarPlugin::showColorBar(bool show, vtkIdType itemID, vtkMRMLViewNode* viewNode/*=nullptr*/)
+bool qSlicerSubjectHierarchyColorBarPlugin::showColorBarInView( bool show, vtkIdType itemID, vtkMRMLViewNode* viewNode/*=nullptr*/)
 {
   Q_D(qSlicerSubjectHierarchyColorBarPlugin);
 
@@ -252,32 +338,32 @@ bool qSlicerSubjectHierarchyColorBarPlugin::showColorBar(bool show, vtkIdType it
     qCritical() << Q_FUNC_INFO << ": Failed to find scalar volume node associated to subject hierarchy item " << itemID;
     return false;
     }
-  qDebug() << Q_FUNC_INFO << ": Show color bar";
-/*
-  if (!d->VolumeRenderingLogic)
+
+  if (!d->ColorLogic)
     {
-    qWarning() << Q_FUNC_INFO << ": volume rendering logic is not set, cannot set up toggle volume rendering action";
+    qWarning() << Q_FUNC_INFO << ": color logic is not set, cannot set up toggle color bar action";
     return false;
     }
   bool wasVisible = false;
-  vtkMRMLVolumeRenderingDisplayNode* displayNode = d->VolumeRenderingLogic->GetFirstVolumeRenderingDisplayNode(volumeNode);
+  vtkMRMLColorBarDisplayNode* displayNode = d->ColorLogic->GetFirstColorBarDisplayNode(volumeNode);
   if (displayNode)
     {
     wasVisible = displayNode->GetVisibility();
     }
   else
     {
-    // there is no volume rendering display node
+    // there is no color bar display node
     if (!show)
       {
       // not visible and should not be visible, so we are done
       return true;
       }
-    displayNode = d->VolumeRenderingLogic->CreateDefaultVolumeRenderingNodes(volumeNode);
+    // if there is no color bar node => create it, get first color bar node otherwise
+    displayNode = d->ColorLogic->CreateAndObserveColorBarDisplayNode(volumeNode);
     }
   if (!displayNode)
     {
-    qCritical() << Q_FUNC_INFO << ": Failed to create volume rendering display node for scalar volume node " << volumeNode->GetName();
+    qCritical() << Q_FUNC_INFO << ": Failed to create color display node for scalar volume node " << volumeNode->GetName();
     return false;
     }
 
@@ -312,19 +398,85 @@ bool qSlicerSubjectHierarchyColorBarPlugin::showColorBar(bool show, vtkIdType it
     displayNode->SetVisibility(show);
     }
 
-  if (show)
-    {
-    QSettings settings;
-    bool resetFieldOfView = settings.value("SubjectHierarchy/ResetFieldOfViewOnShowVolume", true).toBool();
-    if (resetFieldOfView)
-      {
-      this->resetFieldOfView(displayNode, viewNode);
-      }
+  return true;
+}
 
-    // If the volume is shown using any method (toggle volume rendering option in visibility menu,
-    // drag-and-drop to 3D view, etc.) then we enable the automatic showing of volume rendering.
-    this->setAutoShowIn3DViewsAsVolumeRendering(itemID, true);
+//---------------------------------------------------------------------------
+bool qSlicerSubjectHierarchyColorBarPlugin::showColorBarInSlice( bool show, vtkIdType itemID, vtkMRMLSliceNode* sliceNode/*=nullptr*/)
+{
+  Q_D(qSlicerSubjectHierarchyColorBarPlugin);
+
+  vtkMRMLSubjectHierarchyNode* shNode = qSlicerSubjectHierarchyPluginHandler::instance()->subjectHierarchyNode();
+  if (!shNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy node";
+    return false;
     }
-*/
+  vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(shNode->GetItemDataNode(itemID));
+  if (!volumeNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to find scalar volume node associated to subject hierarchy item " << itemID;
+    return false;
+    }
+
+  if (!d->ColorLogic)
+    {
+    qWarning() << Q_FUNC_INFO << ": color logic is not set, cannot set up toggle color bar action";
+    return false;
+    }
+  bool wasVisible = false;
+  vtkMRMLColorBarDisplayNode* displayNode = d->ColorLogic->GetFirstColorBarDisplayNode(volumeNode);
+  if (displayNode)
+    {
+    wasVisible = displayNode->GetVisibility();
+    }
+  else
+    {
+    // there is no color bar display node
+    if (!show)
+      {
+      // not visible and should not be visible, so we are done
+      return true;
+      }
+    // if there is no color bar node => create it, get first color bar node otherwise
+    displayNode = d->ColorLogic->CreateAndObserveColorBarDisplayNode(volumeNode);
+    }
+  if (!displayNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to create color display node for scalar volume node " << volumeNode->GetName();
+    return false;
+    }
+
+  if (sliceNode)
+    {
+    // Show/hide in specific view
+    MRMLNodeModifyBlocker blocker(displayNode);
+    if (show)
+      {
+      // show
+      if (!wasVisible)
+        {
+        displayNode->SetVisibility(true);
+        // This was hidden in all views, show it only in the currently selected view
+        displayNode->RemoveAllViewNodeIDs();
+        }
+      displayNode->AddViewNodeID(sliceNode->GetID());
+      }
+    else
+      {
+      // This hides the volume rendering in all views, which is a bit more than asked for,
+      // but since drag-and-drop to view only requires selective showing (and not selective hiding),
+      // this should be good enough. The behavior can be refined later if needed.
+      displayNode->SetVisibility(false);
+      }
+    }
+  else
+    {
+    // Show in all views
+    MRMLNodeModifyBlocker blocker(displayNode);
+    displayNode->RemoveAllViewNodeIDs();
+    displayNode->SetVisibility(show);
+    }
+
   return true;
 }

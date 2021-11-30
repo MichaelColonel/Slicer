@@ -137,7 +137,9 @@ void qSlicerColorsModule::setup()
   ctkColorDialog::setDefaultTab(1);
 
   // Register Subject Hierarchy core plugins
-  qSlicerSubjectHierarchyPluginHandler::instance()->registerPlugin(new qSlicerSubjectHierarchyColorBarPlugin());
+  qSlicerSubjectHierarchyColorBarPlugin* colorBarPlugin = new qSlicerSubjectHierarchyColorBarPlugin();
+  colorBarPlugin->setColorLogic(colorLogic);
+  qSlicerSubjectHierarchyPluginHandler::instance()->registerPlugin(colorBarPlugin);
 }
 
 //-----------------------------------------------------------------------------
