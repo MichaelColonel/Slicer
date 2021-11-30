@@ -45,31 +45,30 @@ public:
   ~qSlicerSubjectHierarchyColorBarPlugin() override;
 
 public:
-  /// Set volume rendering module logic. Required for accessing display nodes and setting up volume rendering related nodes.
+  /// Set Color module logic. Required for accessing display nodes and setting up color bar related node.
   void setColorLogic(vtkSlicerColorLogic* colorLogic);
 
   /// Get visibility context menu item actions to add to tree view.
   /// These item visibility context menu actions can be shown in the implementations of \sa showVisibilityContextMenuActionsForItem
-  QList<QAction*> visibilityContextMenuActions()const override;
+  QList<QAction*> visibilityContextMenuActions() const override;
 
   /// Show visibility context menu actions valid for a given subject hierarchy item.
   /// \param itemID Subject Hierarchy item to show the visibility context menu items for
   void showVisibilityContextMenuActionsForItem(vtkIdType itemID) override;
 
   /// Show an item in a selected view.
-  /// Calls Volumes plugin's showItemInView implementation and adds support for showing a volume
-  /// in 3D views using volume rendering.
+  /// Calls Volumes plugin's showItemInView implementation and adds support for showing a color bar in 2D and 3D views.
   /// Returns true on success.
   bool showItemInView(vtkIdType itemID, vtkMRMLAbstractViewNode* viewNode, vtkIdList* allItemsToShow) override;
 
-  /// Show/hide volume rendering in a view.
-  /// If viewNode is nullptr then it is displayed in all 3D views in the current layout.
-//  bool showVolumeRendering(bool show, vtkIdType itemID, vtkMRMLViewNode* viewNode=nullptr);
+  /// Show/hide color bar in a view.
+  /// If viewNode is nullptr then it is displayed in all views in the current layout.
+  bool showColorBar(bool show, vtkIdType itemID, vtkMRMLViewNode* viewNode=nullptr);
 
 protected slots:
   /// Toggle volume rendering option for current volume item
-  void toggle2dVisibilityForCurrentItem(bool);
-  void toggle3dVisibilityForCurrentItem(bool);
+  void toggle2DVisibilityForCurrentItem(bool);
+  void toggle3DVisibilityForCurrentItem(bool);
 //  void toggleVolumeRenderingForCurrentItem(bool);
   /// Switch to Volume Rendering module and select current volume item
 //  void showVolumeRenderingOptionsForCurrentItem();
