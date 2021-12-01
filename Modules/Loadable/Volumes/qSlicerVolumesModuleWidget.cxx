@@ -157,11 +157,15 @@ void qSlicerVolumesModuleWidget::updateWidgetFromMRML()
   d->ConvertVolumeTargetSelector->setNodeTypes(convertTargetNodeTypes);
 
   vtkMRMLColorBarDisplayNode* colorBarNode = d->colorLogic()->GetFirstColorBarDisplayNode(currentVolumeNode);
-  d->ColorBarDisplayNodeWidget->setParameterNode(colorBarNode);
+
   d->ColorBarDisplayNodeWidget->setEnabled(static_cast<bool>(colorBarNode));
   if (!colorBarNode)
     {
     d->ColorBarCollapsibleButton->setCollapsed(true);
+    }
+  else
+    {
+    d->ColorBarDisplayNodeWidget->setParameterNode(colorBarNode);
     }
 }
 

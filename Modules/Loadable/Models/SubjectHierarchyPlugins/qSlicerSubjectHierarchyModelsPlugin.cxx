@@ -354,3 +354,45 @@ QColor qSlicerSubjectHierarchyModelsPlugin::getDisplayColor(vtkIdType itemID, QM
   double* colorArray = displayNode->GetColor();
   return QColor::fromRgbF(colorArray[0], colorArray[1], colorArray[2]);
 }
+
+//---------------------------------------------------------------------------
+void qSlicerSubjectHierarchyModelsPlugin::setDisplayVisibility(vtkIdType itemID, int visible)
+{
+  if (itemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+    {
+    qCritical() << Q_FUNC_INFO << ": Invalid input item";
+    return;
+    }
+  vtkMRMLSubjectHierarchyNode* shNode = qSlicerSubjectHierarchyPluginHandler::instance()->subjectHierarchyNode();
+  if (!shNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy node";
+    return;
+    }
+
+  // Color bar for model
+  vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(shNode->GetItemDataNode(itemID));
+  if (modelNode)
+    {
+    // Show/Hide color bar display node
+    int numberOfDisplayNodes = modelNode->GetNumberOfDisplayNodes();
+    for (int displayNodeIndex = 0; displayNodeIndex < numberOfDisplayNodes; displayNodeIndex++)
+      {
+      vtkMRMLDisplayNode* displayNode = modelNode->GetNthDisplayNode(displayNodeIndex);
+      // ignore everything except vtkMRMLColorBarDisplayNOde
+      // we only manage existing color bar display nodes here
+      // (we don't want to show color bar until color bar has been explicitly enabled)
+      if (displayNode && displayNode->IsA("vtkMRMLColorBarDisplayNode"))
+        {
+        qDebug() << Q_FUNC_INFO << ": Color bar display node";
+        displayNode->SetVisibility(visible);
+        }
+      }
+    }
+  // Default
+  else
+    {
+    qDebug() << Q_FUNC_INFO << ": Model display node";
+    qSlicerSubjectHierarchyPluginHandler::instance()->defaultPlugin()->setDisplayVisibility(itemID, visible);
+    }
+}
