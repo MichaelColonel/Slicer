@@ -362,7 +362,6 @@ void qSlicerModelsModuleWidget::onDisplayNodeChanged()
   if (displayNode)
     {
     vtkMRMLDisplayableNode* displayableNode = displayNode->GetDisplayableNode();
-
     if (displayableNode && displayNode->GetColorNode())
       {
       d->ColorBarCollapsibleGroupBox->setEnabled(true);
@@ -431,11 +430,16 @@ void qSlicerModelsModuleWidget::setDisplaySelectionFromSubjectHierarchyItems(QLi
   if (vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(firstDataNode))
     {
     vtkMRMLColorBarDisplayNode* cbNode = d->colorLogic()->GetFirstColorBarDisplayNode(modelNode);
+    vtkMRMLModelDisplayNode* modelDisplayNode = modelNode->GetModelDisplayNode();
     if (cbNode)
       {
       d->ColorBarCollapsibleGroupBox->setEnabled(true);
       d->ColorBarDisplayNodeWidget->setParameterNode(cbNode);
       d->ColorBarDisplayNodeWidget->setEnabled(static_cast<bool>(cbNode));
+      }
+    else if (modelDisplayNode && modelDisplayNode->GetColorNode())
+      {
+      d->ColorBarCollapsibleGroupBox->setEnabled(true);
       }
     else
       {

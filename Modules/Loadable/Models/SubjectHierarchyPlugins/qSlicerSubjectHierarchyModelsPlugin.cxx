@@ -370,29 +370,30 @@ void qSlicerSubjectHierarchyModelsPlugin::setDisplayVisibility(vtkIdType itemID,
     return;
     }
 
-  // Color bar for model
+  // Color bar display, model ddisplay nodes
   vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(shNode->GetItemDataNode(itemID));
   if (modelNode)
     {
-    // Show/Hide color bar display node
     int numberOfDisplayNodes = modelNode->GetNumberOfDisplayNodes();
     for (int displayNodeIndex = 0; displayNodeIndex < numberOfDisplayNodes; displayNodeIndex++)
       {
       vtkMRMLDisplayNode* displayNode = modelNode->GetNthDisplayNode(displayNodeIndex);
-      // ignore everything except vtkMRMLColorBarDisplayNOde
-      // we only manage existing color bar display nodes here
-      // (we don't want to show color bar until color bar has been explicitly enabled)
+
       if (displayNode && displayNode->IsA("vtkMRMLColorBarDisplayNode"))
         {
-        qDebug() << Q_FUNC_INFO << ": Color bar display node";
+        // Show/Hide color bar display node
         displayNode->SetVisibility(visible);
+        }
+      else
+        {
+        // Default behaviour for model display node
+        this->Superclass::setDisplayVisibility(itemID, visible);
         }
       }
     }
   // Default
   else
     {
-    qDebug() << Q_FUNC_INFO << ": Model display node";
     qSlicerSubjectHierarchyPluginHandler::instance()->defaultPlugin()->setDisplayVisibility(itemID, visible);
     }
 }

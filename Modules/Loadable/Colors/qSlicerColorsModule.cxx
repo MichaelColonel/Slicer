@@ -200,6 +200,7 @@ QStringList qSlicerColorsModule::contributors()const
   moduleContributors << QString("Nicole Aucoin (SPL, BWH)");
   moduleContributors << QString("Julien Finet (Kitware)");
   moduleContributors << QString("Ron Kikinis (SPL, BWH)");
+  moduleContributors << QString("Mikhail Polkovnikov (IHEP)");
   return moduleContributors;
 }
 

@@ -709,9 +709,9 @@ void vtkMRMLModelDisplayableManager::UpdateFromMRMLScene()
 //---------------------------------------------------------------------------
 void vtkMRMLModelDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
-  if (!node->IsA("vtkMRMLDisplayableNode") &&
-      !node->IsA("vtkMRMLDisplayNode") &&
-      !node->IsA("vtkMRMLClipModelsNode"))
+  if ( !node->IsA("vtkMRMLDisplayableNode") &&
+       !node->IsA("vtkMRMLDisplayNode") &&
+       !node->IsA("vtkMRMLClipModelsNode") )
     {
     return;
     }
