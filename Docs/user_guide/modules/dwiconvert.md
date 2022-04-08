@@ -15,9 +15,9 @@
 
 ## Similar modules
 
-[SlicerDMRI extension](http://slicerdmri.github.io/)
+[SlicerDMRI extension](https://slicerdmri.github.io/)
 
 ## Information for Developers
 
-- [DICOM for DWI and DTI](http://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI)
+- [DICOM for DWI and DTI](https://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:DICOM_for_DWI_and_DTI)
 - [Source code on github](https://github.com/BRAINSia/BRAINSTools)

@@ -34,7 +34,7 @@ The View Angle provides is used to approximate the optics of an endoscopy system
     self.parent.helpText += self.getDefaultModuleDocumentationLink()
     self.parent.acknowledgementText = """
 This work is supported by PAR-07-249: R01CA131718 NA-MIC Virtual Colonoscopy
-(See <a>http://www.na-mic.org/Wiki/index.php/NA-MIC_NCBC_Collaboration:NA-MIC_virtual_colonoscopy</a>)
+(See <a>https://www.na-mic.org/Wiki/index.php/NA-MIC_NCBC_Collaboration:NA-MIC_virtual_colonoscopy</a>)
 NA-MIC, NAC, BIRN, NCIGT, and the Slicer Community.
 """
 
@@ -336,7 +336,7 @@ class EndoscopyComputePath:
   """Compute path given a list of fiducials.
   Path is stored in 'path' member variable as a numpy array.
   If a point list is received then curve points are generated using Hermite spline interpolation.
-  See http://en.wikipedia.org/wiki/Cubic_Hermite_spline
+  See https://en.wikipedia.org/wiki/Cubic_Hermite_spline
 
   Example:
     result = EndoscopyComputePath(fiducialListNode)
@@ -580,7 +580,7 @@ class EndoscopyPathModel:
 
     self.transform = transform
 
-  # source: http://stackoverflow.com/questions/12299540/plane-fitting-to-4-or-more-xyz-points
+  # source: https://stackoverflow.com/questions/12299540/plane-fitting-to-4-or-more-xyz-points
   def planeFit(self, points):
     """
     p, n = planeFit(points)

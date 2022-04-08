@@ -696,7 +696,7 @@ int isLoadableModuleTest()
 
 #ifndef Q_OS_WIN32
     // Exe permissions are not supported on windows:
-    //  http://msdn.microsoft.com/en-us/library/1z319a54(v=vs.90).aspx
+    //  https://msdn.microsoft.com/en-us/library/1z319a54(v=vs.90).aspx
     //  https://qt.gitorious.org/qt/qt/blobs/092cd760d5fddf9640a310214fe01929f0fff3a8/src/corelib/io/qfsfileengine_win.cpp#line1781
 
     // Since directory are *NOT* executable, files should *NOT* be readable
@@ -763,30 +763,30 @@ int isLoadableModuleTest()
     {
     //! [replaceWikiUrlVersion example1]
     CHECK_QSTRING(
-      qSlicerUtils::replaceWikiUrlVersion("http://wiki.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/SlicerToKiwiExporter", "4.4"),
-      "http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/SlicerToKiwiExporter");
+      qSlicerUtils::replaceWikiUrlVersion("https://wiki.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/SlicerToKiwiExporter", "4.4"),
+      "https://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/SlicerToKiwiExporter");
     //! [replaceWikiUrlVersion example1]
 
     //! [replaceWikiUrlVersion example2]
     CHECK_QSTRING(
-      qSlicerUtils::replaceWikiUrlVersion("http://wiki.slicer.org/slicerWiki/index.php/Documentation/Foo/Extensions/SlicerToKiwiExporter", "Bar"),
-      "http://wiki.slicer.org/slicerWiki/index.php/Documentation/Bar/Extensions/SlicerToKiwiExporter");
+      qSlicerUtils::replaceWikiUrlVersion("https://wiki.slicer.org/slicerWiki/index.php/Documentation/Foo/Extensions/SlicerToKiwiExporter", "Bar"),
+      "https://wiki.slicer.org/slicerWiki/index.php/Documentation/Bar/Extensions/SlicerToKiwiExporter");
     //! [replaceWikiUrlVersion example2]
 
     //! [replaceWikiUrlVersion example3]
     CHECK_QSTRING(
-      qSlicerUtils::replaceWikiUrlVersion("http://wiki.slicer.org/slicerWiki/index.php/Documentation/Foo/Extensions/SlicerToKiwiExporter/Foo", "Bar"),
-      "http://wiki.slicer.org/slicerWiki/index.php/Documentation/Bar/Extensions/SlicerToKiwiExporter/Foo");
+      qSlicerUtils::replaceWikiUrlVersion("https://wiki.slicer.org/slicerWiki/index.php/Documentation/Foo/Extensions/SlicerToKiwiExporter/Foo", "Bar"),
+      "https://wiki.slicer.org/slicerWiki/index.php/Documentation/Bar/Extensions/SlicerToKiwiExporter/Foo");
     //! [replaceWikiUrlVersion example3]
 
     //! [replaceWikiUrlVersion example4]
     QString input =
       "Read documentation at "
-      "http://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/SlicerToKiwiExporter."
+      "https://wiki.slicer.org/slicerWiki/index.php/Documentation/4.4/Extensions/SlicerToKiwiExporter."
       "You will learn how to ...";
     QString expectedOutput =
       "Read documentation at "
-      "http://wiki.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/SlicerToKiwiExporter."
+      "https://wiki.slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/SlicerToKiwiExporter."
       "You will learn how to ...";
     CHECK_QSTRING(qSlicerUtils::replaceWikiUrlVersion(input, "Nightly"), expectedOutput);
     //! [replaceWikiUrlVersion example4]

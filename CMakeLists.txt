@@ -62,7 +62,7 @@ set(Slicer_CMAKE_DIR ${Slicer_SOURCE_DIR}/CMake)
 set(Slicer_EXTENSIONS_CMAKE_DIR ${Slicer_SOURCE_DIR}/Extensions/CMake)
 
 #-----------------------------------------------------------------------------
-# http://www.slicer.org/slicerWiki/index.php/Documentation/Nightly/Developers/DevelopmentWithGit
+# https://www.slicer.org/w/index.php/Documentation/Nightly/Developers/DevelopmentWithGit
 #-----------------------------------------------------------------------------
 include(SlicerCheckSourceTree)
 
@@ -708,7 +708,7 @@ set(Slicer_VTK_USE_QVTKOPENGLWIDGET 1)
 # Testing
 #-----------------------------------------------------------------------------
 # NOTE: For CTEST_USE_LAUNCHER to work, it's required to include CTest at the superbuild level.
-#       See http://www.kitware.com/blog/home/post/11
+#       See https://www.kitware.com/blog/home/post/11
 
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1) # Do not add CTest default targets
 include(CTest)

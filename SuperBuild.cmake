@@ -43,7 +43,7 @@ if(EP_GIT_PROTOCOL STREQUAL "https")
 "adding 'git config' statement between the 'git checkout' and the 'submodule init', it is required "
 "to manually update your global git config to successfully build ${CMAKE_PROJECT_NAME} with "
 "option Slicer_USE_GIT_PROTOCOL set to FALSE. "
-"See http://na-mic.org/Mantis/view.php?id=2731"
+"See https://mantisarchive.slicer.org/view.php?id=2731"
 "\nYou could do so by running the command:\n"
 "  ${GIT_EXECUTABLE} config --global url.${base}.insteadOf ${insteadof}\n")
     endif()
@@ -304,7 +304,7 @@ set(BRAINSTools_slicer_options
 Slicer_Remote_Add(BRAINSTools
   GIT_REPOSITORY ${EP_GIT_PROTOCOL}://github.com/BRAINSia/BRAINSTools.git
   GIT_TAG "37b0a0f64cbff2b987fee321c9363554cee52b14"  # Jan 26th 2022
-  LICENSE_FILES "http://www.apache.org/licenses/LICENSE-2.0.txt"
+  LICENSE_FILES "https://www.apache.org/licenses/LICENSE-2.0.txt"
   OPTION_NAME Slicer_BUILD_BRAINSTOOLS
   OPTION_DEPENDS "Slicer_BUILD_CLI_SUPPORT;Slicer_BUILD_CLI"
   LABELS REMOTE_MODULE

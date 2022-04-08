@@ -10,8 +10,8 @@ from slicer.ScriptedLoadableModule import *
 # SelfTests
 #
 # This code includes the GUI for the slicer module.
-# The purpose is to provide a BIST (http://en.wikipedia.org/wiki/Built-in_self-test)
-# framework for slicer as discussed here: http://na-mic.org/Bug/view.php?id=1922
+# The purpose is to provide a BIST (https://en.wikipedia.org/wiki/Built-in_self-test)
+# framework for slicer as discussed here: https://na-mic.org/Bug/view.php?id=1922
 #
 
 
