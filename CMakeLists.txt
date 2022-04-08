@@ -609,6 +609,7 @@ endif()
     UiTools #no dll
     Xml XmlPatterns
     Svg Sql
+    OpcUa
     )
 
   if(Slicer_BUILD_MULTIMEDIA_SUPPORT)
