@@ -104,13 +104,6 @@ public:
   /// only for nodes that are visible in the slice view.
   vtkWeakPointer<vtkMRMLSliceCompositeNode> SliceCompositeNode;
 
-  /// For non-standard views we must check that slice node is valid even if SliceCompositeNode is invalid
-  enum SliceStateType : int {
-    SliceInvalid = -1, /// Uninitiated slice node or 3D-view
-    SliceValid, /// Initiated slice node without slice logic
-    SliceValidWithLogic, /// Slice node with slice logic
-  } SliceState{ SliceInvalid };
-
   vtkSmartPointer<vtkRenderer> ColorLegendRenderer;
 };
 
@@ -174,15 +167,10 @@ bool vtkMRMLColorLegendDisplayableManager::vtkInternal::IsVolumeVisibleInSliceVi
     {
     return false;
     }
-  if (!sliceCompositeNode && this->SliceState == vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceInvalid) // 3D
+  if (!sliceCompositeNode)
     {
     return false;
     }
-  else if (!sliceCompositeNode && this->SliceState == vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceValid) // Slice without initiated composite node
-    {
-    return true;
-    }
-
   const char* volumeNodeID = volumeNode->GetID();
   if (!volumeNodeID)
     {
@@ -269,10 +257,9 @@ bool vtkMRMLColorLegendDisplayableManager::vtkInternal::UpdateActor(vtkMRMLColor
       {
       vtkMRMLVolumeNode* volumeNode = vtkMRMLVolumeNode::SafeDownCast(volumeDisplayNode->GetDisplayableNode());
       // Volumes are special case, their visibility can be determined from slice view logics
-      if (this->SliceCompositeNode
-        || (!this->SliceCompositeNode && (this->SliceState == vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceValid)))
+      if (this->SliceCompositeNode)
         {
-        // 2D view (slice view is valid with or without logic)
+        // 2D view
         visible &= this->IsVolumeVisibleInSliceView(this->SliceCompositeNode, volumeNode);
         }
       else
@@ -509,11 +496,8 @@ vtkMRMLSliceCompositeNode* vtkMRMLColorLegendDisplayableManager::vtkInternal::Fi
   if (!sliceNode)
     {
     // this displayable manager is not of a slice node
-    this->SliceState = vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceInvalid;
     return nullptr;
     }
-  // slice view is valid
-  this->SliceState = vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceValid;
   vtkMRMLApplicationLogic* mrmlAppLogic = this->External->GetMRMLApplicationLogic();
   if (!mrmlAppLogic)
     {
@@ -525,8 +509,6 @@ vtkMRMLSliceCompositeNode* vtkMRMLColorLegendDisplayableManager::vtkInternal::Fi
     {
     return nullptr;
     }
-  // slice view is valid with slice logic
-  this->SliceState = vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceValidWithLogic;
   vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceLogic->GetSliceCompositeNode();
   return sliceCompositeNode;
 }
@@ -541,15 +523,6 @@ void vtkMRMLColorLegendDisplayableManager::vtkInternal::UpdateSliceNode()
 //---------------------------------------------------------------------------
 void vtkMRMLColorLegendDisplayableManager::vtkInternal::SetSliceCompositeNode(vtkMRMLSliceCompositeNode* compositeNode)
 {
-  // for non-standard slice views without SliceCompositeNode (logic)
-  if (this->SliceState == vtkMRMLColorLegendDisplayableManager::vtkInternal::SliceValid)
-    {
-    this->External->SetUpdateFromMRMLRequested(true);
-    this->External->RequestRender();
-    return;
-    }
-
-  // for standard slice views (Red, Green, Yellow) and non-standard slice views with SliceCompositeNode
   if (this->SliceCompositeNode == compositeNode)
     {
     return;
@@ -739,15 +712,6 @@ void vtkMRMLColorLegendDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* nod
 
     this->ProcessMRMLNodesEvents(node, vtkCommand::ModifiedEvent, nullptr);
     }
-  else if (node->IsA("vtkMRMLSliceCompositeNode"))
-    {
-    this->Internal->UpdateSliceNode();
-
-    vtkNew<vtkIntArray> events;
-    events->InsertNextValue(vtkCommand::ModifiedEvent);
-    vtkObserveMRMLNodeEventsMacro(node, events);
-    this->ProcessMRMLNodesEvents(node, vtkCommand::ModifiedEvent, nullptr);
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -772,10 +736,6 @@ void vtkMRMLColorLegendDisplayableManager::OnMRMLSceneNodeRemoved(vtkMRMLNode* n
       this->Internal->ColorLegendActorsMap.erase(it);
       this->Internal->ColorLegendRenderer->RemoveActor(actor);
       }
-    }
-  else if (node->IsA("vtkMRMLSliceCompositeNode"))
-    {
-    vtkUnObserveMRMLNodeMacro(node);
     }
 }
 
@@ -825,7 +785,6 @@ void vtkMRMLColorLegendDisplayableManager::ProcessMRMLNodesEvents(vtkObject *cal
     }
   else if (sliceCompositeNode && (sliceCompositeNode->GetInteractionFlags() & layerChangedFlag))
     {
-    this->Internal->UpdateSliceNode();
     // Foreground/background/label layer selection changed
     this->SetUpdateFromMRMLRequested(true);
     // Notify all 3D views by triggering color legend modified event
